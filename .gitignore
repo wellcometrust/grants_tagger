@@ -1,0 +1,6 @@
+models/**
+dist/**
+data/**
+!**.gitkeep
+*.pyc
+*~

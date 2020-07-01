@@ -5,19 +5,7 @@ from sklearn.multiclass import OneVsRestClassifier
 from sklearn.pipeline import Pipeline
 import pytest
 
-from science_tagger.train import train_and_evaluate, ApproachNotImplemented, create_model
-
-DATA_PATH = 'science_tagger/data/processed/science_grants_tagged.jsonl'
-LABEL_BINARIZER_PATH = 'science_tagger/models/label_binarizer.pkl'
-
-
-def test_unknown_approach():
-    with pytest.raises(ApproachNotImplemented):
-        train_and_evaluate(
-            DATA_PATH,
-            LABEL_BINARIZER_PATH,
-            approach='None'
-        )
+from grants_tagger.train import train_and_evaluate, ApproachNotImplemented, create_model
 
 def test_create_hashing_vectorizer_svm():
     model = create_model('hashing_vectorizer-svm')

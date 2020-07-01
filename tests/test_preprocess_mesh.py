@@ -1,4 +1,4 @@
-from science_tagger.preprocess_mesh import process_data
+from grants_tagger.preprocess_mesh import process_data
 
 def test_process_data():
     item = {

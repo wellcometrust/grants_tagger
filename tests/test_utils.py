@@ -7,7 +7,7 @@ from sklearn.metrics import f1_score
 import numpy as np
 import pandas as pd
 
-from science_tagger.utils import (load_data, calc_performance_per_tag,
+from grants_tagger.utils import (load_data, calc_performance_per_tag,
     load_test_data, yield_train_data, load_train_test_data)
 
 

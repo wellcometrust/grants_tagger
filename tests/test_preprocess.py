@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from science_tagger.preprocess import yield_preprocess_data
+from grants_tagger.preprocess import yield_preprocess_data
 
 def test_multiple_tags():
     data = pd.DataFrame({

@@ -11,7 +11,7 @@ from sklearn.metrics import f1_score, classification_report
 import numpy as np
 
 from wellcomeml.ml import BertClassifier
-from science_tagger.utils import load_data
+from grants_tagger.utils import load_data
 
 
 def load_model(model_path):

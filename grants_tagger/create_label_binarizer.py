@@ -10,7 +10,7 @@ import os
 
 from sklearn.preprocessing import MultiLabelBinarizer
 
-from science_tagger.utils import load_data
+from grants_tagger.utils import load_data
 
 def create_label_binarizer(data_path, label_binarizer_path):
     _, tags, _ = load_data(data_path)

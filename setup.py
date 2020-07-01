@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='science-tagger',
+    name='grants-tagger',
     author='Nick Sorros',
     author_email='n.sorros@wellcome.ac.uk',
     description='A machine learning model to tag grants',

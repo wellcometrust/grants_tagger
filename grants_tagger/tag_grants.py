@@ -5,7 +5,7 @@ from pathlib import Path
 import argparse
 import csv
 
-from science_tagger.predict import predict_tags
+from grants_tagger.predict import predict_tags
 
 
 def yield_grants(grants_path):

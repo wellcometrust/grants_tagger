@@ -13,8 +13,8 @@ from pathlib import Path
 import os.path
 import pickle
 
-from datascience.ml.bert_classifier import BertClassifier
-from science_tagger.utils import load_data
+from wellcomeml.ml import BertClassifier
+from grants_tagger.utils import load_data
 
 
 def calculate_feature_importance_per_tag(model, tags, nb_features=5):

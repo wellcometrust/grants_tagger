@@ -28,7 +28,7 @@ import json
 import ast
 
 from wellcomeml.ml import BiLSTMClassifier, CNNClassifier, KerasVectorizer, SpacyClassifier, BertVectorizer, BertClassifier, Doc2VecVectorizer, Sent2VecVectorizer
-from science_tagger.utils import load_train_test_data, yield_train_data, load_test_data
+from grants_tagger.utils import load_train_test_data, yield_train_data, load_test_data
 
 
 class ApproachNotImplemented(Exception):
@@ -273,10 +273,12 @@ if __name__ == "__main__":
         parameters = cfg["model"]["parameters"]
         model_path = cfg["model"]["model_path"]
         test_data_path = cfg["data"]["test_data_path"]
-        online_learning = cfg["model"].get("online_learning", False)
-        nb_epochs = cfg["model"].getint("nb_epochs", 5)
-        from_same_distribution = cfg["data"].getbool("from_same_distribution", False)
-        threshold = cfg["model"].getfloat("threshold", None)
+        online_learning = bool(cfg["model"].get("online_learning", False))
+        nb_epochs = int(cfg["model"].get("nb_epochs", 5))
+        from_same_distribution = bool(cfg["data"].get("from_same_distribution", False))
+        threshold = cfg["model"].get("threshold", None)
+        if threshold:
+            threshold = float(threshold)
     else:
         data_path = args.data
         label_binarizer_path = args.label_binarizer

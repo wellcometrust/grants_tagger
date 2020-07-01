@@ -1,47 +1,110 @@
-## Project
+# Grants tagger
 
-Collaborating with Science to automate the tagging of Science grants. In March 2019 Science manually tagged the Active portfolio with Science Specific and Disease (ICD-11) tags. These Science Specific tags will now be used to train an algorithm to enable the fitting of tags retrospectively to the entire Science portfolio (including historical grants) as well as to automate tagging of future grants. Tagging the Science portfolio will allow the Division to have a greater understanding of what they fund and how this has changed over time.
+Grants tagger is a machine learning powered tool that
+assigns biomedically related tags to grants proposals.
+Those tags can be custom to the organisation
+or based upon a preexisting ontology like MeSH.
+
+The tool is current being developed internally at the 
+Wellcome Trust for internal use but both the models and the
+code will be made available in a reusable manner.
+
+This work started as a means to automate the tags of one
+funding division within Wellcome but currently it has expanded
+into the development and automation of a complete set of tags
+that can cover past and future directions for the organisation.
+
+Science tags refer to the custom tags for the Science funding
+division. These tags are higly specific to the research Wellcome
+funds so it is not advisable to use them.
+
+MeSH tags are subset of tags from the MeSH ontology that aim to
+tags grants according to:
+- diseases
+- themes of research
+Those tags are generic enough to be used by other biomedical funders
+but note that the selection of tags are highly specific to Wellcome
+at the moment.
+
+# Install and use
+
+In the near future you will be able to find official releases
+in Github, PyPi and through AWS. Until then the easiest way
+to install and use Grants tagger is through a
+manual installation. You need to git clone and pip install
+the code in your environment of choice.
+
+TODO: Entry point for predicting tags with a model given a
+grant proposal
+
+# Develop
 
 ## Data
 
-1. List of Science Specific tags applied to the Active Science portfolio (March 2019), with corresponding Grant ID
-2. Data Warehouse - Application and Grant Details table. Using Grant ID to link to fields that provide additional detail on the grants e.g. title, synopses, lay summary, research question
+If you work for Wellcome and have access to our AWS account,
+you easily download the raw data by typing `make sync_data`.
+This will give you access to both the custom science tags
+dataset and the MeSH data.
 
-To download the data run `make sync_data_from_s3`
+The MeSH data can be downloaded from various places like EPMC.
+Grants tagger currently uses a sample provided from the [BioASQ](http://www.bioasq.org)
+competition that contains tags for approx 14M publications from PubMed.
 
-## Approach
+## Development environment
 
-Multi label text classification with Scikit-Learn and Spacy
-
-## Setup
-
-### Automatic
-The easiest to setup is
-`make setup`
-
-### Manual
+To create and setup the development environment
 ```
-python -c "import nltk;nltk.download('wordnet')"
-python -m spacy download en_core_web_sm
-python -m spacy download en_trf_bertbaseuncased_lg
+make virtualenv
 ```
+This will create a new virtualenv and install requirements for tests
+and development. It will also install grants tagger in editable mode.
 
-## Reproducing results
+Grants tagger uses setup.py to track dependencies needed for any
+official release. Other dependencies that are being experimentally
+used are recorded in requirements.txt. Test dependencies live in 
+requirements_text.txt.
 
-### Preprocessing
+The models that power Grants tagger mostly come from sklearn, spacy and
+transformers but apart from sklearn all other libraries are hidden behind
+[WellcomeML](https://github.com/wellcometrust/WellcomeML). WellcomeML
+is a library developed at the Wellcome Trust that contains
+easy to use APIs for some of the latest models in the BioNLP space
+like SciBERT.
+
+## Commands
+
+- preprocess
+- create_label_binarizer
+- pretrain
+- train
+
+### preprocess
+
+To preprocess either science tags from an Excel file of
+annotations or MeSH from the file provided by BioASQ. The
+output is a JSONL with one row per grant/publication with
+a dict containing text and tags.
+
 ```
-python src/preprocess.py \
+python -m grants_tagger.preprocess \
     --input data/raw/science_tags_full_version.xlsx \
     --output data/processed/science_grants_tagged.jsonl \
 ```
 
+### create_label_binarizer
+
+To transform the tags into a 2d matrix with a column
+for each tag and 1 indicating the presence of a tag.
+This matrix is sparse and especially for MeSH a sparse
+representation is used to not blow up memory requirements.
+
 ```
-python src/create_label_binarizer.py \
+python -m grants_tagger.create_label_binarizer \
     --data data/processed/science_grants_tagged.jsonl \
     --label_binarizer models/label_binarizer.pkl
 ```
 
-### Pretraining
+### pretrain
 
 Some approaches require or benefit from pretraining a model
 in a larger dataset that is unlabeled (with tags). For example,
@@ -50,14 +113,14 @@ extractor (vectorizer).
 
 ```
 python -m science_tagger.pretrain \
-    --data_path science_tagger/data/raw/grants.csv \
-    --model_path science_tagger/models/pretrained_doc2vec \
+    --data_path data/raw/grants.csv \
+    --model_path models/pretrained_doc2vec \
     --model_name doc2vec
 ```
 
-### Training
+### train
 ```
-python src/train.py \
+python -m grants_tagger.train \
     --data data/processed/science_grants_tagged.jsonl \
     --model models/model.pkl \
     --label_binarizer models/label_binarizer.pkl
@@ -76,92 +139,47 @@ The approaches to choose from:
 - tfidf-scibert
 - bert
 - scibert
-
-TODO: Add a table with results
+- cnn
+- bilstm
+- doc2vec-sgd
+- doc2vec-tfidf-sgd
+- sent2vec-sgd
+- sent2vec-tfidf-sgd
+- tfidf-adaboost
+- tfidf-gboost
 
 Training sklearn models should take less than 1 hour. Time greatly depends
 on the embedding with TFIDF being very fast and any BERT embedding requiring
 more than 30 minutes.
 
-Training spacy takes more time on average e.g. ~10 minutes when not using a
+Training spacy takes more time on average e.g. approx 10 minutes when not using a
 pre-trained model.
 
-### Pre-trained models
 Training any BERT model end to end (fine tuning) would be prohibitive locally,
-unless you have a GPU and even in that case it takes around ~1hour.
-
-You can download pretrained models by running `make sync_models_from_s3`. Note
-that these models are ~400MB each so downloading all of them could take from 4GB
-to 10GB of space. Due to the size of this models you need to select which model
-to download with the flag INCLUDE. The name of the approach or the version number
-is a good way to download a specific model. e.g. `make sync_models_from_s3
-INCLUDE=tfidf-svm`
-
-### Metrics
-```
-python src/calculate_metrics.py \
-   --data data/processed/science_grants_tagged.jsonl \
-   --model models/model.pkl \
-   --label_binarizer models/label_binarizer.pkl
-```
-This script prints useful metrics for the model and the data
-and plots and saves figures in the figures folder
-
-### Experiments
-
-if you want to find the best params for a given approach
-```
-python src/optimise_params.py \
-   --data data/processed/science_grants_tagged.jsonl \
-   --label_binarizer models/label_binarizer.pkl \
-   --approach tfidf-svm
-```
-
-optimising params takes a lot of time depending on the amount of grid
-search space and model.
-
-similarly if you want to reproduce the results and experiments for a given
-dataset
-```
-python src/run_experiments.py \
-   --data data/processed/science_grants_tagged.jsonl \
-   --label_binarizer models/label_binarizer.pkl \
-   --experiment test
-```
-
-## Prodigy
-
-To install and use prodigy you need to run
-`make install_prodigy`
-
-Note that this will reinstall spacy as prodigy requires a
-different version. At the moment this breaks other parts
-so if you want to go back and run train or other functions
-you should run `make virtualenv` again.
-
-To use vanilla prodigy with a spacy model
-```
-prodigy textcat.teach \
-    my_dataset \
-    en_core_web_sm \
-    data/processed/science_tags_teach.jsonl \
-    --label '10: Fungi'
-```
-
-To use prodigy with a custom model.
-Note that the only custom model that
-will work with current prodigy version
-is the sklearn tfidf one. The others are
-using spacy 2.1+ which is not currently supported.
-Will be supported in version 1.9 of Prodigy
-
-```
-prodigy textcat.teach-custom-model \
-    my_dataset data/processed/science_tags_teach.jsonl \
-    models/model.pkl models/label_binarizer.pkl \
-    --label '10: Fungi' \
-    -F src/recipe.py \
-    --goal 100
-```
+unless you have a GPU and even in that case it takes around approx 1hour.
 
 
+## Package
+
+Packaging might change in the future but at the 
+moment MANIFEST.in is being used to instruct the
+build process which models to package. Do not forget
+to include the label binarizer along with the model
+
+To package a model run `make build`
+
+## Reproducing results
+
+As we are developing the models responsible for
+tagging the grants, we want to ensure any intermediate
+results are recorded and reproducible. To achieve that
+we use configuration files that record all neccesary
+parameters.
+
+We record results in docs/results.md. You can reproduce
+any result by running `./scripts/run_config.sh VERSION`
+and substituting for the version you want to reproduce
+
+# Test
+
+`make test`

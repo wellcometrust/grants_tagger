@@ -30,7 +30,7 @@ virtualenv:
 
 .PHONY: test
 test:
-	$(VIRTUALENV)/bin/pytest --disable-warnings -v
+	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov=grants_tagger
 
 .PHONY: build
 build:

@@ -23,10 +23,10 @@ sync_artifacts:
 virtualenv:
 	@if [ -d $(VIRTUALENV) ]; then rm -rf $(VIRTUALENV); fi
 	@mkdir -p $(VIRTUALENV)
-	python3 -m venv $(VIRTUALENV)
-	$(VIRTUALENV)/bin/pip3 install -r requirements.txt
-	$(VIRTUALENV)/bin/pip3 install -r requirements_test.txt
-	$(VIRTUALENV)/bin/pip3 install -e .
+	virtualenv --python python3 $(VIRTUALENV)
+	$(VIRTUALENV)/bin/pip install -r requirements.txt
+	$(VIRTUALENV)/bin/pip install -r requirements_test.txt
+	$(VIRTUALENV)/bin/pip install -e .
 
 .PHONY: test
 test:

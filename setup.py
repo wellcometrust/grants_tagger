@@ -15,5 +15,9 @@ setup(
         'nltk',
         'matplotlib',
         'wellcomeml[deep-learning]'
-     ]
+    ],
+    tests_require=[
+        'pytest',
+        'pytest-cov'
+    ]
 )

@@ -32,6 +32,10 @@ virtualenv:
 test:
 	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov=grants_tagger
 
+.PHONY: run_codecov
+run_codecov:
+	$(VIRTUALENV)/bin/python -m codecov
+
 .PHONY: build
 build:
 	$(VIRTUALENV)/bin/python setup.py bdist_wheel

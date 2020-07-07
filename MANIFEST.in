@@ -1,2 +1,3 @@
-recursive-include models/scibert *
+recursive-include models/scibert-2020.05.5 *
+include models/tfidf-svm-2020.05.2.pkl
 include models/label_binarizer.pkl

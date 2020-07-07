@@ -2,6 +2,7 @@ venv/**
 *egg-info/**
 models/**
 dist/**
+build/**
 data/**
 !**.gitkeep
 *.pyc

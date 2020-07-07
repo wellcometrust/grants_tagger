@@ -18,7 +18,7 @@ setup(
     description='A machine learning model to tag grants',
     packages=find_packages(),
     include_package_data=True,
-    version='2020.2.0',
+    version='2020.06.0',
     package_data={'': extra_files},
     install_requires=[
         'pandas',

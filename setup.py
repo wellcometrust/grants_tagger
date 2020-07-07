@@ -9,7 +9,7 @@ def package_files(directory):
 
     return paths
 
-extra_files = package_files("models/scibert-2020.05.5") + "models/tfidf-svm-2020.05.2.pkl"
+extra_files = package_files("models/scibert-2020.05.5") + ["../models/tfidf-svm-2020.05.2.pkl"]
 
 setup(
     name='grants-tagger',

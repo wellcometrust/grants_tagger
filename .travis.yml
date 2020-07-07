@@ -12,3 +12,6 @@ script:
 branches:
   only:
   - master
+
+after success:
+  - make run_codecov

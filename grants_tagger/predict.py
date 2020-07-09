@@ -15,11 +15,15 @@ import os
 from wellcomeml.ml.bert_classifier import BertClassifier
 
 FILEPATH = os.path.dirname(__file__)
-DEFAULT_MODEL_PATH = os.path.join(FILEPATH, 'models/scibert')
-DEFAULT_LABELBINARIZER_PATH = os.path.join(FILEPATH, 'models/label_binarizer.pkl')
+DEFAULT_SCIBERT_PATH = os.path.join(FILEPATH, '../models/scibert-2020.05.5')
+DEFAULT_TFIDF_SVM_PATH = os.path.join(FILEPATH, '../models/tfidf-svm-2020.05.2.pkl')
+DEFAULT_LABELBINARIZER_PATH = os.path.join(FILEPATH, '../models/label_binarizer.pkl')
 
-DEFAULT_MODEL = BertClassifier()
-DEFAULT_MODEL.load(DEFAULT_MODEL_PATH)
+DEFAULT_SCIBERT = BertClassifier()
+DEFAULT_SCIBERT.load(DEFAULT_SCIBERT_PATH)
+
+with open(DEFAULT_TFIDF_SVM_PATH, "rb") as f:
+    DEFAULT_TFIDF_SVM = pickle.loads(f.read())
 
 with open(DEFAULT_LABELBINARIZER_PATH, "rb") as f:
     DEFAULT_LABELBINARIZER = pickle.load(f)
@@ -37,15 +41,25 @@ def sort_tags_probs(tags, probs, threshold):
     sorted_tags_probs = sorted(data, key = itemgetter(1), reverse=True)
     return sorted_tags_probs
 
-def predict_tags(x, probabilities=False, model=DEFAULT_MODEL, label_binarizer=DEFAULT_LABELBINARIZER):
+def predict_tags(x, probabilities=False, model=[DEFAULT_SCIBERT, DEFAULT_TFIDF_SVM],
+                 label_binarizer=DEFAULT_LABELBINARIZER):
     '''Input example text when running the .py file in the terminal to return predicted grant tags - use format:'''
-    if probabilities:
-        Y_pred = model.predict_proba([x])
-        tag_names = label_binarizer.classes_
-        tags = {tag: prob for tag, prob in zip(tag_names, Y_pred[0])}
+    if type(model) == list: # ensemble of models
+        Y_pred_probs = np.zeros((1, len(label_binarizer.classes_)))
+        for model_ in model:
+            Y_pred_probs_model = model_.predict_proba([x])
+            Y_pred_probs += Y_pred_probs_model
+
+        Y_pred_probs /= len(model)
     else:
-        Y_pred = model.predict([x])
-        tags = label_binarizer.inverse_transform(Y_pred)[0]
+        Y_pred_probs = model.predict_proba([x])
+
+    tag_names = label_binarizer.classes_
+
+    if probabilities:
+        tags = {tag: prob for tag, prob in zip(tag_names, Y_pred_probs[0])}
+    else:
+        tags = [tag for tag, prob in zip(tag_names, Y_pred_probs[0]) if prob > 0.5]
     return tags
 
 if __name__ == "__main__":
@@ -53,8 +67,8 @@ if __name__ == "__main__":
     argparser.add_argument(
         "--model",
         type=Path,
-        default=DEFAULT_MODEL_PATH,
-        help="scikit pickled model"
+        default=DEFAULT_SCIBERT_PATH,
+        help="scikit pickled model or path to model"
     )
     argparser.add_argument(
         "--label_binarizer",

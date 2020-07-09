@@ -1,2 +1,0 @@
-recursive-include models/scibert *
-include models/label_binarizer.pkl

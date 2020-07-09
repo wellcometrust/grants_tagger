@@ -1,4 +1,15 @@
 from setuptools import setup, find_packages
+import os
+
+def package_files(directory):
+    paths = []
+    for (path, directories, filenames) in os.walk(directory):
+        for filename in filenames:
+            paths.append(os.path.join("..", path, filename))
+
+    return paths
+
+extra_files = package_files("models/scibert-2020.05.5") + ["../models/tfidf-svm-2020.05.2.pkl"]
 
 setup(
     name='grants-tagger',
@@ -7,7 +18,8 @@ setup(
     description='A machine learning model to tag grants',
     packages=find_packages(),
     include_package_data=True,
-    version='2020.2.0',
+    version='2020.06.0',
+    package_data={'': extra_files},
     install_requires=[
         'pandas',
         'xlrd',

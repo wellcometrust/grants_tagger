@@ -17,6 +17,7 @@ from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import SGDClassifier
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.preprocessing import Normalizer
+from scipy.sparse import hstack
 
 from argparse import ArgumentParser
 from distutils.util import strtobool
@@ -223,14 +224,32 @@ def train_and_evaluate(
             label_binarizer=label_binarizer,
             from_same_distribution=from_same_distribution
         )
-        model.fit(X_train, Y_train)
+        if Y_train.shape[1] > 512:
+            for tag_i in range(0, Y_train.shape[1], 512):
+                model.fit(X_train, Y_train[:,tag_i:tag_i+512]) # assuming that fit clears previous params
+                with open(f"{model_path}/{tag_i}.pkl", "wb") as f:
+                    f.write(pickle.dumps(model))
+        else:
+            model.fit(X_train, Y_train)
 
     if threshold:
-        Y_pred_prob = model.predict_proba(X_test)
+        if Y_test.shape[1] > 512:
+            pass # to be implemented
+        else:
+            Y_pred_prob = model.predict_proba(X_test)
         Y_pred_test = Y_pred_prob > threshold
     else:
-        Y_pred_test = model.predict(X_test)
-    #    Y_pred_train = model.predict(X_train)
+        if Y_test.shape[1] > 512:
+            Y_pred_test = []
+            for tag_i in range(0, Y_test.shape[1], 512):
+                with open(f"{model_path}/{tag_i}.pkl", "rb") as f:
+                    model = pickle.loads(f.read())
+                Y_pred_test_i = model.predict(X_test)
+                Y_pred_test.append(Y_pred_test_i)
+            Y_pred_test = hstack(Y_pred_test)
+        else:
+            Y_pred_test = model.predict(X_test)
+            # Y_pred_train = model.predict(X_train)
 
     f1 = f1_score(Y_test, Y_pred_test, average='micro')
     if verbose:
@@ -241,6 +260,8 @@ def train_and_evaluate(
         if ('pkl' in str(model_path)) or ('pickle' in str(model_path)):
             with open(model_path, 'wb') as f:
                 pickle.dump(model, f)
+        elif Y_test.shape[1] > 512: 
+            pass # saved already
         else:
             if not os.path.exists(model_path):
                 os.mkdir(model_path)

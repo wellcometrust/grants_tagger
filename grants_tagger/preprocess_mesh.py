@@ -1,6 +1,7 @@
 """
 Preprocess JSON Mesh data from BioASQ to JSONL
 """
+from configparser import ConfigParser
 from pathlib import Path
 import argparse
 import json
@@ -48,6 +49,22 @@ if __name__ == '__main__':
     argparser.add_argument("--input", type=Path, help="path to mesh JSON data")
     argparser.add_argument("--output", type=Path, help="path to output JSONL data")
     argparser.add_argument("--filter-tags", type=Path, help="path to txt file with tags to keep")
+    argparser.add_argument("--config", type=Path, help="path to config files that defines arguments")
     args = argparser.parse_args()
 
-    preprocess_mesh(args.input, args.output, args.filter_tags)
+    if args.config:
+        config_parser = ConfigParser()
+        cfg = config_parser.read(args.config)
+
+        input_path = cfg["preprocess"]["input"]
+        output_path = cfg["preprocess"]["output"]
+        filter_tags = cfg["preprocess"]["filter_tags"]
+    else:
+        input_path = args.input
+        output_path = args.output
+        filter_tags = args.filter_tags
+
+    if os.path.exists(output_path):
+        print(f"{output_path} exists. Remove if you want to rerun.")
+    else:
+        preprocess_mesh(input_path, output_path, filter_tags)

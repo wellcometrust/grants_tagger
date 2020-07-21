@@ -55,7 +55,7 @@ if __name__ == '__main__':
         for i, grant in enumerate(yield_grants(args.grants)):
             if i % 100 == 0:
                 print(i)
-            if i & 10 != 0:
+            if i % 10 != 0:
                 # keep only 1/10th
                 continue
             tagged_grant = tag_grants(grant, args.threshold)

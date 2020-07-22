@@ -5,7 +5,7 @@ set -e
 # get config from input
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 VERSION=$1
-CONFIG="${SCRIPT_DIR}/../configs/${VERSION}.ini"
+CONFIG="${SCRIPT_DIR}/../configs/disease_mesh/${VERSION}.ini"
 
 # preprocess
 venv/bin/python -m grants_tagger.preprocess_mesh --config ${CONFIG}

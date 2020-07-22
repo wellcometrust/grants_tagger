@@ -40,7 +40,9 @@ if __name__ == '__main__':
     args = argparser.parse_args()
 
     if args.config:
-        config_parser = ConfigParser()
+        cfg = ConfigParser()
+        cfg.read(args.config)
+
         data_path = cfg["label_binarizer"]["data"]
         label_binarizer_path = cfg["label_binarizer"]["label_binarizer"]
     else:

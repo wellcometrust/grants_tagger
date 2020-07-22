@@ -59,8 +59,8 @@ if __name__ == '__main__':
     args = argparser.parse_args()
 
     if args.config:
-        config_parser = ConfigParser()
-        cfg = config_parser.read(args.config)
+        cfg = ConfigParser()
+        cfg.read(args.config)
 
         input_path = cfg["preprocess"]["input"]
         output_path = cfg["preprocess"]["output"]

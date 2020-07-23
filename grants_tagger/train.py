@@ -225,10 +225,21 @@ def train_and_evaluate(
             from_same_distribution=from_same_distribution
         )
         if Y_train.shape[1] > 512:
+            vectorizer = model.steps[0][1]
+            classifier = model.steps[1][1]
+
+            Path(model_path).mkdir(exist_ok=True)
+            print("Fitting vectorizer")
+            vectorizer.fit(X_train)
+            with open(f"{model_path}/tfidf.pkl", "wb") as f:
+                f.write(pickle.dumps(vectorizer))
+            print("Training model")
             for tag_i in range(0, Y_train.shape[1], 512):
-                model.fit(X_train, Y_train[:,tag_i:tag_i+512]) # assuming that fit clears previous params
+                print(tag_i)
+                X_train_vec = vectorizer.transform(X_train)
+                classifier.fit(X_train_vec, Y_train[:,tag_i:tag_i+512]) # assuming that fit clears previous params
                 with open(f"{model_path}/{tag_i}.pkl", "wb") as f:
-                    f.write(pickle.dumps(model))
+                    f.write(pickle.dumps(classifier))
         else:
             model.fit(X_train, Y_train)
 
@@ -243,8 +254,9 @@ def train_and_evaluate(
             Y_pred_test = []
             for tag_i in range(0, Y_test.shape[1], 512):
                 with open(f"{model_path}/{tag_i}.pkl", "rb") as f:
-                    model = pickle.loads(f.read())
-                Y_pred_test_i = model.predict(X_test)
+                    classifier = pickle.loads(f.read())
+                X_test_vec = vectorizer.transform(X_test)
+                Y_pred_test_i = model.predict(X_test_vec)
                 Y_pred_test.append(Y_pred_test_i)
             Y_pred_test = hstack(Y_pred_test)
         else:

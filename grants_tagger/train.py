@@ -256,7 +256,7 @@ def train_and_evaluate(
                 with open(f"{model_path}/{tag_i}.pkl", "rb") as f:
                     classifier = pickle.loads(f.read())
                 X_test_vec = vectorizer.transform(X_test)
-                Y_pred_test_i = model.predict(X_test_vec)
+                Y_pred_test_i = classifier.predict(X_test_vec)
                 Y_pred_test.append(Y_pred_test_i)
             Y_pred_test = hstack(Y_pred_test)
         else:

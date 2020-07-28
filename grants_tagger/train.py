@@ -182,7 +182,8 @@ def train_and_evaluate(
         train_data_path, label_binarizer_path, approach,
         parameters=None, model_path=None, test_data_path=None,
         online_learning=False, nb_epochs=5,
-        from_same_distribution=False, threshold=None, verbose=True):
+        from_same_distribution=False, threshold=None,
+        y_batch_size=None, verbose=True):
 
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.load(f)
@@ -224,7 +225,7 @@ def train_and_evaluate(
             label_binarizer=label_binarizer,
             from_same_distribution=from_same_distribution
         )
-        if Y_train.shape[1] > 512:
+        if y_batch_size:
             vectorizer = model.steps[0][1]
             classifier = model.steps[1][1]
 
@@ -234,7 +235,7 @@ def train_and_evaluate(
             with open(f"{model_path}/vectorizer.pkl", "wb") as f:
                 f.write(pickle.dumps(vectorizer))
             print("Training model")
-            for tag_i in range(0, Y_train.shape[1], 512):
+            for tag_i in range(0, Y_train.shape[1], y_batch_size):
                 print(tag_i)
                 X_train_vec = vectorizer.transform(X_train)
                 classifier.fit(X_train_vec, Y_train[:,tag_i:tag_i+512]) # assuming that fit clears previous params
@@ -244,7 +245,7 @@ def train_and_evaluate(
             model.fit(X_train, Y_train)
 
     if threshold:
-        if Y_test.shape[1] > 512:
+        if y_batch_size:
             pass # to be implemented
         else:
             Y_pred_prob = model.predict_proba(X_test)
@@ -272,7 +273,7 @@ def train_and_evaluate(
         if ('pkl' in str(model_path)) or ('pickle' in str(model_path)):
             with open(model_path, 'wb') as f:
                 pickle.dump(model, f)
-        elif Y_test.shape[1] > 512: 
+        elif y_batch_size: 
             pass # saved already
         else:
             if not os.path.exists(model_path):
@@ -293,7 +294,8 @@ if __name__ == "__main__":
     argparser.add_argument('-o', '--online_learning', type=bool, default=False, help="flag to train in an online way")
     argparser.add_argument('-n', '--nb_epochs', type=int, default=5, help="number of passes of training data in online training")
     argparser.add_argument('-f', '--from_same_distribution', type=strtobool, default=False, help="whether train and test contain the same examples but differ in other ways, important when loading train and test parts of datasets")
-    argparser.add_argument('-th', '--threshold', type=float, default=None, help="threhsold to assign a tag")
+    argparser.add_argument('--threshold', type=float, default=None, help="threhsold to assign a tag")
+    argparser.add_argument('--y_batch_size', type=int, default=None, help="batch size for Y in cases where Y large. defaults to None i.e. no batching of Y")
     args = argparser.parse_args()
 
     if args.config:
@@ -312,6 +314,7 @@ if __name__ == "__main__":
         threshold = cfg["model"].get("threshold", None)
         if threshold:
             threshold = float(threshold)
+        y_batch_size = int(cfg["model"].get("y_batch_size"))
     else:
         data_path = args.data
         label_binarizer_path = args.label_binarizer
@@ -323,6 +326,7 @@ if __name__ == "__main__":
         nb_epochs = args.nb_epochs
         from_same_distribution = args.from_same_distribution
         threshold= args.threshold
+        y_batch_size = args.y_batch_size
 
     if os.path.exists(model_path):
         print(f"{model_path} exists. Remove if you want to rerun.")
@@ -337,5 +341,6 @@ if __name__ == "__main__":
             online_learning=online_learning,
             nb_epochs=nb_epochs,
             from_same_distribution=from_same_distribution,
-            threshold=threshold
+            threshold=threshold,
+            y_batch_size=y_batch_size
         )

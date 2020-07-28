@@ -231,7 +231,7 @@ def train_and_evaluate(
             Path(model_path).mkdir(exist_ok=True)
             print("Fitting vectorizer")
             vectorizer.fit(X_train)
-            with open(f"{model_path}/tfidf.pkl", "wb") as f:
+            with open(f"{model_path}/vectorizer.pkl", "wb") as f:
                 f.write(pickle.dumps(vectorizer))
             print("Training model")
             for tag_i in range(0, Y_train.shape[1], 512):

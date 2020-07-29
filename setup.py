@@ -9,7 +9,10 @@ def package_files(directory):
 
     return paths
 
-extra_files = package_files("models/scibert-2020.05.5") + ["../models/tfidf-svm-2020.05.2.pkl"]
+extra_files = package_files("models/scibert-2020.05.5") + [
+    "../models/tfidf-svm-2020.05.2.pkl",
+    "../models/label_binarizer.pkl"
+]
 
 setup(
     name='grants-tagger',
@@ -18,7 +21,7 @@ setup(
     description='A machine learning model to tag grants',
     packages=find_packages(),
     include_package_data=True,
-    version='2020.07.0',
+    version='2020.07.1',
     package_data={'': extra_files},
     install_requires=[
         'pandas',
@@ -26,7 +29,9 @@ setup(
         'scikit-learn==0.21.3',
         'nltk',
         'matplotlib',
-        'wellcomeml[deep-learning]==2020.07.0'
+        'wellcomeml[deep-learning]==2020.07.0',
+        'docutils==0.15',
+        'scipy==1.4.1'
     ],
     tests_require=[
         'pytest',

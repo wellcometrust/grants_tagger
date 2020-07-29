@@ -91,7 +91,7 @@ def create_model(approach, parameters=None):
                 stop_words='english', max_df=0.95,
                 min_df=0.0, ngram_range=(1,1)
             )),
-            ('knn', BinaryRelevance(classifier=SVC(kernel='linear', probability=True)))
+            ('knn', BinaryRelevance(classifier=KNeighborsClassifier))
         ])
     elif approach == 'hashing_vectorizer-svm':
         model = Pipeline([

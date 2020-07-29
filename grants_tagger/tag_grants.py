@@ -15,7 +15,7 @@ def yield_grants(grants_path):
         for grant in csv_reader:
             yield grant
 
-def tag_grants(grant):
+def tag_grants(grant, threshold):
     """
     Tags grants and outputs tagged grant data structure
 
@@ -27,7 +27,7 @@ def tag_grants(grant):
             ScienceCategory#{1..9}
             DiseaseCategory#{1..9)
     """
-    tags = predict_tags(grant['title'] + ' ' + grant['synopsis'])
+    tags = predict_tags(grant['title'] + ' ' + grant['synopsis'], threshold=threshold)
     tagged_grant = {
         'Grant ID': grant['grant_id'],
         'Reference': grant['reference'],
@@ -41,8 +41,9 @@ def tag_grants(grant):
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser()
-    argparser.add_argument('--grants', type=Path, help="path to grants scv")
+    argparser.add_argument('--grants', type=Path, help="path to grants csv")
     argparser.add_argument('--tagged_grants', type=Path, help="path to output csv")
+    argparser.add_argument('--threshold', type=float, default=0.5, help="threshold upon which to assign tag")
     args = argparser.parse_args()
     
     with open(args.tagged_grants, 'w') as f_o:
@@ -54,5 +55,8 @@ if __name__ == '__main__':
         for i, grant in enumerate(yield_grants(args.grants)):
             if i % 100 == 0:
                 print(i)
-            tagged_grant = tag_grants(grant)
+            if i % 10 != 0:
+                # keep only 1/10th
+                continue
+            tagged_grant = tag_grants(grant, args.threshold)
             csv_writer.writerow(tagged_grant)

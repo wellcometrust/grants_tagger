@@ -41,7 +41,8 @@ def sort_tags_probs(tags, probs, threshold):
     sorted_tags_probs = sorted(data, key = itemgetter(1), reverse=True)
     return sorted_tags_probs
 
-def predict_tags(x, probabilities=False, model=[DEFAULT_SCIBERT, DEFAULT_TFIDF_SVM],
+def predict_tags(x, probabilities=False, threshold=0.5,
+                 model=[DEFAULT_SCIBERT, DEFAULT_TFIDF_SVM],
                  label_binarizer=DEFAULT_LABELBINARIZER):
     '''Input example text when running the .py file in the terminal to return predicted grant tags - use format:'''
     if type(model) == list: # ensemble of models
@@ -59,7 +60,7 @@ def predict_tags(x, probabilities=False, model=[DEFAULT_SCIBERT, DEFAULT_TFIDF_S
     if probabilities:
         tags = {tag: prob for tag, prob in zip(tag_names, Y_pred_probs[0])}
     else:
-        tags = [tag for tag, prob in zip(tag_names, Y_pred_probs[0]) if prob > 0.5]
+        tags = [tag for tag, prob in zip(tag_names, Y_pred_probs[0]) if prob > threshold]
     return tags
 
 if __name__ == "__main__":

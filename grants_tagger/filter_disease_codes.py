@@ -10,19 +10,21 @@ import pandas as pd
 
 def filter_disease_codes(mesh_descriptions_file, mesh_export_file):
     mesh_tree = ET.parse(mesh_descriptions_file)
-    mesh_Df = pd.DataFrame(columns = ['DescriptorName', 'TreeNumberList'])
+    mesh_Df = pd.DataFrame(columns = ['DescriptorName', 'DescriptorUI', 'TreeNumberList'])
 
     for mesh in mesh_tree.getroot():
         try:
             # TreeNumberList e.g. A11.118.637.555.567.550.500.100
-            mesh_code = mesh[-2][0].text
+            mesh_tree = mesh[-2][0].text
+            # DescriptorUI e.g. M000616943
+            mesh_code = mesh[0].text
             # DescriptorName e.g. Mucosal-Associated Invariant T Cells
             mesh_name = mesh[1][0].text
         except IndexError:
             print("ERROR", file=sys.stderr)
-        if mesh_code.startswith('C') and not mesh_code.startswith('C22') or mesh_code.startswith('F03'):
+        if mesh_tree.startswith('C') and not mesh_tree.startswith('C22') or mesh_tree.startswith('F03'):
             print(mesh_name)
-            mesh_Df = mesh_Df.append({'DescriptorName':mesh_name, 'TreeNumberList':mesh_code}, ignore_index=True)
+            mesh_Df = mesh_Df.append({'DescriptorName':mesh_name, 'DescriptorUI':mesh_code, 'TreeNumberList':mesh_tree}, ignore_index=True)
     mesh_Df.to_csv(mesh_export_file)
 
 if __name__ == '__main__':

@@ -251,7 +251,7 @@ def train_and_evaluate(
             Y_pred_prob = model.predict_proba(X_test)
         Y_pred_test = Y_pred_prob > threshold
     else:
-        if Y_test.shape[1] > y_batch_size:
+        if y_batch_size:
             Y_pred_test = []
             for tag_i in range(0, Y_test.shape[1], y_batch_size):
                 with open(f"{model_path}/{tag_i}.pkl", "rb") as f:

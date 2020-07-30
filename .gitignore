@@ -7,4 +7,6 @@ data/**
 !**.gitkeep
 *.pyc
 *~
-*.coverage
+.DS_Store
+.coverage
+build/**

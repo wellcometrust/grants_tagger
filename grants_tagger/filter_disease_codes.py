@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 import xml.etree.ElementTree as ET
 import sys
+import os
 
 import pandas as pd
 
@@ -29,6 +30,20 @@ if __name__ == '__main__':
     argparser = ArgumentParser(description=__file__)
     argparser.add_argument('--mesh_descriptions_file', type=Path, help="path to xml file containing MeSH taxonomy")
     argparser.add_argument('--mesh_export_file', type=Path, help="path to csv file to export Mesh terms")
+    argparser.add_argument('--config', type=Path, help="path to config file defining arguments")
     args = argparser.parse_args()
 
-    filter_disease_codes(args.mesh_descriptions_file, args.mesh_export_file)
+    if args.config:
+        config_parser = ConfigParser()
+        cfg = config_parser.read(args.config)
+
+        mesh_descriptions_file = cfg["filter_disease_codes"]["mesh_descriptions_file"]
+        mesh_export_file = cfg["filter_disease_codes"]["mesh_export_file"]
+    else:
+        mesh_descriptions_file = args.mesh_descriptions_file
+        mesh_export_file = args.mesh_export_file
+
+    if os.path.exists(mesh_export_file):
+        print(f"{mesh_export_file} exists. Remove if you want to rerun")
+    else:
+        filter_disease_codes(mesh_descriptions_file, mesh_export_file)

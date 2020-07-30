@@ -238,7 +238,7 @@ def train_and_evaluate(
             for tag_i in range(0, Y_train.shape[1], y_batch_size):
                 print(tag_i)
                 X_train_vec = vectorizer.transform(X_train)
-                classifier.fit(X_train_vec, Y_train[:,tag_i:tag_i+512]) # assuming that fit clears previous params
+                classifier.fit(X_train_vec, Y_train[:,tag_i:tag_i+y_batch_size]) # assuming that fit clears previous params
                 with open(f"{model_path}/{tag_i}.pkl", "wb") as f:
                     f.write(pickle.dumps(classifier))
         else:
@@ -251,9 +251,9 @@ def train_and_evaluate(
             Y_pred_prob = model.predict_proba(X_test)
         Y_pred_test = Y_pred_prob > threshold
     else:
-        if Y_test.shape[1] > 512:
+        if Y_test.shape[1] > y_batch_size:
             Y_pred_test = []
-            for tag_i in range(0, Y_test.shape[1], 512):
+            for tag_i in range(0, Y_test.shape[1], y_batch_size):
                 with open(f"{model_path}/{tag_i}.pkl", "rb") as f:
                     classifier = pickle.loads(f.read())
                 X_test_vec = vectorizer.transform(X_test)

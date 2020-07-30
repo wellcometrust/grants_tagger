@@ -11,10 +11,8 @@ import pandas as pd
 
 def yield_raw_data(input_path):
     with open(input_path, encoding='latin-1') as f_i:
+        f_1.readline() # skip first line ({"articles":[) which is not valid JSON
         for i, line in enumerate(f_i):
-            if i == 0:
-                # skip first line ({"articles":[) which is JSON
-                continue
             item = json.loads(line[:-2])
             yield item
 

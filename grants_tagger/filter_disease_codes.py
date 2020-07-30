@@ -38,7 +38,7 @@ if __name__ == '__main__':
         cfg = config_parser.read(args.config)
 
         mesh_descriptions_file = cfg["filter_disease_codes"]["mesh_descriptions_file"]
-        mesh_export_file = cfg["filter_disease_codes"][""]
+        mesh_export_file = cfg["filter_disease_codes"]["mesh_export_file"]
     else:
         mesh_descriptions_file = args.mesh_descriptions_file
         mesh_export_file = args.mesh_export_file

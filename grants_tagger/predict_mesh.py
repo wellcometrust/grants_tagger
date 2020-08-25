@@ -3,7 +3,7 @@
 import pickle
 import os
 
-from scipy.sparse import hstack
+from numpy import hstack
 
 
 def predict_mesh_tags(X, model_path, label_binarizer_path,
@@ -14,10 +14,9 @@ def predict_mesh_tags(X, model_path, label_binarizer_path,
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
 
+    nb_labels = len(label_binarizer.classes_)
     Y_pred_proba = []
-    for tag_i in os.listdir(model_path):
-        if tag_i == "vectorizer.pkl":
-            continue
+    for tag_i in range(0, nb_labels, 512):
         with open(f"{model_path}/{tag_i}.pkl", "rb") as f:
             classifier = pickle.loads(f.read())
         X_vec = vectorizer.transform(X)
@@ -32,6 +31,6 @@ def predict_mesh_tags(X, model_path, label_binarizer_path,
     return tags
 
 if __name__ == '__main__':
-    X = ["malaria"]
-    tags = predict_mesh_tags(X, "disease_mesh_tfidf-svm-2020.07.0/", "models/")
+    X = ["malaria", "ebola"]
+    tags = predict_mesh_tags(X, "models/disease_mesh_tfidf-svm-2020.07.0/", "models/disease_mesh_label_binarizer.pkl")
     print(tags)

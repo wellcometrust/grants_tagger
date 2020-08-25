@@ -7,7 +7,7 @@ from numpy import hstack
 
 
 def predict_mesh_tags(X, model_path, label_binarizer_path,
-                      probabilities=False, threshold=None):
+                      probabilities=False, threshold=0.5):
     # TODO: generalise tfidf to vectorizer.pkl
     with open(f"{model_path}/tfidf.pkl", "rb") as f:
         vectorizer = pickle.loads(f.read())
@@ -26,11 +26,14 @@ def predict_mesh_tags(X, model_path, label_binarizer_path,
     
     tags = []
     for y_pred_proba in Y_pred_proba:
-        tags_i = [tag for tag, prob in zip(label_binarizer.classes_, y_pred_proba) if prob > 0.5]
+        if probabilities:
+            tags_i = {tag: prob for tag, prob in zip(label_binarizer.classes_, y_pred_proba) if prob > threshold}
+        else:
+            tags_i = [tag for tag, prob in zip(label_binarizer.classes_, y_pred_proba) if prob > threshold]
         tags.append(tags_i)
     return tags
 
 if __name__ == '__main__':
     X = ["malaria", "ebola"]
-    tags = predict_mesh_tags(X, "models/disease_mesh_tfidf-svm-2020.07.0/", "models/disease_mesh_label_binarizer.pkl")
+    tags = predict_mesh_tags(X, "models/disease_mesh_tfidf-svm-2020.07.0/", "models/disease_mesh_label_binarizer.pkl", probabilities=True)
     print(tags)

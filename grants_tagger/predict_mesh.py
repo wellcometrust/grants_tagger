@@ -1,4 +1,7 @@
 """
+Predict function for disease part of mesh that optionally
+exposes probabilities and that you can set the threshold 
+for making a prediction
 """
 import pickle
 import os
@@ -32,8 +35,3 @@ def predict_mesh_tags(X, model_path, label_binarizer_path,
             tags_i = [tag for tag, prob in zip(label_binarizer.classes_, y_pred_proba) if prob > threshold]
         tags.append(tags_i)
     return tags
-
-if __name__ == '__main__':
-    X = ["malaria", "ebola"]
-    tags = predict_mesh_tags(X, "models/disease_mesh_tfidf-svm-2020.07.0/", "models/disease_mesh_label_binarizer.pkl", probabilities=True)
-    print(tags)

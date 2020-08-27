@@ -5,7 +5,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 import csv
 
-from grants_tagger.predict_mesh import predict_tags
+from grants_tagger.predict_mesh import predict_mesh_tags as predict_tags
 
 MODEL_PATH = "models/disease_mesh_tfidf-svm-2020.07.0/"
 LABEL_BINARIZER_PATH = "models/disease_mesh_label_binarizer.pkl"
@@ -38,6 +38,7 @@ def yield_tagged_grants(grants, tags):
         tagged_grant.update({
             f"Disease Category#{i+1}": tag
             for i, tag in enumerate(tags)
+            if i < 5
         })
         yield tagged_grant
 
@@ -61,6 +62,6 @@ if __name__ == '__main__':
     argparser = ArgumentParser(description=__file__)
     argparser.add_argument('--grants', type=Path, help="")
     argparser.add_argument('--tagged_grants', type=Path, help="")
-    args = argparser.parse_args
+    args = argparser.parse_args()
 
     tag_grants_with_mesh(args.grants, args.tagged_grants)

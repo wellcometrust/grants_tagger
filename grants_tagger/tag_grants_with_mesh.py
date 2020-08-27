@@ -47,7 +47,7 @@ def tag_grants_with_mesh(grants_path, tagged_grants_path, model_path=MODEL_PATH,
     grants_text = [grant['title'] + ' ' + grant['synopsis'] for grant in grants]
     tags = predict_tags(grants_text, model_path=model_path, label_binarizer_path=label_binarizer_path)
     
-    with open(args.tagged_grants, 'w') as f_o:
+    with open(tagged_grants_path, 'w') as f_o:
         fieldnames = ["Grant ID", "Reference", "Grant No."]
         fieldnames += [f"Science Category#{i}" for i in range(1,8)]
         fieldnames += [f"Disease Category#{i}" for i in range(1,6)]

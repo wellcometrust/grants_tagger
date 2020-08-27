@@ -27,7 +27,7 @@ def yield_tagged_grants(grants, tags):
         tagged_grant: dict with keys
             Grant ID, Reference, Grant No
             ScienceCategory#{1..9}
-            DiseaseCategory#{1..9)
+            DiseaseCategory#{1..6)
     """
     for grant, tags in zip(grants, tags):
         tagged_grant = {
@@ -42,10 +42,10 @@ def yield_tagged_grants(grants, tags):
         })
         yield tagged_grant
 
-def tag_grants_with_mesh(grants_path, tagged_grants_path):
+def tag_grants_with_mesh(grants_path, tagged_grants_path, model_path=MODEL_PATH, label_binarizer_path=LABEL_BINARIZER_PATH):
     grants = [g for g in yield_grants(grants_path)]
     grants_text = [grant['title'] + ' ' + grant['synopsis'] for grant in grants]
-    tags = predict_tags(grants_text, model_path=MODEL_PATH, label_binarizer_path=LABEL_BINARIZER_PATH)
+    tags = predict_tags(grants_text, model_path=model_path, label_binarizer_path=label_binarizer_path)
     
     with open(args.tagged_grants, 'w') as f_o:
         fieldnames = ["Grant ID", "Reference", "Grant No."]

@@ -30,7 +30,7 @@ def predict_mesh_tags(X, model_path, label_binarizer_path,
     tags = []
     for y_pred_proba in Y_pred_proba:
         if probabilities:
-            tags_i = {tag: prob for tag, prob in zip(label_binarizer.classes_, y_pred_proba) if prob > threshold}
+            tags_i = {tag: prob for tag, prob in zip(label_binarizer.classes_, y_pred_proba)}
         else:
             tags_i = [tag for tag, prob in zip(label_binarizer.classes_, y_pred_proba) if prob > threshold]
         tags.append(tags_i)

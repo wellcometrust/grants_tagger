@@ -7,8 +7,8 @@ import csv
 
 from grants_tagger.predict_mesh import predict_mesh_tags as predict_tags
 
-MODEL_PATH = "models/disease_mesh_tfidf-svm-2020.07.0/"
-LABEL_BINARIZER_PATH = "models/disease_mesh_label_binarizer.pkl"
+DEFAULT_MODEL_PATH = "models/disease_mesh_tfidf-svm-2020.07.0/"
+DEFAULT_LABEL_BINARIZER_PATH = "models/disease_mesh_label_binarizer.pkl"
 
 def yield_grants(grants_path):
     """yields grants row by row from file"""
@@ -42,7 +42,7 @@ def yield_tagged_grants(grants, tags):
         })
         yield tagged_grant
 
-def tag_grants_with_mesh(grants_path, tagged_grants_path, model_path=MODEL_PATH, label_binarizer_path=LABEL_BINARIZER_PATH):
+def tag_grants_with_mesh(grants_path, tagged_grants_path, model_path, label_binarizer_path):
     grants = [g for g in yield_grants(grants_path)]
     grants_text = [grant['title'] + ' ' + grant['synopsis'] for grant in grants]
     tags = predict_tags(grants_text, model_path=model_path, label_binarizer_path=label_binarizer_path)
@@ -62,6 +62,8 @@ if __name__ == '__main__':
     argparser = ArgumentParser(description=__file__)
     argparser.add_argument('--grants', type=Path, help="")
     argparser.add_argument('--tagged_grants', type=Path, help="")
+    argparser.add_argument('--model_path', type=Path, default=DEFAULT_MODEL_PATH, help="")
+    argparser.add_argument('--label_binarizer_path', type=Path, default=DEFAULT_LABEL_BINARIZER_PATH, help="")
     args = argparser.parse_args()
 
-    tag_grants_with_mesh(args.grants, args.tagged_grants)
+    tag_grants_with_mesh(args.grants, args.tagged_grants, args.model_path, args.label_binarizer_path)

@@ -10,7 +10,8 @@ from numpy import hstack
 
 
 def predict_mesh_tags(X, model_path, label_binarizer_path,
-                      probabilities=False, threshold=0.5):
+                      probabilities=False, threshold=0.5,
+                      y_batch_size=512):
     # TODO: generalise tfidf to vectorizer.pkl
     with open(f"{model_path}/tfidf.pkl", "rb") as f:
         vectorizer = pickle.loads(f.read())
@@ -19,7 +20,7 @@ def predict_mesh_tags(X, model_path, label_binarizer_path,
 
     nb_labels = len(label_binarizer.classes_)
     Y_pred_proba = []
-    for tag_i in range(0, nb_labels, 512):
+    for tag_i in range(0, nb_labels, y_batch_size):
         with open(f"{model_path}/{tag_i}.pkl", "rb") as f:
             classifier = pickle.loads(f.read())
         X_vec = vectorizer.transform(X)

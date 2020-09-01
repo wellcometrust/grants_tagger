@@ -55,7 +55,9 @@ def test_tag_grants_with_mesh():
         label_binarizer_path = f"{tmp_dir}/label_binarizer.pkl"
         train_test_model(model_path, label_binarizer_path)
 
-        with tempfile.NamedTemporaryFile(mode="w+") as tmp_grants:
+        tagged_grants_path = f"{tmp_dir}/tagged_grants.csv"
+        grants_path = f"{tmp_dir}/grants.csv"
+        with open(grants_path, "w") as tmp_grants:
             csvwriter = csv.DictWriter(tmp_grants, fieldnames=["title", "synopsis", "grant_id", "grant_no", "reference"])
             csvwriter.writeheader()
 
@@ -69,9 +71,5 @@ def test_tag_grants_with_mesh():
                 })
 
             tmp_grants.seek(0)
-            grants_path = tmp_grants.name
-
-            tmp_tagged_grants = tempfile.NamedTemporaryFile()
-            tagged_grants_path = tmp_tagged_grants.name
 
             tag_grants_with_mesh(grants_path, tagged_grants_path, model_path=model_path, label_binarizer_path=label_binarizer_path)

@@ -60,10 +60,10 @@ def tag_grants_with_mesh(grants_path, tagged_grants_path, model_path, label_bina
 
 if __name__ == '__main__':
     argparser = ArgumentParser(description=__file__)
-    argparser.add_argument('--grants', type=Path, help="")
-    argparser.add_argument('--tagged_grants', type=Path, help="")
-    argparser.add_argument('--model_path', type=Path, default=DEFAULT_MODEL_PATH, help="")
-    argparser.add_argument('--label_binarizer_path', type=Path, default=DEFAULT_LABEL_BINARIZER_PATH, help="")
+    argparser.add_argument('--grants', type=Path, help="path to grants csv with title, synopsis")
+    argparser.add_argument('--tagged_grants', type=Path, help="path to output the tagged grants")
+    argparser.add_argument('--model_path', type=Path, default=DEFAULT_MODEL_PATH, help="path to a dir that contains the batched models")
+    argparser.add_argument('--label_binarizer_path', type=Path, default=DEFAULT_LABEL_BINARIZER_PATH, help="path to mesh label binarizer")
     args = argparser.parse_args()
 
     tag_grants_with_mesh(args.grants, args.tagged_grants, args.model_path, args.label_binarizer_path)

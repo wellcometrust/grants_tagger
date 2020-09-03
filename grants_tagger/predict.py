@@ -63,6 +63,30 @@ def predict_tags(x, probabilities=False, threshold=0.5,
         tags = [tag for tag, prob in zip(tag_names, Y_pred_probs[0]) if prob > threshold]
     return tags
 
+def predict_tags_fast(X, probabilities=False, threshold=0.5):
+    label_binarizer=DEFAULT_LABELBINARIZER
+
+    Y_pred_probs = np.zeros((len(X), len(label_binarizer.classes_)))
+    for model_ in [DEFAULT_SCIBERT, DEFAULT_TFIDF_SVM]:
+        Y_pred_probs_model = model_.predict_proba(X)
+        Y_pred_probs += Y_pred_probs_model
+
+        Y_pred_probs /= 2
+
+    tag_names = label_binarizer.classes_
+
+    if probabilities:
+        tags = [
+            {tag: prob for tag, prob in zip(tag_names, Y_pred_prob)}
+            for Y_pred_prob in Y_pred_probs
+        ]
+    else:
+        tags = [
+            [tag for tag, prob in zip(tag_names, Y_pred_prob) if prob > threshold]
+            for Y_pred_prob in Y_pred_probs
+        ]
+    return tags
+
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser()
     argparser.add_argument(

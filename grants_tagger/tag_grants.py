@@ -15,7 +15,7 @@ def yield_grants(grants_path):
         for grant in csv_reader:
             yield grant
 
-def tag_grants(grant, threshold):
+def yield_tagged_grants(grants, threshold):
     """
     Tags grants and outputs tagged grant data structure
 
@@ -27,17 +27,19 @@ def tag_grants(grant, threshold):
             ScienceCategory#{1..9}
             DiseaseCategory#{1..9)
     """
-    tags = predict_tags(grant['title'] + ' ' + grant['synopsis'], threshold=threshold)
-    tagged_grant = {
-        'Grant ID': grant['grant_id'],
-        'Reference': grant['reference'],
-        'Grant No.': grant['grant_no']
-    }
-    tagged_grant.update({
-        f"Science Category#{i+1}": tag
-        for i, tag in enumerate(tags)
-    })
-    return tagged_grant
+    grants_texts = [grant["title"]+["synopsis"] for g in grants]
+    grants_tags = predict_tags(grants_texts, threshold=threshold)
+    for grant, tags in zip(grants, grants_tags):
+        tagged_grant = {
+            'Grant ID': grant['grant_id'],
+            'Reference': grant['reference'],
+            'Grant No.': grant['grant_no']
+        }
+        tagged_grant.update({
+            f"Science Category#{i+1}": tag
+            for i, tag in enumerate(tags)
+        })
+        yield tagged_grant
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser()
@@ -52,11 +54,13 @@ if __name__ == '__main__':
         fieldnames += [f"Disease Category#{i}" for i in range(1,6)]
         csv_writer = csv.DictWriter(f_o, fieldnames=fieldnames)
         csv_writer.writeheader()
+
+        grants = []
         for i, grant in enumerate(yield_grants(args.grants)):
-            if i % 100 == 0:
-                print(i)
-            if i % 10 != 0:
+             if i % 10 != 0:
                 # keep only 1/10th
                 continue
-            tagged_grant = tag_grants(grant, args.threshold)
+            grants.append(grant)
+        
+        for tagged_grant in yield_tagged_grants(grant, args.threshold):
             csv_writer.writerow(tagged_grant)

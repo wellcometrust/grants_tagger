@@ -30,6 +30,7 @@ virtualenv:
 
 .PHONY: test
 test:
+	$(VIRTUALENV)/bin/python -m spacy download en_trf_bertbaseuncased_lg
 	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov=grants_tagger
 
 .PHONY: run_codecov

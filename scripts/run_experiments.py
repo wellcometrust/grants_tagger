@@ -3,7 +3,11 @@ import json
 import math
 
 from wellcomeml.ml import KerasVectorizer, CNNClassifier
+from tensorboard.plugins.hparams import api as hp
 from sklearn.preprocessing import MultiLabelBinarizer
+from sklearn.metrics import f1_score
+from scipy.sparse import vstack, csr_matrix
+from tqdm import tqdm
 import tensorflow as tf
 import numpy as np
 
@@ -69,6 +73,8 @@ def train(X_train, X_test, Y_train, Y_test, learning_rate=0.01, batch_size=256, 
     logdir = "logs/scalars/" + datetime.now().strftime("%Y%m%d-%H%M%S") + f"-{learning_rate}-{batch_size}"
     tensorboard = tf.keras.callbacks.TensorBoard(log_dir=logdir)
 
+    early_stopping = tf.keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True)
+
     def yield_data(X, Y, batch_size, shuffle=True):
         while True:
             if shuffle:
@@ -88,29 +94,49 @@ def train(X_train, X_test, Y_train, Y_test, learning_rate=0.01, batch_size=256, 
     model = build_model(learning_rate=learning_rate, nb_tags=nb_tags)
     model.fit(x=train_data, steps_per_epoch=steps_per_epoch,
               validation_data=test_data, validation_steps=validation_steps,
-              epochs=nb_epochs, callbacks=[tensorboard])
+              epochs=nb_epochs, callbacks=[tensorboard, early_stopping])
+
+    # evaluate                                                                                                                 
+    def predict(model, data_gen, steps):
+        Y_pred = []
+        for _ in tqdm(range(steps)):
+            X_batch, _ = next(data_gen)
+            Y_pred_batch = model(X_batch) > 0.5
+            Y_pred.append(csr_matrix(Y_pred_batch))
+        Y_pred = vstack(Y_pred)
+        return Y_pred
+ 
+    test_data = yield_data(X_test, Y_test, batch_size, shuffle=False)
+
+    Y_pred_test = predict(model, test_data, validation_steps)
+    f1_test = f1_score(Y_test, Y_pred_test, average='micro')
+    return f1_test
 
 def learning_rate_experiment(data_path):
-    # create dataset
-    texts, tags = create_dataset(data_path, 32, 10)
+    nb_tags = 32
+    nb_examples_per_tag = 10
+    texts, tags = create_dataset(data_path, nb_tags, nb_examples_per_tag)
     print(len(texts))
 
-    # split dataset
     nb_train = len(texts) - min(int(0.2*len(texts)), 10_000)
     train_texts = texts[:nb_train]
     train_tags = tags[:nb_train]
     test_texts = texts[nb_train:]
     test_tags = tags[nb_train:]
 
-    # vectorize data
     X_train, X_test, Y_train, Y_test = vectorize_data(train_texts, train_tags, test_texts, test_tags)
 
-    # for param train
+    batch_size = 256
     for learning_rate in [0.1, 0.01, 0.001, 0.0001, 0.00001]:
-        # build model with params
-        train(X_train, X_test, Y_train, Y_test, learning_rate, nb_epochs=50)
-        # note we want to stop training when loss converges (possibly stop improving for some iterations)
+        f1 = train(X_train, X_test, Y_train, Y_test,
+                   learning_rate=learning_rate, batch_size=batch_size, nb_epochs=500)
 
-        # evaluate on best model?
+        with tf.summary.create_file_writer("logs/hparam_tuning/").as_default():
+            hp.hparams({
+                "learning_rate": learning_rate,
+                "batch_size": batch_size,
+                "nb_tags": nb_tags
+            })
+            tf.summary.scalar('f1', f1, step=1)
 
 learning_rate_experiment("data/processed/disease_mesh.jsonl")

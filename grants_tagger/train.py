@@ -17,7 +17,8 @@ from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import SGDClassifier
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.preprocessing import Normalizer
-from scipy.sparse import hstack
+from scipy.sparse import hstack, csr_matrix
+from tqdm import tqdm
 
 from argparse import ArgumentParser
 from distutils.util import strtobool
@@ -192,32 +193,74 @@ def train_and_evaluate(
     # so that run experiments can pass a model here
     model = create_model(approach, parameters)
 
-    if online_learning:    
-        X_test, Y_test = load_test_data(test_data_path, label_binarizer)
-    
-        # Note that not all online learning methods need multiple passes
-        for epoch in range(nb_epochs):
-            print(f"Epoch {epoch}")
-            batch = 0
-            for X_train, Y_train in yield_train_data(train_data_path, label_binarizer):
-                batch_size = len(X_train)
-                print(f"Batch {batch} - batch_size {batch_size}")
-                # Since partial fit does not work in a Pipeline
-                #   we assume two steps vectorizer and model to break down
-                if isinstance(model, Pipeline):
-                    vectorizer = model.steps[0][1]
-                    classifier = model.steps[1][1]
-                
-                    vectorizer.partial_fit(X_train)
-                    X_train = vectorizer.transform(X_train)
-                else:
-                    classifier = model
+    if online_learning:
+        if approach in ["cnn", "bilstm"]:
+            X_train, X_test, Y_train, Y_test = load_train_test_data(
+                train_data_path=train_data_path,
+                test_data_path=test_data_path,
+                label_binarizer=label_binarizer,
+                from_same_distribution=from_same_distribution
+            )
+            vectorizer = model.steps[0][1]
+            vectorizer.fit(X_train)
 
-                classifier.partial_fit(X_train, Y_train, classes=list(range(len(Y_train[0]))))
-                batch += 1
-            Y_pred_test = model.predict(X_test)
-            f1 = f1_score(Y_test, Y_pred_test, average='micro')
-            print(f"f1: {f1}")
+            X_train = vectorizer.transform(X_train)
+            X_test = vectorizer.transform(X_test)
+
+            classifier = model.steps[1][1]
+
+            # it can move to utils and maybe combine with other yield
+            def yield_data(X, Y, batch_size, shuffle=True):
+                while True:
+                    if shuffle:
+                        randomize = np.arange(len(X))
+                        np.random.shuffle(randomize)
+                        X = X[randomize]
+                        Y = Y[randomize]
+                    for i in range(0, X.shape[0], batch_size):
+                        yield X[i:i+batch_size, :], Y[i:i+batch_size, :].todense()
+
+            train_data = yield_data(X_train, Y_train, batch_size)
+            test_data = yield_data(X_test, Y_test, batch_size)
+            steps_per_epoch = math.ceil(X_train.shape[0]/batch_size)
+            validation_steps = math.ceil(X_test.shape[0]/batch_size)
+
+            vocab_size = vectorizer.vocab_size
+            sequence_length = vectorizer.sequence_length
+            nb_outputs = Y_train.shape[1]
+            model = classifier._build_model(vocab_size=vocab_size, sequence_length=sequence_length,
+                                            nb_outputs=nb_outputs)
+            model.fit(x=train_data, steps_per_epoch=steps_per_epoch,
+                      validation_data=test_data, validation_steps=validation_steps,
+                      epochs=nb_epochs, callbacks=[tensorboard])
+            classifier.model = model
+
+        else:
+            X_test, Y_test = load_test_data(test_data_path, label_binarizer)
+    
+            # Note that not all online learning methods need multiple passes
+            for epoch in range(nb_epochs):
+                print(f"Epoch {epoch}")
+                batch = 0
+                for X_train, Y_train in yield_train_data(train_data_path, label_binarizer):
+                    batch_size = len(X_train)
+                    print(f"Batch {batch} - batch_size {batch_size}")
+                    # Since partial fit does not work in a Pipeline
+                    #   we assume two steps vectorizer and model to break down
+                    if isinstance(model, Pipeline):
+                        vectorizer = model.steps[0][1]
+                        classifier = model.steps[1][1]
+
+                        vectorizer.partial_fit(X_train)
+                        X_train = vectorizer.transform(X_train)
+                    else:
+                        classifier = model
+
+                    classifier.partial_fit(X_train, Y_train, classes=list(range(len(Y_train[0]))))
+                    batch += 1
+                Y_pred_test = model.predict(X_test)
+                f1 = f1_score(Y_test, Y_pred_test, average='micro')
+                print(f"f1: {f1}")
     else:
         X_train, X_test, Y_train, Y_test = load_train_test_data(
             train_data_path=train_data_path,
@@ -261,7 +304,21 @@ def train_and_evaluate(
                 Y_pred_test.append(Y_pred_test_i)
             Y_pred_test = hstack(Y_pred_test)
         else:
-            Y_pred_test = model.predict(X_test)
+            if approach in ["cnn", "bilstm"]:
+                def predict(model, data_gen, steps):
+                    Y_pred = []
+                    for _ in tqdm(range(steps)):
+                        X_batch, _ = next(data_gen)
+                        Y_pred_batch = model(X_batch) > 0.5
+                        Y_pred.append(csr_matrix(Y_pred_batch))
+                    Y_pred = vstack(Y_pred)
+                    return Y_pred
+
+                test_data = yield_data(X_test, Y_test, batch_size, shuffle=False)
+
+                Y_pred_test = predict(model, test_data, validation_steps)
+            else:
+                Y_pred_test = model.predict(X_test)
             # Y_pred_train = model.predict(X_train)
 
     f1 = f1_score(Y_test, Y_pred_test, average='micro')

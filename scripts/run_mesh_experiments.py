@@ -1,4 +1,9 @@
+"""
+Experiments on disease mesh tags to understand role of params
+"""
+from argparse import ArgumentParser
 from datetime import datetime
+from pathlib import Path
 import json
 import math
 
@@ -11,9 +16,6 @@ from tqdm import tqdm
 import tensorflow as tf
 import numpy as np
 
-DEFAULT_VOCABULARY_SIZE = 400_000
-DEFAULT_SEQUENCE_LENGTH = 400
-DEFAULT_NB_TAGS = 512
 
 def create_dataset(data_path, nb_tags, nb_examples_per_tag):
     texts = []
@@ -39,9 +41,7 @@ def create_dataset(data_path, nb_tags, nb_examples_per_tag):
                 texts.append(item["text"])
                 tags.append(item_tags)
             if all([c > nb_examples_per_tag for t, c in tags_count.items()]):
-                print(tags_count)
                 break
-        print(tags_count)
         return texts, tags
 
 def vectorize_data(train_texts, train_tags, test_texts, test_tags,
@@ -58,9 +58,9 @@ def vectorize_data(train_texts, train_tags, test_texts, test_tags,
     Y_test = label_binarizer.transform(test_tags)
     return X_train, X_test, Y_train, Y_test
 
-def build_model(learning_rate=0.01, batch_size=256, attention=True,
-                vocabulary_size=400_000, sequence_length=400, nb_tags=512,
-                l2=1e-6, dropout=0.1, hidden_size=100, dense_size=100_000):
+def build_cnn_model(learning_rate=0.01, batch_size=256, attention=True,
+                    vocabulary_size=400_000, sequence_length=400, nb_tags=512,
+                    l2=1e-6, dropout=0.1, hidden_size=100, dense_size=100_000):
     model = CNNClassifier(
         attention=attention, multilabel=True,
         learning_rate=learning_rate, batch_size=batch_size,
@@ -68,6 +68,7 @@ def build_model(learning_rate=0.01, batch_size=256, attention=True,
         dropout=dropout, l2=l2
     )
     model = model._build_model(vocab_size=vocabulary_size, sequence_length=sequence_length, nb_outputs=nb_tags)
+    print(model.summary())
     return model
 
 def build_bilstm_model(learning_rate=0.01, batch_size=256, attention=True,
@@ -140,7 +141,7 @@ def train(X_train, X_test, Y_train, Y_test, params):
     validation_steps = math.ceil(X_test.shape[0]/batch_size)
 
     if architecture == 'cnn':
-        build_model_f = build_model
+        build_model_f = build_cnn_model
     elif architecture == 'bilstm':
         build_model_f = build_bilstm_model
     else:
@@ -178,7 +179,6 @@ def experiment(data_path, params):
     sequence_length = params["sequence_length"]
     texts, tags = create_dataset(
         data_path, nb_tags, nb_examples_per_tag)
-    print(len(texts))
 
     nb_train = len(texts) - min(int(0.2*len(texts)), 10_000)
     train_texts = texts[:nb_train]
@@ -197,28 +197,97 @@ def experiment(data_path, params):
         hp.hparams(params)
         tf.summary.scalar('f1', f1, step=1)
         tf.summary.scalar('steps', steps, step=1)
-    print(f1)
-    print(steps)
     return f1, steps
 
-def learning_rate_experiment(data_path):
+def run_mesh_experiments(data_path, learning_rate, batch_size, nb_tags, nb_examples_per_tag,
+                         dropout, l2, hidden_size, dense_size, attention, architecture,
+                         epochs, vocabulary_size, sequence_length):
     params = {
-        "learning_rate": 0.01,
-        "batch_size": 256,
-        "nb_tags": 32,
-        "nb_examples_per_tag": 10,
-        "dropout": 0.1,
-        "l2": 1e-6,
-        "hidden_size": 100,
-        "dense_size": 10_000,
-        "attention": False,
-        "architecture": "custom_bilstm",
-        "epochs": 500,
-        "vocabulary_size": 400_000,
-        "sequence_length": 400
+        "learning_rate": learning_rate,
+        "batch_size": batch_size,
+        "nb_tags": nb_tags,
+        "nb_examples_per_tag": nb_examples_per_tag,
+        "dropout": dropout,
+        "l2": l2,
+        "hidden_size": hidden_size,
+        "dense_size": dense_size,
+        "attention": attention,
+        "architecture": architecture,
+        "epochs": epochs,
+        "vocabulary_size": vocabulary_size,
+        "sequence_length": sequence_length
     }
-    for learning_rate in [0.1, 0.01, 0.001, 0.0001, 0.00001]:
-        params["learning_rate"] = learning_rate
-        experiment(data_path, params)
+    if type(learning_rate) is str and ',' in learning_rate:
+        for learning_rate in learning_rate.split(','):
+            params["learning_rate"] = float(learning_rate)
+            experiment(data_path, params)
 
-learning_rate_experiment("data/processed/disease_mesh.jsonl")
+if __name__ == '__main__':
+    argparser = ArgumentParser(description=__doc__.strip())
+    argparser.add_argument('--data_path', type=Path)
+    argparser.add_argument('--learning_rate', default=0.01)
+    argparser.add_argument('--batch_size', type=int, default=32)
+    argparser.add_argument('--nb_tags', type=int, default=32)
+    argparser.add_argument('--nb_examples_per_tag', type=int, default=100)
+    argparser.add_argument('--dropout', type=float, default=0.1)
+    argparser.add_argument('--l2', type=float, default=1e-7)
+    argparser.add_argument('--hidden_size', type=int, default=100)
+    argparser.add_argument('--dense_size', type=int, default=10_000)
+    argparser.add_argument('--attention', type=bool, default=True)
+    argparser.add_argument('--architecture', default="cnn")
+    argparser.add_argument('--epochs', type=int, default=500)
+    argparser.add_argument('--vocabulary_size', type=int, default=400_000)
+    argparser.add_argument('--sequence_length', type=int, default=400)
+    argparser.add_argument('--config', type=Path)
+    args = argparser.parse_args()
+
+    if args.config:
+        cfg = ConfigParser()
+        cfg.read(args.config)
+
+        data_path = cfg["data"]["data_path"]
+        learning_rate = cfg["learning_rate"]["learning_rate"]
+        batch_size = cfg["model"]["batch_size"]
+        nb_tags = cfg["data"]["nb_tags"]
+        nb_examples_per_tag = cfg["data"]["nb_examples_per_tag"]
+        dropout = cfg["model"]["dropout"]
+        l2 = cfg["model"]["l2"]
+        hidden_size = cfg["model"]["hidden_size"]
+        dense_size = cfg["model"]["dense_size"]
+        attention = cfg["model"]["attention"]
+        architecture = cfg["model"]["architecture"]
+        epochs = cfg["model"]["epochs"]
+        vocabulary_size = cfg["vectorizer"]["vocabulary_size"]
+        sequence_length = cfg["vectorizer"]["sequence_length"]
+    else:
+        data_path = args.data_path
+        learning_rate = args.learning_rate
+        batch_size = args.batch_size
+        nb_tags = args.nb_tags
+        nb_examples_per_tag = args.nb_examples_per_tag
+        dropout = args.dropout
+        l2 = args.l2
+        hidden_size = args.hidden_size
+        dense_size = args.dense_size
+        attention = args.attention
+        architecture = args.architecture
+        epochs = args.epochs
+        vocabulary_size = args.vocabulary_size
+        sequence_length = args.sequence_length
+    
+    run_mesh_experiments(
+        data_path,
+        learning_rate,
+        batch_size,
+        nb_tags,
+        nb_examples_per_tag,
+        dropout,
+        l2,
+        hidden_size,
+        dense_size,
+        attention,
+        architecture,
+        epochs,
+        vocabulary_size,
+        sequence_length
+    )

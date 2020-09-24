@@ -28,8 +28,14 @@ $(VIRTUALENV)/.installed:
 	$(VIRTUALENV)/bin/pip install -e .
 	touch $@
 
-.PHONY:virtualenv
+.PHONY: virtualenv
 virtualenv: $(VIRTUALENV)/.installed
+
+.PHONY: virtualenv_scispacy
+virtualenv_scispacy: virtualenv
+	$(VIRTUALENV)/bin/pip install -r requirements_scispacy.txt
+	rm $(VIRTUALENV)/.installed
+	echo "⚠️  Virtualenv is broken and needs to be reinstalled"
 
 .PHONY: test
 test: virtualenv
@@ -37,10 +43,9 @@ test: virtualenv
 	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov=grants_tagger -m "not scispacy"
 
 .PHONY: test_scispacy
-test_scispacy: virtualenv
-	$(VIRTUALENV)/bin/pip install -r requirements_scispacy.txt
+test_scispacy: virtualenv_scispacy
 	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov-append -cov=grants_tagger tests/test_scispacy_meshtagger.py
-	rm $(VIRTUALENV)/.installed
+
 
 .PHONY: run_codecov
 run_codecov:

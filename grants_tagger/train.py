@@ -223,7 +223,8 @@ def train_and_evaluate(
             train_data_path=train_data_path,
             test_data_path=test_data_path,
             label_binarizer=label_binarizer,
-            from_same_distribution=from_same_distribution
+            from_same_distribution=from_same_distribution,
+            test_size=10_000
         )
         if y_batch_size:
             vectorizer = model.steps[0][1]

@@ -29,7 +29,8 @@ def load_data(data_path, label_binarizer=None):
 
 def load_train_test_data(
         train_data_path, label_binarizer,
-        test_data_path=None, from_same_distribution=False):
+        test_data_path=None, from_same_distribution=False,
+        test_size=None):
 
     if test_data_path:
         X_train, Y_train, _ = load_data(train_data_path, label_binarizer)
@@ -45,7 +46,7 @@ def load_train_test_data(
     else:
         X, Y, _ = load_data(train_data_path, label_binarizer)
         X_train, X_test, Y_train, Y_test = train_test_split(
-            X, Y, random_state=42
+            X, Y, random_state=42, test_size=test_size
         )
            
     return X_train, X_test, Y_train, Y_test

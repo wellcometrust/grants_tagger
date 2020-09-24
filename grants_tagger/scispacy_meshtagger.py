@@ -8,6 +8,7 @@ from collections import defaultdict
 from scispacy.linking import EntityLinker
 from scispacy.abbreviation import AbbreviationDetector
 from sklearn.metrics import f1_score
+from scipy.sparse import csr_matrix
 import scispacy
 import spacy
 
@@ -49,7 +50,8 @@ class SciSpacyMeshTagger():
     def predict(self, X):
         docs = self.nlp.pipe(X)
         tags = [self._get_tags(doc) for doc in docs]
-        return self._binarize_tags(tags)
+        Y = self._binarize_tags(tags)
+        return csr_matrix(Y)
 
     def score(self, X, Y):
         Y_pred = self.predict(X)

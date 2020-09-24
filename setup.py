@@ -29,7 +29,7 @@ setup(
         'scikit-learn==0.21.3',
         'nltk',
         'matplotlib',
-        'wellcomeml[deep-learning]==2020.9.0',
+        'wellcomeml[deep-learning]',
         'docutils==0.15',
         'scipy==1.4.1'
     ],

@@ -314,7 +314,9 @@ if __name__ == "__main__":
         threshold = cfg["model"].get("threshold", None)
         if threshold:
             threshold = float(threshold)
-        y_batch_size = int(cfg["model"].get("y_batch_size"))
+        y_batch_size = cfg["model"].get("y_batch_size")
+        if y_batch_size:
+            y_batch_size = int(y_batch_size)
     else:
         data_path = args.data
         label_binarizer_path = args.label_binarizer

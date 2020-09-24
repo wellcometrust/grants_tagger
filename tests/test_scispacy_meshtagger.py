@@ -1,4 +1,5 @@
 import pytest
+import numpy as np
 
 MESH_TAGS = [
     "D008288", # Malaria
@@ -21,10 +22,14 @@ def test_predict():
     scispacy_meshtagger = SciSpacyMeshTagger(mesh_tags = MESH_TAGS)
     scispacy_meshtagger.fit()
     Y_pred = scispacy_meshtagger.predict(X)
-    print(Y_pred.todense())
     assert Y_pred[0, 0] == 1
     assert Y_pred[1, 1] == 1
 
 @pytest.mark.scispacy
 def test_score():
-    pass
+    from grants_tagger.scispacy_meshtagger import SciSpacyMeshTagger
+    scispacy_meshtagger = SciSpacyMeshTagger(mesh_tags = MESH_TAGS)
+    scispacy_meshtagger.fit()
+    Y = np.array([[1, 0], [0,1]])
+    score = scispacy_meshtagger.score(X, Y)
+    assert score == 1

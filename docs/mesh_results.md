@@ -1,8 +1,8 @@
 # Model inventory
 
-Version   | Approach    | Micro f1 | Description
---------- | ----------- | -------- | -------
-2020.07.0 | tfidf-sgd   | 0.56     | tfidf-svm, bigrams, regularisation of 1e-9, removal of words appearing less than 5 times
+Version   | Approach    | Micro f1 in Pubs | Micro f1 in Grants | Description
+--------- | ----------- | ---------------- | ------------------ | -------
+2020.07.0 | tfidf-sgd   | 0.56             | 0.69               | tfidf-svm, bigrams, regularisation of 1e-9, removal of words appearing less than 5 times
 
 ## 2020.07.0
 

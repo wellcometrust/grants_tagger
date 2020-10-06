@@ -7,7 +7,7 @@ VIRTUALENV := venv
 
 .PHONY:sync_data
 sync_data:
-	aws s3 sync data/ s3://$(PRIVATE_PROJECT_BUCKET)/data/
+	aws s3 sync data/raw/ s3://$(PRIVATE_PROJECT_BUCKET)/data/raw/
 	aws s3 sync s3://$(PRIVATE_PROJECT_BUCKET)/data/raw data/raw --exclude "*allMeSH*"
 
 .PHONY: sync_artifacts

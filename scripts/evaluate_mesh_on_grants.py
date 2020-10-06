@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 import pickle
 
-from sklearn.metrics import classification_report
+from sklearn.metrics import f1_score
 import pandas as pd
 
 
@@ -31,7 +31,8 @@ def evaluate_mesh_on_grants(data_path, label_binarizer_path):
     model_tags = get_tags(data, "NS")
     Y = label_binarizer.transform(gold_tags)
     Y_pred = label_binarizer.transform(model_tags)
-#    print(classification_report(Y, Y_pred, target_names=label_binarizer.classes_))
+    f1 = f1_score(Y, Y_pred, average='micro')
+    print(f"F1 micro is {f1}")
 
     unique_tags = len(set([t for tags in gold_tags for t in tags]))
     all_tags = len(label_binarizer.classes_)

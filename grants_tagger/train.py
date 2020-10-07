@@ -30,7 +30,7 @@ import ast
 
 from wellcomeml.ml import BiLSTMClassifier, CNNClassifier, KerasVectorizer, SpacyClassifier, BertVectorizer, BertClassifier, Doc2VecVectorizer, Sent2VecVectorizer
 from grants_tagger.utils import load_train_test_data, yield_train_data, load_test_data
-
+from grants_tagger.bilstm import CustomBiLSTMClassifier
 
 class ApproachNotImplemented(Exception):
     pass
@@ -120,6 +120,11 @@ def create_model(approach, parameters=None):
         model = Pipeline([
             ('vec', KerasVectorizer(vocab_size=5_000, sequence_length=678)),
             ('bilstm', BiLSTMClassifier(learning_rate=0.01, dropout=0.1, nb_epochs=20, multilabel=True))
+        ])
+    elif approach == 'custombilstm':
+        model = Pipeline([
+            ('vec', KerasVectorizer(vocab_size=5_000, sequence_length=678)),
+            ('bilstm', CustomBiLSTMClassifier())
         ])
     elif approach == 'doc2vec-sgd':
         model = Pipeline([
@@ -224,7 +229,7 @@ def train_and_evaluate(
             test_data_path=test_data_path,
             label_binarizer=label_binarizer,
             from_same_distribution=from_same_distribution,
-            test_size=10_000
+            #test_size=10_000
         )
         if y_batch_size:
             vectorizer = model.steps[0][1]

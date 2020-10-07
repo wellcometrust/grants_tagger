@@ -23,8 +23,6 @@ def evaluate_scispacy_meshtagger(mesh_label_binarizer_path, mesh_tags_path, mesh
     mesh_tags = [mesh_name2tag[name] for name in mesh_tags_names]
 
     X, Y, _ = load_data(mesh_data_path, label_binarizer)
-    X = X[:10_000]
-    Y = Y[:10_000, :]
 
     scispacy_meshtagger = SciSpacyMeshTagger(mesh_tags)
     scispacy_meshtagger.fit()

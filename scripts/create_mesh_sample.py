@@ -31,14 +31,26 @@ def yield_sample_data(data_path, sample_size=SAMPLE_SIZE, random_seed=RANDOM_SEE
             if i in sample_line_indices:
                 yield line
 
-def create_mesh_sample(mesh_data_path, sample_mesh_data_path):
+def create_mesh_sample(mesh_data_path, sample_mesh_data_path, mti_input_path):
+    if mti_input_path:
+        mti_f = open(mti_input_path, "w")
+
     with open(sample_mesh_data_path, "w") as f:
-        for item in yield_sample_data(mesh_data_path):
+        for i, item in enumerate(yield_sample_data(mesh_data_path)):
             f.write(item)
+
+            if mti_input_path:
+                uid = f"{i:08d}"
+                text = item["text"].encode("ascii", errors="ignore")
+                mti_f.write(f"{uid}|{text}\n")
+
+    if mti_input_path:
+        mti_f.close()
 
 argparser = ArgumentParser(description=__doc__.strip())
 argparser.add_argument("--mesh_data_path", type=Path, help="path to JSONL of processed mesh data")
 argparser.add_argument("--sample_mesh_data_path", type=Path, help="path to output sample JSONL of mesh data")
+argparser.add_argument("--mti_input_path", type=Path, default=None, help="path to output txt for MTI to use an input")
 args = argparser.parse_args()
 
-create_mesh_sample(args.mesh_data_path, args.sample_mesh_data_path)
+create_mesh_sample(args.mesh_data_path, args.sample_mesh_data_path, args.mti_input_path)

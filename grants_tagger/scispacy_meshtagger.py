@@ -14,7 +14,7 @@ import spacy
 
 
 class SciSpacyMeshTagger():
-    def __init__(self, mesh_tags, threshold=2):
+    def __init__(self, mesh_tags, threshold=1):
         """
         mesh_tags: list of mesh UI descriptros e.g. [D00001]
         threshold: float that filtes entities with lower probabilities

@@ -1,3 +1,9 @@
+# Baseline methods
+
+Method   | Micro f1
+-------- | -------
+SciSpacy | 0.36
+
 # Model inventory
 
 Version   | Approach    | Micro f1 in Pubs | Micro f1 in Grants | Description

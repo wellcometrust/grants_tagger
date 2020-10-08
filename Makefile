@@ -19,19 +19,33 @@ sync_artifacts:
 	aws s3 sync models/ s3://$(PRIVATE_PROJECT_BUCKET)/models/
 	aws s3 sync s3://$(PRIVATE_PROJECT_BUCKET)/models/ models/
 
-.PHONY:virtualenv
-virtualenv:
+$(VIRTUALENV)/.installed:
 	@if [ -d $(VIRTUALENV) ]; then rm -rf $(VIRTUALENV); fi
 	@mkdir -p $(VIRTUALENV)
 	virtualenv --python python3 $(VIRTUALENV)
 	$(VIRTUALENV)/bin/pip install -r requirements.txt
 	$(VIRTUALENV)/bin/pip install -r requirements_test.txt
 	$(VIRTUALENV)/bin/pip install -e .
+	touch $@
+
+.PHONY: virtualenv
+virtualenv: $(VIRTUALENV)/.installed
+
+.PHONY: virtualenv_scispacy
+virtualenv_scispacy: virtualenv
+	$(VIRTUALENV)/bin/pip install -r requirements_scispacy.txt
+	rm $(VIRTUALENV)/.installed
+	echo "⚠️  Virtualenv is broken and needs to be reinstalled"
 
 .PHONY: test
-test:
+test: virtualenv
 	$(VIRTUALENV)/bin/python -m spacy download en_trf_bertbaseuncased_lg
-	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov=grants_tagger
+	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov=grants_tagger -m "not scispacy"
+
+.PHONY: test_scispacy
+test_scispacy: virtualenv_scispacy
+	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov-append --cov=grants_tagger tests/test_scispacy_meshtagger.py
+
 
 .PHONY: run_codecov
 run_codecov:

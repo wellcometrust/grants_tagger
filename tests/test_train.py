@@ -1,6 +1,7 @@
 import tempfile
 import pickle
 import json
+import os
 
 from skmultilearn.problem_transform import ClassifierChain, BinaryRelevance, LabelPowerset
 from sklearn.preprocessing import MultiLabelBinarizer
@@ -191,3 +192,33 @@ def test_train_and_evaluate():
 
             train_and_evaluate(train_data_tmp.name, label_binarizer_tmp.name, approach,
                                parameters="{'tfidf__min_df': 1, 'tfidf__stop_words': None}")
+
+def test_train_cnn_save():
+    approach = "cnn"
+
+    texts = ["one", "one two", "two"]
+    tags = [["one"], ["one","two"], ["two"]]
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
+        train_data_path = os.path.join(tmp_dir, "train_data.jsonl")
+
+        label_binarizer = MultiLabelBinarizer()
+        label_binarizer.fit(tags)
+        with open(label_binarizer_path, "wb") as label_binarizer_tmp:
+            label_binarizer_tmp.write(pickle.dumps(label_binarizer))
+
+        with open(train_data_path, "w") as train_data_tmp:
+            for text, tags_ in zip(texts, tags):
+                train_data_tmp.write(json.dumps({"text": text, "tags": tags_, "meta": {}}))
+                train_data_tmp.write("\n")
+
+        train_and_evaluate(train_data_tmp.name, label_binarizer_tmp.name,
+                           approach, model_path=tmp_dir)
+
+        expected_vectorizer_path = os.path.join(tmp_dir, "vectorizer.pkl")
+        expected_model_variables_path = os.path.join(tmp_dir, "variables")
+        expected_model_assets_path = os.path.join(tmp_dir, "assets")
+        assert os.path.exists(expected_vectorizer_path)
+        assert os.path.exists(expected_model_variables_path)
+        assert os.path.exists(expected_model_assets_path)

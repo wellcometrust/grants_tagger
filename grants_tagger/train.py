@@ -275,10 +275,22 @@ def train_and_evaluate(
                 pickle.dump(model, f)
         elif y_batch_size: 
             pass # saved already
-        else:
+        else: # dir path that might not exist
             if not os.path.exists(model_path):
                 os.mkdir(model_path)
-            model.save(model_path)
+            if approach in ["cnn", "bilstm"]:
+                # cnn and bilstm are pipelines so do not have a save
+                # but CNNClassifier and BiLSTMClassifier do have one
+                vectorizer = model.steps[0][1]
+                classifier = model.steps[1][1]
+
+                vectorizer_path = os.path.join(model_path, "vectorizer.pkl")
+                with open(vectorizer_path, "wb") as f:
+                    f.write(pickle.dumps(vectorizer))
+                classifier.save(model_path)
+
+            else: # default behaviour assumes that model has a save if path given
+                model.save(model_path)
 
     return f1
 
@@ -314,7 +326,9 @@ if __name__ == "__main__":
         threshold = cfg["model"].get("threshold", None)
         if threshold:
             threshold = float(threshold)
-        y_batch_size = int(cfg["model"].get("y_batch_size"))
+        y_batch_size = cfg["model"].get("y_batch_size")
+        if y_batch_size:
+            y_batch_size = int(y_batch_size)
     else:
         data_path = args.data
         label_binarizer_path = args.label_binarizer

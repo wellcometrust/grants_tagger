@@ -40,6 +40,7 @@ def create_mesh_sample(mesh_data_path, sample_mesh_data_path, mti_input_path):
             f.write(item)
 
             if mti_input_path:
+                # MTI input format is UID|Text where UID a unique identifier
                 uid = f"{i:08d}"
                 text = item["text"].encode("ascii", errors="ignore")
                 mti_f.write(f"{uid}|{text}\n")

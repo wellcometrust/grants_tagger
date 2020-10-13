@@ -270,7 +270,7 @@ def train_and_evaluate(
         print(report)
 
     if model_path:
-        if ('pkl' in str(model_path)) or ('pickle' in str(model_path)):
+        if str(model_path).endswith('pkl') or str(model_path).endswith('pickle'):
             with open(model_path, 'wb') as f:
                 pickle.dump(model, f)
         elif y_batch_size: 

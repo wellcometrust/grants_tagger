@@ -3,6 +3,7 @@
 Method   | Micro f1
 -------- | -------
 SciSpacy | 0.36
+MTI      | 0.49
 
 # Model inventory
 

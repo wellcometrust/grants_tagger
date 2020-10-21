@@ -133,7 +133,7 @@ if __name__ == '__main__':
         output_path = args.output
         text_cols = args.text_cols or "Title,Synopsis"
 
-    text_cols = args.text_cols.split(",")
+    text_cols = text_cols.split(",")
     if os.path.exists(output_path):
         print(f"{output_path} exists. Remove if you want to rerun.")
     else:

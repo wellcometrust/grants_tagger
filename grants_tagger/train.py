@@ -183,7 +183,7 @@ def train_and_evaluate(
         parameters=None, model_path=None, test_data_path=None,
         online_learning=False, nb_epochs=5,
         from_same_distribution=False, threshold=None,
-        y_batch_size=None, verbose=True):
+        y_batch_size=None, data_format="JSONL", verbose=True):
 
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.load(f)
@@ -223,7 +223,8 @@ def train_and_evaluate(
             train_data_path=train_data_path,
             test_data_path=test_data_path,
             label_binarizer=label_binarizer,
-            from_same_distribution=from_same_distribution
+            from_same_distribution=from_same_distribution,
+            data_format=data_format
         )
         if y_batch_size:
             vectorizer = model.steps[0][1]
@@ -308,6 +309,7 @@ if __name__ == "__main__":
     argparser.add_argument('-f', '--from_same_distribution', type=strtobool, default=False, help="whether train and test contain the same examples but differ in other ways, important when loading train and test parts of datasets")
     argparser.add_argument('--threshold', type=float, default=None, help="threhsold to assign a tag")
     argparser.add_argument('--y_batch_size', type=int, default=None, help="batch size for Y in cases where Y large. defaults to None i.e. no batching of Y")
+    argparser.add_argument('--data_format', type=str, default="JSONL", help="format that will be used when loading the data. One of JSONL,DataFrame")
     args = argparser.parse_args()
 
     if args.config:
@@ -329,6 +331,7 @@ if __name__ == "__main__":
         y_batch_size = cfg["model"].get("y_batch_size")
         if y_batch_size:
             y_batch_size = int(y_batch_size)
+        data_format = cfg["data"].get("data_format", "JSONL")
     else:
         data_path = args.data
         label_binarizer_path = args.label_binarizer
@@ -341,6 +344,7 @@ if __name__ == "__main__":
         from_same_distribution = args.from_same_distribution
         threshold= args.threshold
         y_batch_size = args.y_batch_size
+        data_format = args.data_format
 
     if os.path.exists(model_path):
         print(f"{model_path} exists. Remove if you want to rerun.")
@@ -356,5 +360,6 @@ if __name__ == "__main__":
             nb_epochs=nb_epochs,
             from_same_distribution=from_same_distribution,
             threshold=threshold,
-            y_batch_size=y_batch_size
+            y_batch_size=y_batch_size,
+            data_format=data_format
         )

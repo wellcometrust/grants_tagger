@@ -42,9 +42,9 @@ Version   | Approach    | Micro f1 | Description
 2020.10.10 | tfidf-svm | 0.52 | same as 2020.5.2 but train on title+synopsis+lay summary+research question and test on titles+question
 2020.10.11 | tfidf-svm | 0.66 | same as 2020.5.2 but train and test on title+lay summary
 2020.10.12 | tfidf-svm | 0.52 | same as 2020.5.2 but train and test on title+research question
-2020.10.13 | tfidf-svm | 0.72 | same as 2020.5.2 but test on title+synopsis+lay summary+research question
-2020.10.14 | tfidf-svm | 0.72 | same as 2020.5.2
-2020.10.15 | tfidf-svm | 0.71
+2020.10.13 | tfidf-svm | 0.72 | same as 2020.5.2 but train on title+synopsis and test on title+synopsis+lay summary+research question
+2020.10.14 | tfidf-svm | 0.72 | same as 2020.5.2 but train on title+synopsis and test on title+synopsis+lay summary
+2020.10.15 | tfidf-svm | 0.71 | same as 2020.5.2 but train on title+synopsis and test on title+synopsis+research_question
 
 ## 2020.02.0
 

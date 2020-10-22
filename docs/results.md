@@ -45,6 +45,8 @@ Version   | Approach    | Micro f1 | Description
 2020.10.13 | tfidf-svm | 0.72 | same as 2020.5.2 but train on title+synopsis and test on title+synopsis+lay summary+research question
 2020.10.14 | tfidf-svm | 0.72 | same as 2020.5.2 but train on title+synopsis and test on title+synopsis+lay summary
 2020.10.15 | tfidf-svm | 0.71 | same as 2020.5.2 but train on title+synopsis and test on title+synopsis+research_question
+2020.10.16 | tfidf+onehot_team | 0.71 | similar to 2020.5.2 but we add team as one hot variable to the features. as data get shuffled differently it seems as the performance stays the same but it actually increases 1% compared to removing the team variable
+2020.10.17 | tfidf+onehot_scheme | 0.68 | similar to 2020.10.16 but this time we add scheme as one hot variable.
 
 ## 2020.02.0
 
@@ -1593,4 +1595,76 @@ weighted avg       0.75      0.76      0.75       927
                                               macro avg       0.72      0.62      0.65       927
                                            weighted avg       0.74      0.69      0.71       927
                                             samples avg       0.74      0.72      0.69       927
+```
+
+## 2020.10.16
+
+```
+                                                         precision    recall  f1-score   support
+
+                                              10: Fungi       1.00      0.20      0.33         5
+                                          11: Parasites       0.90      0.75      0.82        24
+                     12: Brain Cells Circuits & Systems       0.84      0.84      0.84        74
+                           13: Sensory & Motor Function       0.86      0.69      0.77        26
+                              14: Behaviour & Cognition       0.70      0.82      0.76        51
+                      15: Behavioural & Social Sciences       0.48      0.52      0.50        21
+                                16: Health Intervention       0.67      0.69      0.68        54
+                          17: Health Services & Systems       0.93      0.78      0.85        32
+                                       18: Surveillance       0.49      0.82      0.62        34
+                 19: Maternal Child & Adolescent Health       0.83      0.63      0.72        30
+                                 1: Genetics & Genomics       0.61      0.56      0.58        61
+                             20: Nutrition & Metabolism       0.64      0.47      0.54        15
+                                     21: Cardiovascular       0.86      0.38      0.52        16
+                              22: Experimental Medicine       0.20      0.14      0.17        21
+                                    23: Medical Imaging       0.50      0.33      0.40         6
+24: Data Science Computational & Mathematical Modelling       0.54      0.68      0.60        38
+                2: Gene Regulation and Genome Integrity       0.78      0.70      0.74        71
+                        3: Protein Structure & Function       0.82      0.80      0.81        81
+                                        4: Cell Biology       0.61      0.76      0.67        79
+                               5: Developmental Biology       0.70      0.77      0.73        30
+                                   6: Stem Cell Biology       0.89      0.53      0.67        15
+                                          7: Immunology       0.75      0.82      0.78        72
+                                            8: Bacteria       0.89      0.63      0.74        49
+                                             9: Viruses       0.86      0.71      0.78        45
+
+                                              micro avg       0.71      0.70      0.71       950
+                                              macro avg       0.72      0.63      0.65       950
+                                           weighted avg       0.73      0.70      0.71       950
+                                            samples avg       0.74      0.74      0.71       950
+```
+
+## 2020.10.17
+
+```
+                                                         precision    recall  f1-score   support
+
+                                              10: Fungi       1.00      0.20      0.33         5
+                                          11: Parasites       0.74      0.71      0.72        24
+                     12: Brain Cells Circuits & Systems       0.86      0.80      0.83        74
+                           13: Sensory & Motor Function       0.87      0.50      0.63        26
+                              14: Behaviour & Cognition       0.74      0.78      0.76        51
+                      15: Behavioural & Social Sciences       0.44      0.38      0.41        21
+                                16: Health Intervention       0.70      0.65      0.67        54
+                          17: Health Services & Systems       0.67      0.69      0.68        32
+                                       18: Surveillance       0.60      0.62      0.61        34
+                 19: Maternal Child & Adolescent Health       0.68      0.57      0.62        30
+                                 1: Genetics & Genomics       0.56      0.56      0.56        61
+                             20: Nutrition & Metabolism       0.67      0.40      0.50        15
+                                     21: Cardiovascular       1.00      0.38      0.55        16
+                              22: Experimental Medicine       0.27      0.14      0.19        21
+                                    23: Medical Imaging       0.50      0.33      0.40         6
+24: Data Science Computational & Mathematical Modelling       0.62      0.61      0.61        38
+                2: Gene Regulation and Genome Integrity       0.79      0.68      0.73        71
+                        3: Protein Structure & Function       0.82      0.78      0.80        81
+                                        4: Cell Biology       0.62      0.77      0.69        79
+                               5: Developmental Biology       0.89      0.57      0.69        30
+                                   6: Stem Cell Biology       0.86      0.40      0.55        15
+                                          7: Immunology       0.81      0.75      0.78        72
+                                            8: Bacteria       0.93      0.57      0.71        49
+                                             9: Viruses       0.82      0.71      0.76        45
+
+                                              micro avg       0.72      0.65      0.68       950
+                                              macro avg       0.73      0.56      0.62       950
+                                           weighted avg       0.74      0.65      0.68       950
+                                            samples avg       0.74      0.69      0.67       950
 ```

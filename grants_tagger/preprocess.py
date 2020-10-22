@@ -32,7 +32,9 @@ def yield_preprocess_data(
         meta: list of tuple containing meta information for a grant such as its id
     """
     # cols = ['Grant Team', 'ERG', 'Lead Applicant', 'Organisation', 'Scheme', 'Title', 'Synopsis', 'Lay Summary', 'Qu.']
-    processed_data = data.groupby('Grant_ID').agg({
+    processed_data = data.drop_duplicates(subset=["Grant_ID", "Sciencetags"])
+    processed_data = processed_data.dropna(subset=["Synopsis"])
+    processed_data = processed_data.groupby('Grant_ID').agg({
         'Sciencetags': lambda x: ",".join(x),
         'Title': lambda x: x.iloc[0],
         'Synopsis': lambda x: x.iloc[0],

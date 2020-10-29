@@ -17,7 +17,7 @@ from grants_tagger.utils import load_data
 # TODO: Save tfidf as vectorizer in disease_mesh
 # TODO: Use Pipeline or class to explore predict for disease_mesh
 
-def load_model(model_path, threshold=0.5):
+def load_model(model_path):
     if 'pkl' in model_path[-4:]:
         with open(model_path, "rb") as f:
             model = pickle.loads(f.read())
@@ -37,13 +37,9 @@ def evaluate_model(model_path, data_path, label_binarizer_path, threshold):
 
     # comma indicates ensemble of more than one models
     if "," in model_path:        
-        models = []
-        for model_path_ in model_path.split(","):
-            model = load_model(model_path_, threshold)
-            models.append(model)
-
         Y_pred_probs = np.zeros(Y_test.shape)
-        for model in models:
+        for model_path_ in model_path.split(","):
+            model = load_model(model_path_)
             Y_pred_probs_model = model.predict_proba(X_test)
             Y_pred_probs += Y_pred_probs_model
 

@@ -10,11 +10,14 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, classification_report
 import numpy as np
 
-from wellcomeml.ml import BertClassifier
+from wellcomeml.ml import BertClassifier, CNNClassifier
 from grants_tagger.utils import load_data
 
 
-def load_model(model_path):
+# TODO: Save tfidf as vectorizer in disease_mesh
+# TODO: Use Pipeline or class to explore predict for disease_mesh
+
+def load_model(model_path, threshold=0.5):
     if 'pkl' in model_path[-4:]:
         with open(model_path, "rb") as f:
             model = pickle.loads(f.read())
@@ -25,25 +28,49 @@ def load_model(model_path):
         return scibert
     raise NotImplementedError
 
-def evaluate_ensemble(model_paths, data_path, label_binarizer_path, threshold):
-    models = []
-    for model_path in model_paths.split(","):
-        model = load_model(model_path)
-        models.append(model)
-
+def evaluate_model(model_path, data_path, label_binarizer_path, threshold):
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
 
     X, Y, _ = load_data(data_path, label_binarizer)
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, random_state=42)
 
-    Y_pred_probs = np.zeros(Y_test.shape)
-    for model in models:
-        Y_pred_probs_model = model.predict_proba(X_test)
-        Y_pred_probs += Y_pred_probs_model
+    # comma indicates ensemble of more than one models
+    if "," in model_path:        
+        models = []
+        for model_path_ in model_path.split(","):
+            model = load_model(model_path_, threshold)
+            models.append(model)
 
-    Y_pred_probs /= len(models)
-    Y_pred = Y_pred_probs > threshold
+        Y_pred_probs = np.zeros(Y_test.shape)
+        for model in models:
+            Y_pred_probs_model = model.predict_proba(X_test)
+            Y_pred_probs += Y_pred_probs_model
+
+        Y_pred_probs /= len(models)
+        Y_pred = Y_pred_probs > threshold
+    elif "disease_mesh_cnn" in model_path:
+        with open(f"{model_path}/vectorizer.pkl", "rb") as f:
+            vectorizer = pickle.loads(f.read())
+        classifier = CNNClassifier(sparse_y=True, threshold=threshold)
+        classifier.load(model_path)
+        X_test_vec = vectorizer.transform(X_test)
+        Y_pred = classifier.predict(X_test_vec)
+    elif "disease_mesh_tfidf" in model_path:
+        with open(f"{model_path}/tfidf.pkl", "rb") as f:
+            vectorizer = pickle.loads(f.read())
+
+        nb_labels = len(label_binarizer.classes_)
+        Y_pred_proba = []
+        for tag_i in range(0, nb_labels, y_batch_size):
+            with open(f"{model_path}/{tag_i}.pkl", "rb") as f:
+                classifier = pickle.loads(f.read())
+            X_vec = vectorizer.transform(X_test)
+            Y_pred_i = classifier.predict_proba(X_vec)
+            Y_pred_proba.append(Y_pred_i)
+        Y_pred_proba = hstack(Y_pred_proba)
+        Y_pred = Y_pred_proba > threshold
+
     print(classification_report(Y_test, Y_pred))
  
 if __name__ == '__main__':
@@ -67,6 +94,6 @@ if __name__ == '__main__':
         models = args.models
         data = args.data
         label_binarizer = args.label_binarizer
-        threhshold = args.threshold
+        threshold = args.threshold
 
-    evaluate_ensemble(models, data, label_binarizer, threshold)
+    evaluate_model(models, data, label_binarizer, threshold)

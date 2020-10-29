@@ -42,10 +42,11 @@ def yield_tagged_grants(grants, tags):
         })
         yield tagged_grant
 
-def tag_grants_with_mesh(grants_path, tagged_grants_path, model_path, label_binarizer_path):
+def tag_grants_with_mesh(grants_path, tagged_grants_path, model_path, label_binarizer_path, threshold):
     grants = [g for g in yield_grants(grants_path)]
     grants_text = [grant['title'] + ' ' + grant['synopsis'] for grant in grants]
-    tags = predict_tags(grants_text, model_path=model_path, label_binarizer_path=label_binarizer_path)
+    tags = predict_tags(grants_text, model_path=model_path, label_binarizer_path=label_binarizer_path,
+                        threshold=threshold)
     
     with open(tagged_grants_path, 'w') as f_o:
         fieldnames = ["Grant ID", "Reference", "Grant No."]
@@ -64,6 +65,7 @@ if __name__ == '__main__':
     argparser.add_argument('--tagged_grants', type=Path, help="path to output the tagged grants")
     argparser.add_argument('--model_path', type=Path, default=DEFAULT_MODEL_PATH, help="path to a dir that contains the batched models")
     argparser.add_argument('--label_binarizer_path', type=Path, default=DEFAULT_LABEL_BINARIZER_PATH, help="path to mesh label binarizer")
+    argparser.add_argument('--threshold', type=float, default=0.5, help="threshold to assign tags")
     args = argparser.parse_args()
 
-    tag_grants_with_mesh(args.grants, args.tagged_grants, args.model_path, args.label_binarizer_path)
+    tag_grants_with_mesh(args.grants, args.tagged_grants, args.model_path, args.label_binarizer_path, args.threshold)

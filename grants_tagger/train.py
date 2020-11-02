@@ -337,7 +337,7 @@ if __name__ == "__main__":
     argparser.add_argument('-f', '--from_same_distribution', type=strtobool, default=False, help="whether train and test contain the same examples but differ in other ways, important when loading train and test parts of datasets")
     argparser.add_argument('--threshold', type=float, default=None, help="threhsold to assign a tag")
     argparser.add_argument('--y_batch_size', type=int, default=None, help="batch size for Y in cases where Y large. defaults to None i.e. no batching of Y")
-    argparser.add_argument('--x_format', type=str, default="List", help="format that will be used when loading the data. One of JSONL,DataFrame")
+    argparser.add_argument('--x_format', type=str, default="List", help="format that will be used when loading the data. One of List,DataFrame")
     args = argparser.parse_args()
 
     if args.config:

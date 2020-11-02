@@ -7,6 +7,10 @@ def test_multiple_tags():
     data = pd.DataFrame({
         'Title': ['A', 'A'],
         'Synopsis': ['a', 'a'],
+        'Lay Summary': ['b', 'b'],
+        'Qu.': ['c', 'c'],
+        'Scheme': ['d', 'd'],
+        'Team': ['e', 'e'],
         'Grant_ID': [1, 1],
         'Sciencetags': ['T1', 'T2']
     })
@@ -21,6 +25,10 @@ def test_multiple_grants():
     data = pd.DataFrame({
         'Title': ['A', 'B'],
         'Synopsis': ['a', 'b'],
+        'Lay Summary': ['b', 'b'],
+        'Qu.': ['c', 'c'],
+        'Scheme': ['d', 'd'],
+        'Team': ['e', 'e'],
         'Grant_ID': [1, 2],
         'Sciencetags': ['T1', 'T2']
     })
@@ -36,6 +44,10 @@ def test_duplicate_grants():
     data = pd.DataFrame({
         'Title': ['A', 'A'],
         'Synopsis': ['a', 'a'],
+        'Lay Summary': ['b', 'b'],
+        'Qu.': ['c', 'c'],
+        'Scheme': ['d', 'd'],
+        'Team': ['e', 'e'],
         'Grant_ID': [1, 1],
         'Sciencetags': ['T1', 'T1']
     })
@@ -50,6 +62,10 @@ def test_missing_synopsis():
     data = pd.DataFrame({
         'Title': ['A', 'B'],
         'Synopsis': ['a', np.NaN],
+        'Lay Summary': ['b', 'b'],
+        'Qu.': ['c', 'c'],
+        'Scheme': ['d', 'd'],
+        'Team': ['e', 'e'],
         'Grant_ID': [1, 2],
         'Sciencetags': ['T1', 'T2']
     })

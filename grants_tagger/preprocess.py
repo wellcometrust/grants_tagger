@@ -11,64 +11,12 @@ import pickle
 import json
 import os
 
-from nltk.stem import WordNetLemmatizer
 import pandas as pd
 
-
-def lemmatize(text):
-    lemmer = WordNetLemmatizer()
-    return " ".join([lemmer.lemmatize(word, 'v') for word in text.split()])
-
-def filter_missing_data(data):
-    if 'Sciencetags' not in data:
-        data['Sciencetags'] = ""
-    data.rename(columns={'Sciencetags': 'tags'}, inplace=True)
-    data = data[data['tags'] != 'No tag']
-    data = data[data['tags'] != 'Not enough information available']
-    return data
-
-def clean_text(row, lemmatize_func, text_cols, for_prodigy=False):
-    if for_prodigy:
-        title = row['Title'].upper()
-        synopsis = row['Synopsis'].replace('\n','')
-        text = f"{title}\n\n{synopsis}"
-    else:
-        text = " ".join(row[text_cols].tolist())
-    return lemmatize_func(text)
-
-def create_grant_text(data, lemmatize_func, text_cols):
-    "Return dataframe of Grant ID, text"
-    grant_data = data.copy()
-    grant_data['text'] = grant_data.apply(lambda x: clean_text(x, lemmatize_func, text_cols), axis=1)
-    grant_data = grant_data.drop_duplicates(subset = 'Grant_ID')
-    grant_data = grant_data.drop_duplicates(subset = 'Synopsis') # Drops Synopsis with No Data Entered
-    return grant_data[['Grant_ID', 'text']]
-
-def create_tagger_metadata(data, tagger_level):
-    tagger_tags_col = 'Tagger{}_tags'.format(tagger_level)
-    if 'Tagger {} only'.format(tagger_level) not in data.columns:
-        return data['Grant_ID'].drop_duplicates()
-    # create columns that define which tags each tagger used ('intersection' is the column indicating tags where both taggers agreed)
-    data[tagger_tags_col] = data['intersection'] + data['Tagger {} only'.format(tagger_level)]
-    data[tagger_tags_col] = data.apply(lambda x: x['tags'] if x['tags'] in x[tagger_tags_col] else '', axis=1)
-    d = data.groupby('Grant_ID')[tagger_tags_col].apply(lambda x: ','.join(x)).reset_index()
-    return d[['Grant_ID', tagger_tags_col]]
-
-def create_grant_metadata(data, meta_cols):
-    "Returns dataFrame containing Grant ID and metadata cols"
-    grant_metadata = data[meta_cols].drop_duplicates(subset = 'Grant_ID')
-    grant_tagger_1 = create_tagger_metadata(data, 1)
-    grant_tagger_2 = create_tagger_metadata(data, 2)
-    return grant_metadata.merge(grant_tagger_1, on='Grant_ID').merge(grant_tagger_2, on='Grant_ID')
-
-def create_grant_tags(data):
-    "Returns dataframe of Grant ID, comma separated tags"
-    grant_tags = data.groupby('Grant_ID')['tags'].apply(lambda x: ','.join(x)).reset_index()
-    return grant_tags
+# TODO: Fix keys for calculating human accuracy
 
 def yield_preprocess_data(
         data,
-        lemmatize_func=lambda x: x,
         text_cols=["Title", "Synopsis"],
         meta_cols=["Grant_ID", "Title"]):
     """
@@ -84,31 +32,37 @@ def yield_preprocess_data(
         meta: list of tuple containing meta information for a grant such as its id
     """
     # cols = ['Grant Team', 'ERG', 'Lead Applicant', 'Organisation', 'Scheme', 'Title', 'Synopsis', 'Lay Summary', 'Qu.']
-    data = data.dropna(subset=['Synopsis'])
-    data = filter_missing_data(data)
-    data = data.drop_duplicates(subset=['Grant_ID', 'tags'])
-    grant_tags = create_grant_tags(data)
-    grant_text = create_grant_text(data, lemmatize_func, text_cols)
-    grant_metadata = create_grant_metadata(data, meta_cols)
-    grant_data = grant_text.merge(grant_tags, on='Grant_ID').merge(grant_metadata, on='Grant_ID', how='left')
+    processed_data = data.drop_duplicates(subset=["Grant_ID", "Sciencetags"])
+    processed_data = processed_data.dropna(subset=["Synopsis"])
+    processed_data = processed_data.groupby('Grant_ID').agg({
+        'Sciencetags': lambda x: ",".join(x),
+        'Title': lambda x: x.iloc[0],
+        'Synopsis': lambda x: x.iloc[0],
+        'Lay Summary': lambda x: x.iloc[0],
+        'Qu.': lambda x: x.iloc[0],
+        'Scheme': lambda x: x.iloc[0],
+        'Team': lambda x: x.iloc[0]
+    }).reset_index()
+    processed_data = processed_data[processed_data["Synopsis"] != "No Data Entered"]
+    processed_data = processed_data[processed_data["Sciencetags"] != "No tag"]
+    processed_data = processed_data[processed_data["Sciencetags"] != "Not enough information available"]
+    processed_data = processed_data.drop_duplicates(subset="Grant_ID")
+    processed_data = processed_data.drop_duplicates(subset="Synopsis")
+    processed_data = processed_data.replace("No Data Entered", "").fillna("")
 
-    texts = grant_data['text'].tolist()
-    tags = grant_data['tags'].tolist()
-    meta = grant_data[grant_metadata.columns].to_dict('records')
-
-    for text, tag, met in zip(texts, tags, meta):
+    for processed_item in processed_data.to_dict("records"):
         yield {
-            'text': text,
-            'tags': tag.split(','),
-            'meta': met
+            'text': " ".join([processed_item[col] for col in text_cols]),
+            'tags': processed_item["Sciencetags"].split(','),
+            'meta': {col: processed_item[col] for col in meta_cols}
         }
 
-def preprocess(input_path, output_path, text_cols):
+def preprocess(input_path, output_path, text_cols, meta_cols):
     data = pd.read_excel(input_path)
 
     tags = []
     with open(output_path, 'w') as f:
-        for chunk in yield_preprocess_data(data, text_cols=text_cols):
+        for chunk in yield_preprocess_data(data, text_cols, meta_cols):
             f.write(json.dumps(chunk))
             f.write('\n')
             tags.append(chunk['tags'])
@@ -118,9 +72,10 @@ if __name__ == '__main__':
     argparser.add_argument('--input', type=Path, help="path to raw Excel file with tagged or untagged grant data")
     argparser.add_argument('--output', type=Path, help="path to JSONL output file that will be generated")
     argparser.add_argument('--text_cols', type=str, default="Title,Synopsis", help="comma delimited column names to concatenate to text")
+    argparser.add_argument('--meta_cols', type=str, default="Grant_ID,Title", help="comma delimited column names to include in the meta")
     argparser.add_argument('--config', type=Path, help="path to config file that defines the arguments")
     args = argparser.parse_args()
-    print(args.config)
+
     if args.config:
         cfg = ConfigParser(allow_no_value=True)
         cfg.read(args.config)
@@ -128,13 +83,16 @@ if __name__ == '__main__':
         input_path = cfg["preprocess"]["input"]
         output_path = cfg["preprocess"]["output"]
         text_cols = cfg["preprocess"]["text_cols"]
+        meta_cols = cfg["preprocess"].get("meta_cols", "Grant_ID,Title")
     else:
         input_path = args.input
         output_path = args.output
-        text_cols = args.text_cols or "Title,Synopsis"
+        text_cols = args.text_cols
+        meta_cols = args.meta_cols
 
     text_cols = text_cols.split(",")
+    meta_cols = meta_cols.split(",")
     if os.path.exists(output_path):
         print(f"{output_path} exists. Remove if you want to rerun.")
     else:
-        preprocess(input_path, output_path, text_cols)
+        preprocess(input_path, output_path, text_cols, meta_cols)

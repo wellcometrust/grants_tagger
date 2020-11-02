@@ -26,7 +26,7 @@ setup(
     install_requires=[
         'pandas',
         'xlrd',
-        'scikit-learn==0.21.3',
+        'scikit-learn==0.23.2',
         'nltk',
         'matplotlib',
         'wellcomeml[deep-learning]==2020.9.0',

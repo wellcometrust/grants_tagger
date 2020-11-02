@@ -7,7 +7,7 @@ from sklearn.metrics import f1_score
 import pandas as pd
 import numpy as np
 
-def load_data(data_path, label_binarizer=None):
+def load_data(data_path, label_binarizer=None, X_format="List"):
     """Load data from the dataset."""
     print("Loading data...")
 
@@ -25,15 +25,22 @@ def load_data(data_path, label_binarizer=None):
     if label_binarizer:
         tags = label_binarizer.transform(tags)
 
+    if X_format == "DataFrame":
+        X = pd.DataFrame(meta)
+        X["text"] = texts
+        return X, tags, meta
+
     return texts, tags, meta
+        
 
 def load_train_test_data(
         train_data_path, label_binarizer,
-        test_data_path=None, from_same_distribution=False):
+        test_data_path=None, from_same_distribution=False,
+        X_format="List"):
 
     if test_data_path:
-        X_train, Y_train, _ = load_data(train_data_path, label_binarizer)
-        X_test, Y_test, _ = load_data(test_data_path, label_binarizer)
+        X_train, Y_train, _ = load_data(train_data_path, label_binarizer, X_format)
+        X_test, Y_test, _ = load_data(test_data_path, label_binarizer, X_format)
 
         if from_same_distribution:
             X_train, _, Y_train, _ = train_test_split(
@@ -43,7 +50,7 @@ def load_train_test_data(
                 X_test, Y_test, random_state=42
             )
     else:
-        X, Y, _ = load_data(train_data_path, label_binarizer)
+        X, Y, _ = load_data(train_data_path, label_binarizer, X_format)
         X_train, X_test, Y_train, Y_test = train_test_split(
             X, Y, random_state=42
         )

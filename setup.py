@@ -31,7 +31,8 @@ setup(
         'matplotlib',
         'wellcomeml[deep-learning]==2020.9.0',
         'docutils==0.15',
-        'scipy==1.4.1'
+        'scipy==1.4.1',
+        'wasabi'
     ],
     tests_require=[
         'pytest',

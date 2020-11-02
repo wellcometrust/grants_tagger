@@ -8,7 +8,8 @@ import pickle
 
 from wellcomeml.ml import BertClassifier, CNNClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import f1_score, classification_report
+from sklearn.metrics import f1_score, classification_report, precision_score, recall_score
+from wasabi import table
 import numpy as np
 
 from grants_tagger.utils import load_data
@@ -49,16 +50,31 @@ def evaluate_model(model_path, data_path, label_binarizer_path, threshold):
     elif "disease_mesh_tfidf" in model_path:
         nb_labels = len(label_binarizer.classes_)
         Y_pred_proba = predict_proba_tfidf_svm(X_test, model_path, nb_labels)
-    Y_pred = Y_pred_proba > threshold
+    else:
+        model = load_model(model_path)
+        Y_pred_proba = model.predict_proba(X_test)
 
-    print(classification_report(Y_test, Y_pred))
+    # comma indicates multiple thresholds to evaluate against
+    if "," in threshold:
+        results = []
+        for threshold in threshold.split(","):
+            Y_pred = Y_pred_proba > float(threshold)
+            p = round(precision_score(Y_test, Y_pred, average='micro'), 2)
+            r = round(recall_score(Y_test, Y_pred, average='micro'), 2)
+            f1 = round(f1_score(Y_test, Y_pred, average='micro'), 2)
+            results.append((threshold, p, r, f1))
+        header = ["Threshold", "P", "R", "F1"]
+        print(table(results, header, divider=True))
+    else:
+        Y_pred = Y_pred_proba > float(threshold)
+        print(classification_report(Y_test, Y_pred))
  
 if __name__ == '__main__':
     argparser = ArgumentParser(description=__file__)
     argparser.add_argument("--models", type=str, help="comma separated paths to pretrained models")
     argparser.add_argument("--data", type=Path, help="path to data that was used for training")
     argparser.add_argument("--label_binarizer", type=Path, help="path to label binarizer")
-    argparser.add_argument("--threshold", type=float, help="threshold used to assign tags")
+    argparser.add_argument("--threshold", type=str, help="threshold or comma separated thresholds used to assign tags")
     argparser.add_argument("--config", type=Path, help="path to config file that defines arguments")
     args = argparser.parse_args()
 
@@ -69,7 +85,7 @@ if __name__ == '__main__':
         models = cfg["ensemble"]["models"]
         data = cfg["ensemble"]["data"]
         label_binarizer = cfg["ensemble"]["label_binarizer"]
-        threshold = float(cfg["ensemble"]["threshold"])
+        threshold = cfg["ensemble"]["threshold"]
     else:
         models = args.models
         data = args.data

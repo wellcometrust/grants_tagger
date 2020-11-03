@@ -20,25 +20,37 @@ DEFAULT_TFIDF_SVM_PATH = os.path.join(FILEPATH, '../models/tfidf-svm-2020.05.2.p
 DEFAULT_LABELBINARIZER_PATH = os.path.join(FILEPATH, '../models/label_binarizer.pkl')
 
 
+def load_model(model_path):
+    if 'pkl' in model_path[-4:]:
+        with open(model_path, "rb") as f:
+            model = pickle.loads(f.read())
+            return model
+    if 'scibert' in model_path:
+        scibert = BertClassifier(pretrained="scibert")
+        scibert.load(model_path)
+        return scibert
+    raise NotImplementedError
+
+
+def predict_proba_ensemble_tfidf_svm_bert(X, model_paths):
+    Y_pred_proba = []
+    for model_path in model_paths:
+        model = load_model(model_path)
+        Y_pred_proba_model = model.predict_proba(X)
+        Y_pred_proba.append(Y_pred_proba_model)
+
+    Y_pred_proba = np.sum(Y_pred_proba) / len(model_paths)
+    return Y_pred_proba
+
+
 def predict_tags(X, probabilities=False, threshold=0.5,
                  scibert_path=DEFAULT_SCIBERT_PATH,
                  tfidf_svm_path=DEFAULT_TFIDF_SVM_PATH,
                  label_binarizer_path=DEFAULT_LABELBINARIZER_PATH):
-    scibert = BertClassifier()
-    scibert.load(scibert_path)
-
-    with open(tfidf_svm_path, "rb") as f:
-        tfidf_svm = pickle.loads(f.read())
-
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.load(f)
 
-    Y_pred_probs = np.zeros((len(X), len(label_binarizer.classes_)))
-    for model in [scibert, tfidf_svm]:
-        Y_pred_probs_model = model.predict_proba(X)
-        Y_pred_probs += Y_pred_probs_model
-
-        Y_pred_probs /= 2
+    Y_pred_probs = predict_proba_ensemble_tfidf_svm_bert(X, [tfidf_svm_path, scibert_path])
 
     tag_names = label_binarizer.classes_
 

@@ -14,20 +14,11 @@ import numpy as np
 
 from grants_tagger.utils import load_data
 from grants_tagger.predict_mesh import predict_proba_tfidf_svm, predict_proba_cnn
+from grants_tagger.predict import predict_proba_ensemble_tfidf_svm_bert
 
 # TODO: Save tfidf as vectorizer in disease_mesh
 # TODO: Use Pipeline or class to explore predict for disease_mesh
 
-def load_model(model_path):
-    if 'pkl' in model_path[-4:]:
-        with open(model_path, "rb") as f:
-            model = pickle.loads(f.read())
-            return model
-    if 'scibert' in model_path:
-        scibert = BertClassifier(pretrained="scibert")
-        scibert.load(model_path)
-        return scibert
-    raise NotImplementedError
 
 def evaluate_model(model_path, data_path, label_binarizer_path, threshold):
     with open(label_binarizer_path, "rb") as f:
@@ -37,15 +28,9 @@ def evaluate_model(model_path, data_path, label_binarizer_path, threshold):
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, random_state=42)
 
     # comma indicates ensemble of more than one models
-    if "," in model_path:        
-        Y_pred_proba = np.zeros(Y_test.shape)
+    if "," in model_path:
         model_paths = model_path.split(",")
-        for model_path_ in model_paths:
-            model = load_model(model_path_)
-            Y_pred_proba_model = model.predict_proba(X_test)
-            Y_pred_proba += Y_pred_proba_model
-
-        Y_pred_proba /= len(model_paths)
+        Y_pred_proba = predict_proba_ensemble_tfidf_svm_bert(X_test, model_paths)
     elif "disease_mesh_cnn" in model_path:
         Y_pred_proba = predict_proba_cnn(X_test, model_path)
     elif "disease_mesh_tfidf" in model_path:

@@ -39,12 +39,13 @@ def evaluate_model(model_path, data_path, label_binarizer_path, threshold):
     # comma indicates ensemble of more than one models
     if "," in model_path:        
         Y_pred_proba = np.zeros(Y_test.shape)
-        for model_path_ in model_path.split(","):
+        model_paths = model_path.split(",")
+        for model_path_ in model_paths:
             model = load_model(model_path_)
             Y_pred_proba_model = model.predict_proba(X_test)
             Y_pred_proba += Y_pred_proba_model
 
-        Y_pred_proba /= len(models)
+        Y_pred_proba /= len(model_paths)
     elif "disease_mesh_cnn" in model_path:
         Y_pred_proba = predict_proba_cnn(X_test, model_path)
     elif "disease_mesh_tfidf" in model_path:

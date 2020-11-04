@@ -15,6 +15,7 @@ Version   | Approach    | Micro f1 in Pubs | Micro f1 in Grants | Description
 2020.9.2  | cnn         | 0.64
 2020.9.4  | cnn         | 0.62
 2020.9.5  | cnn         | 0.63
+2020.9.6  | cnn         | 0.64
 
 ## 2020.07.0
 
@@ -68,4 +69,12 @@ weighted avg       0.72      0.54      0.60   4153163
    macro avg       0.67      0.42      0.49   4153163
 weighted avg       0.74      0.53      0.60   4153163
  samples avg       0.72      0.61      0.63   4153163
+```
+
+## 2020.09.6
+```
+   micro avg       0.76      0.56      0.64   4153163                        
+   macro avg       0.64      0.42      0.49   4153163                        
+weighted avg       0.73      0.56      0.62   4153163                        
+ samples avg       0.73      0.64      0.65   4153163
 ```

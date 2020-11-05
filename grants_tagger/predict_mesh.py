@@ -35,10 +35,12 @@ def predict_tfidf_svm(X, model_path, nb_labels, threshold=0.5,
 
 
 def predict_cnn(X, model_path, threshold=0.5,
-                probability=True, x_batch_size=512):
+                probability=False, x_batch_size=512):
     with open(f"{model_path}/vectorizer.pkl", "rb") as f:
         vectorizer = pickle.loads(f.read())
-    model = CNNClassifier(sparse_y=True, threshold=threshold)
+    model = CNNClassifier(
+        sparse_y=True, threshold=threshold, batch_size=x_batch_size
+    )
     model.load(model_path)
 
     X_vec = vectorizer.transform(X)

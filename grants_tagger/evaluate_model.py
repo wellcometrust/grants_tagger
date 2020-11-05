@@ -20,16 +20,16 @@ from grants_tagger.predict import predict_proba_ensemble_tfidf_svm_bert, load_mo
 # TODO: Use Pipeline or class to explore predict for disease_mesh
 
 
-def predict(X_test, model_path, nb_labels, threshold=0.5):
+def predict(X_test, model_path, nb_labels, threshold):
     # comma indicates ensemble of more than one models
     if "," in model_path:
         model_paths = model_path.split(",")
         Y_pred_proba = predict_proba_ensemble_tfidf_svm_bert(X_test, model_paths)
         Y_pred = Y_pred_proba > float(threshold)
     elif "disease_mesh_cnn" in model_path:
-        Y_pred = predict_cnn(X_test, model_path, threshold)
+        Y_pred = predict_cnn(X_test, model_path, float(threshold))
     elif "disease_mesh_tfidf" in model_path:
-        Y_pred = predict_tfidf_svm(X_test, model_path, nb_labels, threshold)
+        Y_pred = predict_tfidf_svm(X_test, model_path, nb_labels, float(threshold))
     else:
         model = load_model(model_path) # no load_model
         Y_pred_proba = model.predict_proba(X_test)
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     argparser.add_argument("--models", type=str, help="comma separated paths to pretrained models")
     argparser.add_argument("--data", type=Path, help="path to data that was used for training")
     argparser.add_argument("--label_binarizer", type=Path, help="path to label binarizer")
-    argparser.add_argument("--threshold", type=str, help="threshold or comma separated thresholds used to assign tags")
+    argparser.add_argument("--threshold", type=str, default="0.5", help="threshold or comma separated thresholds used to assign tags")
     argparser.add_argument("--config", type=Path, help="path to config file that defines arguments")
     args = argparser.parse_args()
 

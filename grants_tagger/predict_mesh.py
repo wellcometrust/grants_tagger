@@ -4,40 +4,55 @@ exposes probabilities and that you can set the threshold
 for making a prediction
 """
 import pickle
-import os
 
 from wellcomeml.ml import CNNClassifier
 from numpy import hstack, vstack
-import numpy as np
+from scipy.sparse import hstack as sparse_hstack
 
 
-def predict_proba_tfidf_svm(X, model_path, nb_labels, y_batch_size=512):
+def predict_tfidf_svm(X, model_path, nb_labels, threshold=0.5,
+                      probability=True, y_batch_size=512):
     # TODO: generalise tfidf to vectorizer.pkl
     with open(f"{model_path}/tfidf.pkl", "rb") as f:
         vectorizer = pickle.loads(f.read())
 
-    Y_pred_proba = []
+    Y_pred = []
     for tag_i in range(0, nb_labels, y_batch_size):
         with open(f"{model_path}/{tag_i}.pkl", "rb") as f:
             classifier = pickle.loads(f.read())
         X_vec = vectorizer.transform(X)
-        Y_pred_i = classifier.predict_proba(X_vec)
-        Y_pred_proba.append(Y_pred_i)
-    Y_pred_proba = hstack(Y_pred_proba)
-    return Y_pred_proba
+        if probability:
+            Y_pred_i = classifier.predict_proba(X_vec)
+        else:
+            Y_pred_i = classifier.predict(X_vec)
+        Y_pred.append(Y_pred_i)
 
-def predict_proba_cnn(X, model_path, x_batch_size=512):
+    if probability:
+        Y_pred = hstack(Y_pred)
+    else:
+        Y_pred = sparse_hstack(Y_pred)
+    return Y_pred
+
+
+def predict_cnn(X, model_path, threshold=0.5,
+                probability=True, x_batch_size=512):
     with open(f"{model_path}/vectorizer.pkl", "rb") as f:
         vectorizer = pickle.loads(f.read())
-    model = CNNClassifier(sparse_y=True)
+    model = CNNClassifier(sparse_y=True, threshold=threshold)
     model.load(model_path)
 
     X_vec = vectorizer.transform(X)
-    Y_pred_proba = []
-    for i in range(0, X_vec.shape[0], x_batch_size):
-        Y_pred_proba_batch = model.predict_proba(X_vec[i:i+x_batch_size])
-        Y_pred_proba.append(Y_pred_proba_batch)
-    Y_pred_proba = vstack(Y_pred_proba)
+    if probability:
+        Y_pred_proba = []
+        for i in range(0, X_vec.shape[0], x_batch_size):
+            Y_pred_proba_batch = model.predict(X_vec[i:i+x_batch_size])
+            Y_pred_proba.append(Y_pred_proba_batch)
+        Y_pred_proba = vstack(Y_pred_proba)
+        return Y_pred_proba
+    else:
+        Y_pred = model.predict(X_vec)
+        return Y_pred
+
 
 def predict_mesh_tags(X, model_path, label_binarizer_path,
                       probabilities=False, threshold=0.5,
@@ -48,9 +63,9 @@ def predict_mesh_tags(X, model_path, label_binarizer_path,
     nb_labels = len(label_binarizer.classes_)
 
     if "tfidf" in str(model_path):
-        Y_pred_proba = predict_proba_tfidf_svm(X, model_path, nb_labels)
+        Y_pred_proba = predict_tfidf_svm(X, model_path, nb_labels, probability=True)
     elif "cnn" in str(model_path):
-        Y_pred_proba = predict_proba_cnn(X, model_path)
+        Y_pred_proba = predict_cnn(X, model_path, probability=True)
     else:
         raise NotImplementedError
 

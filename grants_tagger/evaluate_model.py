@@ -13,38 +13,43 @@ from wasabi import table
 import numpy as np
 
 from grants_tagger.utils import load_data
-from grants_tagger.predict_mesh import predict_proba_tfidf_svm, predict_proba_cnn
+from grants_tagger.predict_mesh import predict_tfidf_svm, predict_cnn
 from grants_tagger.predict import predict_proba_ensemble_tfidf_svm_bert
 
 # TODO: Save tfidf as vectorizer in disease_mesh
 # TODO: Use Pipeline or class to explore predict for disease_mesh
 
 
-def evaluate_model(model_path, data_path, label_binarizer_path, threshold):
-    with open(label_binarizer_path, "rb") as f:
-        label_binarizer = pickle.loads(f.read())
-
-    X, Y, _ = load_data(data_path, label_binarizer)
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, random_state=42)
-
+def predict(X_test, model_path, nb_labels, threshold=0.5):
     # comma indicates ensemble of more than one models
     if "," in model_path:
         model_paths = model_path.split(",")
         Y_pred_proba = predict_proba_ensemble_tfidf_svm_bert(X_test, model_paths)
+        Y_pred = Y_pred_proba > float(threshold)
     elif "disease_mesh_cnn" in model_path:
-        Y_pred_proba = predict_proba_cnn(X_test, model_path)
+        Y_pred = predict_cnn(X_test, model_path, threshold)
     elif "disease_mesh_tfidf" in model_path:
-        nb_labels = len(label_binarizer.classes_)
-        Y_pred_proba = predict_proba_tfidf_svm(X_test, model_path, nb_labels)
+        Y_pred = predict_tfidf_svm(X_test, model_path, nb_labels, threshold)
     else:
-        model = load_model(model_path)
+        model = load_model(model_path) # no load_model
         Y_pred_proba = model.predict_proba(X_test)
+        Y_pred = Y_pred_proba > float(threshold)
+    return Y_pred
+
+
+def evaluate_model(model_path, data_path, label_binarizer_path, threshold):
+    with open(label_binarizer_path, "rb") as f:
+        label_binarizer = pickle.loads(f.read())
+    nb_labels = len(label_binarizer.classes_)
+
+    X, Y, _ = load_data(data_path, label_binarizer)
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, random_state=42)
 
     # comma indicates multiple thresholds to evaluate against
     if "," in threshold:
         results = []
         for threshold in threshold.split(","):
-            Y_pred = Y_pred_proba > float(threshold)
+            Y_pred = predict(X_test, model_path, nb_labels, threshold)
             p = round(precision_score(Y_test, Y_pred, average='micro'), 2)
             r = round(recall_score(Y_test, Y_pred, average='micro'), 2)
             f1 = round(f1_score(Y_test, Y_pred, average='micro'), 2)
@@ -52,7 +57,7 @@ def evaluate_model(model_path, data_path, label_binarizer_path, threshold):
         header = ["Threshold", "P", "R", "F1"]
         print(table(results, header, divider=True))
     else:
-        Y_pred = Y_pred_proba > float(threshold)
+        Y_pred = predict(X_test, model_path, nb_labels, threshold)
         print(classification_report(Y_test, Y_pred))
  
 if __name__ == '__main__':

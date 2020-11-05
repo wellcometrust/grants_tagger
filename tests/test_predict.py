@@ -49,7 +49,7 @@ def train_test_model(scibert_path, tfidf_svm_path, label_binarizer_path):
     scibert.fit(X, Y_vec)
     scibert.save(scibert_path)
 
-def test_predict_mesh():
+def test_predict():
     with tempfile.TemporaryDirectory() as tmp_dir:
         scibert_path = f"{tmp_dir}/model/"
         os.mkdir(scibert_path)

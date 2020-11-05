@@ -47,7 +47,7 @@ def predict_cnn(X, model_path, threshold=0.5,
     if probability:
         Y_pred_proba = []
         for i in range(0, X_vec.shape[0], x_batch_size):
-            Y_pred_proba_batch = model.predict(X_vec[i:i+x_batch_size])
+            Y_pred_proba_batch = model.predict_proba(X_vec[i:i+x_batch_size])
             Y_pred_proba.append(Y_pred_proba_batch)
         Y_pred_proba = vstack(Y_pred_proba)
         return Y_pred_proba

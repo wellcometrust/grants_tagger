@@ -39,7 +39,7 @@ def predict_proba_ensemble_tfidf_svm_bert(X, model_paths):
         Y_pred_proba_model = model.predict_proba(X)
         Y_pred_proba.append(Y_pred_proba_model)
 
-    Y_pred_proba = np.sum(Y_pred_proba) / len(model_paths)
+    Y_pred_proba = np.array(Y_pred_proba).sum(axis=0) / len(model_paths)
     return Y_pred_proba
 
 

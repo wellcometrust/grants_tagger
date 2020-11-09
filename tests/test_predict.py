@@ -51,7 +51,7 @@ def train_test_model(scibert_path, tfidf_svm_path, label_binarizer_path):
 
 def test_predict():
     with tempfile.TemporaryDirectory() as tmp_dir:
-        scibert_path = f"{tmp_dir}/model/"
+        scibert_path = f"{tmp_dir}/scibert/"
         os.mkdir(scibert_path)
         tfidf_svm_path = f"{tmp_dir}/tfidf_svm.pkl"
         label_binarizer_path = f"{tmp_dir}/label_binarizer.pkl"

@@ -75,4 +75,10 @@ def test_tag_grants():
 
             tmp_grants.seek(0)
 
-            tag_grants(grants_path, tagged_grants_path, scibert_path=scibert_path, tfidf_svm_path=tfidf_svm_path, label_binarizer_path=label_binarizer_path)
+            tag_grants(
+                grants_path,
+                tagged_grants_path,
+                scibert_path=scibert_path,
+                tfidf_svm_path=tfidf_svm_path,
+                label_binarizer_path=label_binarizer_path
+            )

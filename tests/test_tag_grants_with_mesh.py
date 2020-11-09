@@ -50,7 +50,7 @@ def train_test_model(model_path, label_binarizer_path):
 
 def test_tag_grants_with_mesh():
     with tempfile.TemporaryDirectory() as tmp_dir:
-        model_path = f"{tmp_dir}/model/"
+        model_path = f"{tmp_dir}/tfidf_model/"
         os.mkdir(model_path)
         label_binarizer_path = f"{tmp_dir}/label_binarizer.pkl"
         train_test_model(model_path, label_binarizer_path)
@@ -72,4 +72,10 @@ def test_tag_grants_with_mesh():
 
             tmp_grants.seek(0)
 
-            tag_grants_with_mesh(grants_path, tagged_grants_path, model_path=model_path, label_binarizer_path=label_binarizer_path)
+            tag_grants_with_mesh(
+                grants_path,
+                tagged_grants_path,
+                model_path=model_path,
+                label_binarizer_path=label_binarizer_path,
+                threshold=0.5
+            )

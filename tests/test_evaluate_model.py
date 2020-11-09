@@ -49,6 +49,7 @@ def test_evaluate_model():
             mock_predict.return_value = label_binarizer.transform(Y_test)
 
             evaluate_model("model_path", data_path, label_binarizer_path, 0.5)
+            mock_predict.assert_called()
 
 
 def test_evaluate_model_multiple_thresholds():
@@ -68,7 +69,7 @@ def test_evaluate_model_multiple_thresholds():
             mock_predict.return_value = label_binarizer.transform(Y_test)
 
             evaluate_model("model_path", data_path, label_binarizer_path, [0,1,0.5,0.9])
-
+            mock_predict.assert_called()
 
 def test_evaluate_model_predict_cnn():
     with patch('grants_tagger.evaluate_model.predict_cnn') as mock_predict_cnn:

@@ -49,10 +49,10 @@ def evaluate_model(model_path, data_path, label_binarizer_path, threshold):
         results = []
         for threshold_ in threshold:
             Y_pred = predict(X_test, model_path, nb_labels, threshold_)
-            p = round(precision_score(Y_test, Y_pred, average='micro'), 2)
-            r = round(recall_score(Y_test, Y_pred, average='micro'), 2)
-            f1 = round(f1_score(Y_test, Y_pred, average='micro'), 2)
-            results.append((threshold_, p, r, f1))
+            p = precision_score(Y_test, Y_pred, average='micro')
+            r = recall_score(Y_test, Y_pred, average='micro')
+            f1 = f1_score(Y_test, Y_pred, average='micro')
+            results.append((threshold_, f"{p:.2f}", f"{r:.2f}", f"{f1:.2f}"))
         header = ["Threshold", "P", "R", "F1"]
         print(table(results, header, divider=True))
     else:
@@ -82,5 +82,7 @@ if __name__ == '__main__':
         label_binarizer = args.label_binarizer
         threshold = args.threshold
 
-    threshold = threshold.split(",") if "," in threshold else threshold
+    # comma indicates multiple threshold to evaluate against
+    if "," in threshold:
+        threshold = threshold.split(",")
     evaluate_model(models, data, label_binarizer, threshold)

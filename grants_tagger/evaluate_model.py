@@ -25,15 +25,15 @@ def predict(X_test, model_path, nb_labels, threshold):
     if "," in model_path:
         model_paths = model_path.split(",")
         Y_pred_proba = predict_proba_ensemble_tfidf_svm_bert(X_test, model_paths)
-        Y_pred = Y_pred_proba > float(threshold)
+        Y_pred = Y_pred_proba > threshold
     elif "disease_mesh_cnn" in model_path:
-        Y_pred = predict_cnn(X_test, model_path, float(threshold))
+        Y_pred = predict_cnn(X_test, model_path, threshold)
     elif "disease_mesh_tfidf" in model_path:
-        Y_pred = predict_tfidf_svm(X_test, model_path, nb_labels, float(threshold))
+        Y_pred = predict_tfidf_svm(X_test, model_path, nb_labels, threshold)
     else:
-        model = load_model(model_path) # no load_model
+        model = load_model(model_path)
         Y_pred_proba = model.predict_proba(X_test)
-        Y_pred = Y_pred_proba > float(threshold)
+        Y_pred = Y_pred_proba > threshold
     return Y_pred
 
 
@@ -45,15 +45,14 @@ def evaluate_model(model_path, data_path, label_binarizer_path, threshold):
     X, Y, _ = load_data(data_path, label_binarizer)
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, random_state=42)
 
-    # comma indicates multiple thresholds to evaluate against
-    if "," in threshold:
+    if type(threshold) == list:
         results = []
-        for threshold in threshold.split(","):
-            Y_pred = predict(X_test, model_path, nb_labels, threshold)
+        for threshold_ in threshold:
+            Y_pred = predict(X_test, model_path, nb_labels, threshold_)
             p = round(precision_score(Y_test, Y_pred, average='micro'), 2)
             r = round(recall_score(Y_test, Y_pred, average='micro'), 2)
             f1 = round(f1_score(Y_test, Y_pred, average='micro'), 2)
-            results.append((threshold, p, r, f1))
+            results.append((threshold_, p, r, f1))
         header = ["Threshold", "P", "R", "F1"]
         print(table(results, header, divider=True))
     else:
@@ -83,4 +82,5 @@ if __name__ == '__main__':
         label_binarizer = args.label_binarizer
         threshold = args.threshold
 
+    threshold = threshold.split(",") if "," in threshold else threshold
     evaluate_model(models, data, label_binarizer, threshold)

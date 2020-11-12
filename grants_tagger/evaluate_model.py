@@ -16,9 +16,6 @@ from grants_tagger.utils import load_data
 from grants_tagger.predict_mesh import predict_tfidf_svm, predict_cnn
 from grants_tagger.predict import predict_proba_ensemble_tfidf_svm_bert, load_model
 
-# TODO: Save tfidf as vectorizer in disease_mesh
-# TODO: Use Pipeline or class to explore predict for disease_mesh
-
 
 def predict(X_test, model_path, nb_labels, threshold):
     # comma indicates ensemble of more than one models

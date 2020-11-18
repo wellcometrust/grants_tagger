@@ -11,7 +11,7 @@ from scipy.sparse import hstack as sparse_hstack
 
 
 def predict_tfidf_svm(X, model_path, nb_labels, threshold=0.5,
-                      probability=True, y_batch_size=512):
+                      return_probabilities=True, y_batch_size=512):
     # TODO: generalise tfidf to vectorizer.pkl
     with open(f"{model_path}/tfidf.pkl", "rb") as f:
         vectorizer = pickle.loads(f.read())
@@ -21,13 +21,13 @@ def predict_tfidf_svm(X, model_path, nb_labels, threshold=0.5,
         with open(f"{model_path}/{tag_i}.pkl", "rb") as f:
             classifier = pickle.loads(f.read())
         X_vec = vectorizer.transform(X)
-        if probability:
+        if return_probabilities:
             Y_pred_i = classifier.predict_proba(X_vec)
         else:
             Y_pred_i = classifier.predict(X_vec)
         Y_pred.append(Y_pred_i)
 
-    if probability:
+    if return_probabilities:
         Y_pred = hstack(Y_pred)
     else:
         Y_pred = sparse_hstack(Y_pred)
@@ -35,7 +35,7 @@ def predict_tfidf_svm(X, model_path, nb_labels, threshold=0.5,
 
 
 def predict_cnn(X, model_path, threshold=0.5,
-                probability=False, x_batch_size=512):
+                return_probabilities=False, x_batch_size=512):
     with open(f"{model_path}/vectorizer.pkl", "rb") as f:
         vectorizer = pickle.loads(f.read())
     model = CNNClassifier(
@@ -44,7 +44,7 @@ def predict_cnn(X, model_path, threshold=0.5,
     model.load(model_path)
 
     X_vec = vectorizer.transform(X)
-    if probability:
+    if return_probabilities:
         Y_pred_proba = []
         for i in range(0, X_vec.shape[0], x_batch_size):
             Y_pred_proba_batch = model.predict_proba(X_vec[i:i+x_batch_size])
@@ -65,9 +65,9 @@ def predict_mesh_tags(X, model_path, label_binarizer_path,
     nb_labels = len(label_binarizer.classes_)
 
     if "tfidf" in str(model_path):
-        Y_pred_proba = predict_tfidf_svm(X, model_path, nb_labels, probability=True)
+        Y_pred_proba = predict_tfidf_svm(X, model_path, nb_labels, return_probabilities=True)
     elif "cnn" in str(model_path):
-        Y_pred_proba = predict_cnn(X, model_path, probability=True)
+        Y_pred_proba = predict_cnn(X, model_path, return_probabilities=True)
     else:
         raise NotImplementedError
 

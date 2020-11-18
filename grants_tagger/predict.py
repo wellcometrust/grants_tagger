@@ -21,7 +21,7 @@ DEFAULT_LABELBINARIZER_PATH = os.path.join(FILEPATH, '../models/label_binarizer.
 
 
 def load_model(model_path):
-    if 'pkl' in model_path[-4:]:
+    if model_path.endswith('.pkl'):
         with open(model_path, "rb") as f:
             model = pickle.loads(f.read())
             return model

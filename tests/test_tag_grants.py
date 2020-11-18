@@ -50,9 +50,9 @@ def train_test_model(scibert_path, tfidf_svm_path, label_binarizer_path):
     scibert.fit(X, Y_vec)
     scibert.save(scibert_path)
 
-def test_tag_grants_with_mesh():
+def test_tag_grants():
     with tempfile.TemporaryDirectory() as tmp_dir:
-        scibert_path = f"{tmp_dir}/model/"
+        scibert_path = f"{tmp_dir}/scibert/"
         os.mkdir(scibert_path)
         tfidf_svm_path = f"{tmp_dir}/tfidf_svm.pkl"
         label_binarizer_path = f"{tmp_dir}/label_binarizer.pkl"
@@ -75,4 +75,10 @@ def test_tag_grants_with_mesh():
 
             tmp_grants.seek(0)
 
-            tag_grants(grants_path, tagged_grants_path, scibert_path=scibert_path, tfidf_svm_path=tfidf_svm_path, label_binarizer_path=label_binarizer_path)
+            tag_grants(
+                grants_path,
+                tagged_grants_path,
+                scibert_path=scibert_path,
+                tfidf_svm_path=tfidf_svm_path,
+                label_binarizer_path=label_binarizer_path
+            )

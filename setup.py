@@ -21,7 +21,7 @@ setup(
     description='A machine learning model to tag grants',
     packages=find_packages(),
     include_package_data=True,
-    version='2020.09.0',
+    version='2020.11.0',
     package_data={'': extra_files},
     install_requires=[
         'pandas',
@@ -29,7 +29,7 @@ setup(
         'scikit-learn==0.23.2',
         'nltk',
         'matplotlib',
-        'wellcomeml[deep-learning]==2020.9.0',
+        'wellcomeml[deep-learning]==2020.11.1',
         'docutils==0.15',
         'scipy==1.4.1',
         'wasabi'

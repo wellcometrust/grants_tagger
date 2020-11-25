@@ -81,5 +81,7 @@ if __name__ == '__main__':
 
     # comma indicates multiple threshold to evaluate against
     if "," in threshold:
-        threshold = threshold.split(",")
+        threshold = [float(t) for t in threshold.split(",")]
+    else:
+        threshold = float(threshold)
     evaluate_model(models, data, label_binarizer, threshold)

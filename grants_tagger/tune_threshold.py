@@ -60,7 +60,7 @@ def argmaxf1(thresholds, Y_test, Y_pred_proba, label_i, nb_thresholds, iteration
     return optimal_threshold_i, max_f1
 
 
-def optimise_threshold(Y_test, Y_pred_proba, nb_thresholds, init_threshold=None):
+def optimise_threshold(Y_test, Y_pred_proba, nb_thresholds=None, init_threshold=None):
     if init_threshold:
         optimal_thresholds = [init_threshold] * Y_pred_proba.shape[1]
     else:

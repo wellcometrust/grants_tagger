@@ -19,7 +19,7 @@ from scipy.sparse import csr_matrix, issparse
 import numpy as np
 
 from grants_tagger.evaluate_model import predict
-from grants_tagger.utils import load_data
+from grants_tagger.utils import load_train_test_data
 
 
 def argmaxf1(thresholds, Y_test, Y_pred_proba, label_i, nb_thresholds, iterations):
@@ -94,8 +94,7 @@ def tune_threshold(data_path, model_path, label_binarizer_path, thresholds_path,
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
 
-    X, Y, _ = load_data(data_path, label_binarizer)
-    _, X_test, _, Y_test = train_test_split(X, Y, random_state=42)    
+    _, X_test, _, Y_test = load_train_test_data(data_path, label_binarizer)
 
     if not sample_size:
         sample_size = Y_test.shape[0]

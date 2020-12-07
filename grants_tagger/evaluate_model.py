@@ -17,7 +17,7 @@ from grants_tagger.predict_mesh import predict_tfidf_svm, predict_cnn
 from grants_tagger.predict import predict_proba_ensemble_tfidf_svm_bert, load_model
 
 
-def predict(X_test, model_path, nb_labels=None, threshold=None, return_probabilities=False):
+def predict(X_test, model_path, nb_labels=None, threshold=0.5, return_probabilities=False):
     # comma indicates ensemble of more than one models
     if "," in model_path:
         model_paths = model_path.split(",")

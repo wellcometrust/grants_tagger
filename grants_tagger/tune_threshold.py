@@ -35,7 +35,7 @@ def argmaxf1(thresholds, Y_test, Y_pred_proba, label_i, nb_thresholds, iteration
     if nb_thresholds:
         candidate_thresholds_i = [t/nb_thresholds for t in range(1, nb_thresholds)]
     else:
-        candidate_thresholds_i = Y_pred_proba[:, label_i]
+        candidate_thresholds_i = np.unique(Y_pred_proba[:, label_i])
     for candidate_threshold_i in candidate_thresholds_i:
         # no need to check in first iteration where first calibration happens
         if iterations >= 1:

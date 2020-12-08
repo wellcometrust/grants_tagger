@@ -7,7 +7,7 @@ import pickle
 
 from wellcomeml.ml import CNNClassifier
 from numpy import hstack, vstack
-from scipy.sparse import hstack as sparse_hstack
+from scipy.sparse import hstack as sparse_hstack, csr_matrix
 
 
 def predict_tfidf_svm(X, model_path, nb_labels, threshold=0.5,
@@ -23,6 +23,9 @@ def predict_tfidf_svm(X, model_path, nb_labels, threshold=0.5,
         X_vec = vectorizer.transform(X)
         if return_probabilities:
             Y_pred_i = classifier.predict_proba(X_vec)
+        elif threshold != 0.5:
+            Y_pred_i = classifier.predict_proba(X_vec)
+            Y_pred_i = csr_matrix(Y_pred_i > threshold)
         else:
             Y_pred_i = classifier.predict(X_vec)
         Y_pred.append(Y_pred_i)

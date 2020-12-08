@@ -17,20 +17,26 @@ from grants_tagger.predict_mesh import predict_tfidf_svm, predict_cnn
 from grants_tagger.predict import predict_proba_ensemble_tfidf_svm_bert, load_model
 
 
-def predict(X_test, model_path, nb_labels, threshold):
+def predict(X_test, model_path, nb_labels=None, threshold=0.5, return_probabilities=False):
     # comma indicates ensemble of more than one models
     if "," in model_path:
         model_paths = model_path.split(",")
         Y_pred_proba = predict_proba_ensemble_tfidf_svm_bert(X_test, model_paths)
-        Y_pred = Y_pred_proba > threshold
+        if return_probabilities:
+            Y_pred = Y_pred_proba
+        else:
+            Y_pred = Y_pred_proba > threshold
     elif "disease_mesh_cnn" in model_path:
-        Y_pred = predict_cnn(X_test, model_path, threshold)
+        Y_pred = predict_cnn(X_test, model_path, threshold, return_probabilities)
     elif "disease_mesh_tfidf" in model_path:
-        Y_pred = predict_tfidf_svm(X_test, model_path, nb_labels, threshold)
+        Y_pred = predict_tfidf_svm(X_test, model_path, nb_labels, threshold, return_probabilities)
     else:
         model = load_model(model_path)
         Y_pred_proba = model.predict_proba(X_test)
-        Y_pred = Y_pred_proba > threshold
+        if return_probabilities:
+            Y_pred = Y_pred_proba
+        else:
+            Y_pred = Y_pred_proba > threshold
     return Y_pred
 
 

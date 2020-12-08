@@ -9,7 +9,7 @@ from sklearn.multiclass import OneVsRestClassifier
 from sklearn.linear_model import SGDClassifier
 from wellcomeml.ml import CNNClassifier, KerasVectorizer
 
-from grants_tagger.predict_mesh import predict_mesh_tags
+from grants_tagger.predict_mesh import predict_mesh_tags, predict_tfidf_svm
 
 X = [
     "all",
@@ -78,6 +78,22 @@ def test_predict_mesh_tfidf_svm():
 
         tags = predict_mesh_tags(X, model_path, label_binarizer_path)
         assert len(tags) == 5
+
+
+def test_predict_mesh_tfidf_svm_threshold():
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        model_path = f"{tmp_dir}/tfidf_model/"
+        os.mkdir(model_path)
+        label_binarizer_path = f"{tmp_dir}/label_binarizer.pkl"
+        train_test_tfidf_svm_model(model_path, label_binarizer_path)
+
+        nb_examples = 5
+        nb_labels = 5000
+        Y = predict_tfidf_svm(X, model_path, nb_labels, threshold=0, return_probabilities=False)
+        assert Y.sum() == nb_labels * nb_examples # all 1
+
+        Y = predict_tfidf_svm(X, model_path, nb_labels, threshold=1, return_probabilities=False)
+        assert Y.sum() == 0 # all 0
 
 
 def test_predict_mesh_cnn():

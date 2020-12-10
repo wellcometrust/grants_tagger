@@ -78,7 +78,6 @@ def test_tag_grants():
             tag_grants(
                 grants_path,
                 tagged_grants_path,
-                scibert_path=scibert_path,
-                tfidf_svm_path=tfidf_svm_path,
+                model_path=tfidf_svm_path,
                 label_binarizer_path=label_binarizer_path
             )

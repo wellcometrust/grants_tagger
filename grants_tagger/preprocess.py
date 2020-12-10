@@ -66,33 +66,3 @@ def preprocess(input_path, output_path, text_cols, meta_cols):
             f.write(json.dumps(chunk))
             f.write('\n')
             tags.append(chunk['tags'])
-
-if __name__ == '__main__':
-    argparser = ArgumentParser()
-    argparser.add_argument('--input', type=Path, help="path to raw Excel file with tagged or untagged grant data")
-    argparser.add_argument('--output', type=Path, help="path to JSONL output file that will be generated")
-    argparser.add_argument('--text_cols', type=str, default="Title,Synopsis", help="comma delimited column names to concatenate to text")
-    argparser.add_argument('--meta_cols', type=str, default="Grant_ID,Title", help="comma delimited column names to include in the meta")
-    argparser.add_argument('--config', type=Path, help="path to config file that defines the arguments")
-    args = argparser.parse_args()
-
-    if args.config:
-        cfg = ConfigParser(allow_no_value=True)
-        cfg.read(args.config)
-
-        input_path = cfg["preprocess"]["input"]
-        output_path = cfg["preprocess"]["output"]
-        text_cols = cfg["preprocess"]["text_cols"]
-        meta_cols = cfg["preprocess"].get("meta_cols", "Grant_ID,Title")
-    else:
-        input_path = args.input
-        output_path = args.output
-        text_cols = args.text_cols
-        meta_cols = args.meta_cols
-
-    text_cols = text_cols.split(",")
-    meta_cols = meta_cols.split(",")
-    if os.path.exists(output_path):
-        print(f"{output_path} exists. Remove if you want to rerun.")
-    else:
-        preprocess(input_path, output_path, text_cols, meta_cols)

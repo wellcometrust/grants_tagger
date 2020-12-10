@@ -30,6 +30,7 @@ def process_data(item, filter_tags=None):
     }
     return data
 
+
 def preprocess_mesh(input_path, output_path, filter_tags_path=None):
     if filter_tags_path:
         filter_tags_data = pd.read_csv(filter_tags_path)
@@ -48,27 +49,3 @@ def preprocess_mesh(input_path, output_path, filter_tags_path=None):
             f_o.write(json.dumps(data))
             f_o.write("\n")
 
-if __name__ == '__main__':
-    argparser = argparse.ArgumentParser(description=__doc__)
-    argparser.add_argument("--input", type=Path, help="path to mesh JSON data")
-    argparser.add_argument("--output", type=Path, help="path to output JSONL data")
-    argparser.add_argument("--filter-tags", type=Path, help="path to txt file with tags to keep")
-    argparser.add_argument("--config", type=Path, help="path to config files that defines arguments")
-    args = argparser.parse_args()
-
-    if args.config:
-        cfg = ConfigParser()
-        cfg.read(args.config)
-
-        input_path = cfg["preprocess"]["input"]
-        output_path = cfg["preprocess"]["output"]
-        filter_tags_path = cfg["preprocess"]["filter_tags"]
-    else:
-        input_path = args.input
-        output_path = args.output
-        filter_tags_path = args.filter_tags
-
-    if os.path.exists(output_path):
-        print(f"{output_path} exists. Remove if you want to rerun.")
-    else:
-        preprocess_mesh(input_path, output_path, filter_tags_path)

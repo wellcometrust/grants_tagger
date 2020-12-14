@@ -58,3 +58,10 @@ build:
 .PHONY: deploy
 deploy:
 	aws s3 cp --recursive --exclude "*" --include "*.whl" --acl public-read dist/ s3://$(PUBLIC_PROJECT_BUCKET)
+
+.PHONY: clean
+clean:
+	find . -type f -name "*.py[co]" -delete
+	find . -type d -name "__pycache__" -delete
+	find . -type f -name "*flymake*" -delete
+	find . -type f -name "#*#" -delete

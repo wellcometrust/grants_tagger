@@ -1,11 +1,8 @@
-# coding: utf-8
 """
-Predict labels for given text and pretrained model
+Predict function for disease part of mesh that optionally
+exposes probabilities and that you can set the threshold 
+for making a prediction
 """
-from sklearn.model_selection import train_test_split
-import pandas as pd
-import numpy as np
-
 from operator import itemgetter
 from pathlib import Path
 import argparse
@@ -13,6 +10,10 @@ import pickle
 import os
 
 from wellcomeml.ml.bert_classifier import BertClassifier
+from wellcomeml.ml import CNNClassifier
+from numpy import hstack, vstack
+from scipy.sparse import hstack as sparse_hstack, csr_matrix
+import numpy as np
 
 FILEPATH = os.path.dirname(__file__)
 DEFAULT_SCIBERT_PATH = os.path.join(FILEPATH, '../models/scibert-2020.05.5')
@@ -43,62 +44,91 @@ def predict_proba_ensemble_tfidf_svm_bert(X, model_paths):
     return Y_pred_proba
 
 
-def predict_tags(X, probabilities=False, threshold=0.5,
-                 scibert_path=DEFAULT_SCIBERT_PATH,
-                 tfidf_svm_path=DEFAULT_TFIDF_SVM_PATH,
-                 label_binarizer_path=DEFAULT_LABELBINARIZER_PATH):
-    with open(label_binarizer_path, "rb") as f:
-        label_binarizer = pickle.load(f)
+def predict_tfidf_svm(X, model_path, nb_labels, threshold=0.5,
+                      return_probabilities=True, y_batch_size=512):
+    # TODO: generalise tfidf to vectorizer.pkl
+    with open(f"{model_path}/tfidf.pkl", "rb") as f:
+        vectorizer = pickle.loads(f.read())
 
-    Y_pred_probs = predict_proba_ensemble_tfidf_svm_bert(X, [tfidf_svm_path, scibert_path])
+    Y_pred = []
+    for tag_i in range(0, nb_labels, y_batch_size):
+        with open(f"{model_path}/{tag_i}.pkl", "rb") as f:
+            classifier = pickle.loads(f.read())
+        X_vec = vectorizer.transform(X)
+        if return_probabilities:
+            Y_pred_i = classifier.predict_proba(X_vec)
+        elif threshold != 0.5:
+            Y_pred_i = classifier.predict_proba(X_vec)
+            Y_pred_i = csr_matrix(Y_pred_i > threshold)
+        else:
+            Y_pred_i = classifier.predict(X_vec)
+        Y_pred.append(Y_pred_i)
 
-    tag_names = label_binarizer.classes_
-
-    if probabilities:
-        tags = [
-            {tag: prob for tag, prob in zip(tag_names, Y_pred_prob)}
-            for Y_pred_prob in Y_pred_probs
-        ]
+    if return_probabilities:
+        Y_pred = hstack(Y_pred)
     else:
-        tags = [
-            [tag for tag, prob in zip(tag_names, Y_pred_prob) if prob > threshold]
-            for Y_pred_prob in Y_pred_probs
-        ]
+        Y_pred = sparse_hstack(Y_pred)
+    return Y_pred
+
+
+def predict_cnn(X, model_path, threshold=0.5,
+                return_probabilities=False, x_batch_size=512):
+    with open(f"{model_path}/vectorizer.pkl", "rb") as f:
+        vectorizer = pickle.loads(f.read())
+    model = CNNClassifier(
+        sparse_y=True, threshold=threshold, batch_size=x_batch_size
+    )
+    model.load(model_path)
+
+    X_vec = vectorizer.transform(X)
+    if return_probabilities:
+        Y_pred_proba = []
+        for i in range(0, X_vec.shape[0], x_batch_size):
+            Y_pred_proba_batch = model.predict_proba(X_vec[i:i+x_batch_size])
+            Y_pred_proba.append(Y_pred_proba_batch)
+        Y_pred_proba = vstack(Y_pred_proba)
+        return Y_pred_proba
+    else:
+        Y_pred = model.predict(X_vec)
+        return Y_pred
+
+
+def predict(X_test, model_path, nb_labels=None, threshold=0.5, return_probabilities=False):
+    if type(model_path) == list:
+        Y_pred_proba = predict_proba_ensemble_tfidf_svm_bert(X_test, model_path)
+        if return_probabilities:
+            Y_pred = Y_pred_proba
+        else:
+            Y_pred = Y_pred_proba > threshold
+    elif "disease_mesh_cnn" in model_path:
+        Y_pred = predict_cnn(X_test, model_path, threshold, return_probabilities)
+    elif "disease_mesh_tfidf" in model_path:
+        Y_pred = predict_tfidf_svm(X_test, model_path, nb_labels, threshold, return_probabilities)
+    else:
+        model = load_model(model_path)
+        Y_pred_proba = model.predict_proba(X_test)
+        if return_probabilities:
+            Y_pred = Y_pred_proba
+        else:
+            Y_pred = Y_pred_proba > threshold
+    return Y_pred
+
+
+def predict_tags(X, model_path, label_binarizer_path,
+                 probabilities=False, threshold=0.5,
+                 y_batch_size=512):
+    with open(label_binarizer_path, "rb") as f:
+        label_binarizer = pickle.loads(f.read())
+
+    nb_labels = len(label_binarizer.classes_)
+
+    Y_pred_proba = predict(X, model_path, threshold=threshold, return_probabilities=True, nb_labels=nb_labels)
+
+    tags = []
+    for y_pred_proba in Y_pred_proba:
+        if probabilities:
+            tags_i = {tag: prob for tag, prob in zip(label_binarizer.classes_, y_pred_proba)}
+        else:
+            tags_i = [tag for tag, prob in zip(label_binarizer.classes_, y_pred_proba) if prob > threshold]
+        tags.append(tags_i)
     return tags
-
-if __name__ == "__main__":
-    argparser = argparse.ArgumentParser()
-    argparser.add_argument(
-        "--scibert",
-        type=Path,
-        default=DEFAULT_SCIBERT_PATH,
-        help="path to scibert model"
-    )
-    argparser.add_argument(
-        "--tfidf_svm",
-        type=Path,
-        default=DEFAULT_TFIDF_SVM_PATH,
-        help="path to scibert model"
-    )
-    argparser.add_argument(
-        "--label_binarizer",
-        type=Path,
-        default=DEFAULT_LABELBINARIZER_PATH,
-        help="label binarizer for Y"
-    )
-    argparser.add_argument(
-        "--synopsis",
-        type=str,
-        help="synopsis of grant to tag"
-    )
-    argparser.add_argument(
-        "--threshold",
-        type=float,
-        default=0.5,
-        help="threshold value between 0 and 1"
-    )
-
-    args = argparser.parse_args()
-
-    tags = predict_tags([args.synopsis])
-    print(tags)

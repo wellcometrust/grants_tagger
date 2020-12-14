@@ -4,6 +4,7 @@ Train a spacy or sklearn model and pickle it
 """
 from skmultilearn.problem_transform import ClassifierChain, LabelPowerset, BinaryRelevance
 from skmultilearn.adapt import BRkNNaClassifier, MLkNN
+from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.feature_selection import SelectFromModel
@@ -34,6 +35,28 @@ from grants_tagger.utils import load_train_test_data, yield_train_data, load_tes
 
 class ApproachNotImplemented(Exception):
     pass
+
+
+def yield_tags(data_path):
+    """yields tags (list) line by line from file in data_path"""
+    with open(data_path) as f:
+        for i, line in enumerate(f):
+            item = json.loads(line)
+            yield item["tags"]
+
+
+def create_label_binarizer(data_path, label_binarizer_path, sparse=False):
+    data_tags = []
+    for tags in yield_tags(data_path):
+        data_tags.append(tags)
+        
+    label_binarizer = MultiLabelBinarizer(sparse_output=sparse)
+    label_binarizer.fit(data_tags)
+    with open(label_binarizer_path, 'wb') as f:
+        pickle.dump(label_binarizer, f)
+
+    return label_binarizer
+
 
 def create_model(approach, parameters=None):
     if approach == 'tfidf-svm':
@@ -206,16 +229,21 @@ def create_model(approach, parameters=None):
         parameters = {}
     return model
 
+
 def train_and_evaluate(
         train_data_path, label_binarizer_path, approach,
         parameters=None, model_path=None, test_data_path=None,
         online_learning=False, nb_epochs=5,
         from_same_distribution=False, threshold=None,
         y_batch_size=None, X_format="List",
-        test_size=0.25, verbose=True):
+        test_size=0.25, sparse_labels=False, verbose=True):
 
-    with open(label_binarizer_path, "rb") as f:
-        label_binarizer = pickle.load(f)
+    if os.path.exists(label_binarizer_path):
+        print(f"{label_binarizer_path} exists. Loading existing")
+        with open(label_binarizer_path, "rb") as f:
+            label_binarizer = pickle.loads(f.read())
+    else:
+        label_binarizer = create_label_binarizer(train_data_path, label_binarizer_path, sparse_labels)
 
     # model creation from approach could move outside this function
     # so that run experiments can pass a model here

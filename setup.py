@@ -23,6 +23,9 @@ setup(
     include_package_data=True,
     version='2020.11.0',
     package_data={'': extra_files},
+    entry_points = {
+        'console_scripts': 'grants_tagger=grants_tagger.__main__:app'
+    },
     install_requires=[
         'pandas',
         'xlrd',
@@ -32,7 +35,8 @@ setup(
         'wellcomeml[deep-learning]==2020.11.1',
         'docutils==0.15',
         'scipy==1.4.1',
-        'wasabi'
+        'wasabi',
+        'typer'
     ],
     tests_require=[
         'pytest',

@@ -3,11 +3,33 @@ Preprocess JSON Mesh data from BioASQ to JSONL
 """
 from configparser import ConfigParser
 from pathlib import Path
+import xml.etree.ElementTree as ET
 import argparse
 import json
 import os
 
 import pandas as pd
+
+
+def filter_disease_codes(mesh_descriptions_file):
+    mesh_tree = ET.parse(mesh_descriptions_file)
+    mesh_Df = pd.DataFrame(columns = ['DescriptorName', 'DescriptorUI', 'TreeNumberList'])
+
+    for mesh in mesh_tree.getroot():
+        try:
+            # TreeNumberList e.g. A11.118.637.555.567.550.500.100
+            mesh_tree = mesh[-2][0].text
+            # DescriptorUI e.g. M000616943
+            mesh_code = mesh[0].text
+            # DescriptorName e.g. Mucosal-Associated Invariant T Cells
+            mesh_name = mesh[1][0].text
+        except IndexError:
+            print("ERROR", file=sys.stderr)
+        if mesh_tree.startswith('C') and not mesh_tree.startswith('C22') or mesh_tree.startswith('F03'):
+            print(mesh_name)
+            mesh_Df = mesh_Df.append({'DescriptorName':mesh_name, 'DescriptorUI':mesh_code, 'TreeNumberList':mesh_tree}, ignore_index=True)
+#    mesh_Df.to_csv(mesh_export_file)
+
 
 def yield_raw_data(input_path):
     with open(input_path, encoding='latin-1') as f_i:
@@ -15,6 +37,7 @@ def yield_raw_data(input_path):
         for i, line in enumerate(f_i):
             item = json.loads(line[:-2])
             yield item
+
 
 def process_data(item, filter_tags=None):
     text = item["abstractText"]
@@ -30,9 +53,10 @@ def process_data(item, filter_tags=None):
     }
     return data
 
-def preprocess_mesh(input_path, output_path, filter_tags_path=None):
-    if filter_tags_path:
-        filter_tags_data = pd.read_csv(filter_tags_path)
+
+def preprocess_mesh(input_path, output_path, filter_tags=None, mesh_metadata_path=None):
+    if filter_tags == "disease":
+        filter_tags_data = filter_disease_codes(mesh_metadata_path)
         filter_tags = filter_tags_data["DescriptorName"].tolist()
     else:
         filter_tags = None
@@ -48,27 +72,3 @@ def preprocess_mesh(input_path, output_path, filter_tags_path=None):
             f_o.write(json.dumps(data))
             f_o.write("\n")
 
-if __name__ == '__main__':
-    argparser = argparse.ArgumentParser(description=__doc__)
-    argparser.add_argument("--input", type=Path, help="path to mesh JSON data")
-    argparser.add_argument("--output", type=Path, help="path to output JSONL data")
-    argparser.add_argument("--filter-tags", type=Path, help="path to txt file with tags to keep")
-    argparser.add_argument("--config", type=Path, help="path to config files that defines arguments")
-    args = argparser.parse_args()
-
-    if args.config:
-        cfg = ConfigParser()
-        cfg.read(args.config)
-
-        input_path = cfg["preprocess"]["input"]
-        output_path = cfg["preprocess"]["output"]
-        filter_tags_path = cfg["preprocess"]["filter_tags"]
-    else:
-        input_path = args.input
-        output_path = args.output
-        filter_tags_path = args.filter_tags
-
-    if os.path.exists(output_path):
-        print(f"{output_path} exists. Remove if you want to rerun.")
-    else:
-        preprocess_mesh(input_path, output_path, filter_tags_path)

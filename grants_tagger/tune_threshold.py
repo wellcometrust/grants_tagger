@@ -117,17 +117,3 @@ def tune_threshold(data_path, model_path, label_binarizer_path, thresholds_path,
 
     with open(thresholds_path, "wb") as f:
         f.write(pickle.dumps(optimal_thresholds))
-
-if __name__ == "__main__":
-    argparser = argparse.ArgumentParser(description=__doc__.strip())
-    argparser.add_argument("--data_path", type=Path, help="path to data in jsonl to train and test model", required=True)
-    argparser.add_argument("--model_path", type=str, help="path to model or comma separated path to multiple models", required=True)
-    argparser.add_argument("--label_binarizer_path", type=Path, help="path to label binarizer", required=True)
-    argparser.add_argument("--thresholds_path", type=Path, help="path to save threshold values", required=True)
-    argparser.add_argument("--sample_size", type=int, help="sample size of text data to use for tuning")
-    argparser.add_argument("--nb_thresholds", type=int, help="number of thresholds to be tried divided evenly between 0 and 1")
-    argparser.add_argument("--init_threshold", type=float, help="value to initialise threshold values")
-    args = argparser.parse_args()
-
-    tune_threshold(args.data_path, args.model_path, args.label_binarizer_path, args.thresholds_path,
-                   args.sample_size, args.nb_thresholds, args.init_threshold)

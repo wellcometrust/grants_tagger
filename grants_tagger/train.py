@@ -20,13 +20,8 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.preprocessing import Normalizer, OneHotEncoder, FunctionTransformer
 from scipy.sparse import hstack
 
-from argparse import ArgumentParser
-from distutils.util import strtobool
-from pathlib import Path
-import configparser
 import pickle
 import os.path
-import json
 import ast
 
 from wellcomeml.ml import BiLSTMClassifier, CNNClassifier, KerasVectorizer, SpacyClassifier, BertVectorizer, BertClassifier, Doc2VecVectorizer, Sent2VecVectorizer
@@ -352,76 +347,3 @@ def train_and_evaluate(
                 model.save(model_path)
 
     return f1
-
-if __name__ == "__main__":
-    argparser = ArgumentParser(description=__doc__.strip())
-    argparser.add_argument('-d', '--data', type=Path, help="path to processed JSON data to be used for training")
-    argparser.add_argument('-l', '--label_binarizer', type=Path, help="path to label binarizer")
-    argparser.add_argument('-m', '--model_path', type=Path, help="path to output pickled trained model")
-    argparser.add_argument('-a', '--approach', type=str, default="tfidf-svm", help="tfidf-svm, bert-svm")
-    argparser.add_argument('-p', '--parameters', type=str, help="model params in sklearn format e.g. {'svm__kernel: linear'}")
-    argparser.add_argument('-t', '--test_data', type=Path, default=None, help="path to processed JSON test data")
-    argparser.add_argument('-c', '--config', type=Path, help="path to config file with params set")
-    argparser.add_argument('-o', '--online_learning', type=bool, default=False, help="flag to train in an online way")
-    argparser.add_argument('-n', '--nb_epochs', type=int, default=5, help="number of passes of training data in online training")
-    argparser.add_argument('-f', '--from_same_distribution', type=strtobool, default=False, help="whether train and test contain the same examples but differ in other ways, important when loading train and test parts of datasets")
-    argparser.add_argument('--threshold', type=float, default=None, help="threhsold to assign a tag")
-    argparser.add_argument('--y_batch_size', type=int, default=None, help="batch size for Y in cases where Y large. defaults to None i.e. no batching of Y")
-    argparser.add_argument('--x_format', type=str, default="List", help="format that will be used when loading the data. One of List,DataFrame")
-    argparser.add_argument('--test_size', type=float, default=0.25, help="float or int indicating either percentage or absolute number of test examples")
-    args = argparser.parse_args()
-
-    if args.config:
-        cfg = configparser.ConfigParser(allow_no_value=True)
-        cfg.read(args.config)
-
-        data_path = cfg["data"]["train_data_path"]
-        label_binarizer_path = cfg["model"]["label_binarizer_path"]
-        approach = cfg["model"]["approach"]
-        parameters = cfg["model"]["parameters"]
-        model_path = cfg["model"]["model_path"]
-        test_data_path = cfg["data"]["test_data_path"]
-        online_learning = bool(cfg["model"].get("online_learning", False))
-        nb_epochs = int(cfg["model"].get("nb_epochs", 5))
-        from_same_distribution = bool(cfg["data"].get("from_same_distribution", False))
-        threshold = cfg["model"].get("threshold", None)
-        if threshold:
-            threshold = float(threshold)
-        y_batch_size = cfg["model"].get("y_batch_size")
-        if y_batch_size:
-            y_batch_size = int(y_batch_size)
-        X_format = cfg["data"].get("x_format", "List")
-        test_size = float(cfg["data"].get("test_size", 0.25))
-    else:
-        data_path = args.data
-        label_binarizer_path = args.label_binarizer
-        approach = args.approach
-        parameters = args.parameters
-        model_path = args.model_path
-        test_data_path = args.test_data
-        online_learning = args.online_learning
-        nb_epochs = args.nb_epochs
-        from_same_distribution = args.from_same_distribution
-        threshold = args.threshold
-        y_batch_size = args.y_batch_size
-        X_format = args.x_format
-        test_size = args.test_size
-
-    if os.path.exists(model_path):
-        print(f"{model_path} exists. Remove if you want to rerun.")
-    else:
-        train_and_evaluate(
-            data_path,
-            label_binarizer_path,
-            approach,
-            parameters,
-            model_path=model_path,
-            test_data_path=test_data_path,
-            online_learning=online_learning,
-            nb_epochs=nb_epochs,
-            from_same_distribution=from_same_distribution,
-            threshold=threshold,
-            y_batch_size=y_batch_size,
-            X_format=X_format,
-            test_size=test_size
-        )

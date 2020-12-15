@@ -65,4 +65,6 @@ if __name__ == '__main__':
         threshold = [float(t) for t in threshold.split(",")]
     else:
         threshold = float(threshold)
+    if "," in models:
+        models = models.split(",")
     evaluate_model(models, data, label_binarizer, threshold)

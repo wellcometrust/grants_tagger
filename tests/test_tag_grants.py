@@ -81,3 +81,8 @@ def test_tag_grants():
                 model_path=tfidf_svm_path,
                 label_binarizer_path=label_binarizer_path
             )
+        tagged_grants = []
+        with open(tagged_grants_path) as f:
+            for line in f:
+                tagged_grants.append(line)
+        assert len(tagged_grants) == 6 # 5 + header

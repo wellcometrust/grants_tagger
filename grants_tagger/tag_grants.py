@@ -8,12 +8,21 @@ import csv
 from grants_tagger.predict import predict_tags
 
 
-def yield_grants(grants_path):
-    """yields grants row by row from file"""
+def yield_grants(grants_path, batch_size=32):
+    """yields grants in batches from file"""
     with open(grants_path) as f:
         csv_reader = csv.DictReader(f)
+
+        grants = []
         for grant in csv_reader:
-            yield grant
+            grants.append(grant)
+
+            if len(grants) >= batch_size:
+                yield grants
+                grants = []
+
+        if grants:
+            yield grants
 
 
 def yield_tagged_grants(grants, model_path, label_binarizer_path, threshold):
@@ -28,7 +37,7 @@ def yield_tagged_grants(grants, model_path, label_binarizer_path, threshold):
             Tag #{1..10}
     """
     grants_texts = [g["title"]+g["synopsis"] for g in grants]
-    tags = predict_tags(
+    grants_tags = predict_tags(
         grants_texts,
         threshold=threshold,
         model_path=model_path,
@@ -43,7 +52,7 @@ def yield_tagged_grants(grants, model_path, label_binarizer_path, threshold):
         tagged_grant.update({
             f"Tag #{i+1}": tag
             for i, tag in enumerate(tags)
-            if i <= 10 
+            if i < 10 
         })
         yield tagged_grant
 
@@ -55,12 +64,6 @@ def tag_grants(grants_path, tagged_grants_path, model_path, label_binarizer_path
         csv_writer = csv.DictWriter(f_o, fieldnames=fieldnames)
         csv_writer.writeheader()
 
-        grants = []
-        for i, grant in enumerate(yield_grants(grants_path)):
-            grants.append(grant)
-
-            if len(grants) >= 512:
-                for tagged_grant in yield_tagged_grants(grants, model_path, label_binarizer_path, threshold):
-                    csv_writer.writerow(tagged_grant)
-
-            grants = []
+        for grants in yield_grants(grants_path, batch_size=512):
+            for tagged_grant in yield_tagged_grants(grants, model_path, label_binarizer_path, threshold):
+                csv_writer.writerow(tagged_grant)

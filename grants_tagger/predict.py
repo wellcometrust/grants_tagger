@@ -50,11 +50,12 @@ def predict_tfidf_svm(X, model_path, nb_labels, threshold=0.5,
     with open(f"{model_path}/tfidf.pkl", "rb") as f:
         vectorizer = pickle.loads(f.read())
 
+    X_vec = vectorizer.transform(X)
+
     Y_pred = []
     for tag_i in range(0, nb_labels, y_batch_size):
         with open(f"{model_path}/{tag_i}.pkl", "rb") as f:
             classifier = pickle.loads(f.read())
-        X_vec = vectorizer.transform(X)
         if return_probabilities:
             Y_pred_i = classifier.predict_proba(X_vec)
         elif threshold != 0.5:

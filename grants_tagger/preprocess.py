@@ -13,7 +13,14 @@ import os
 
 import pandas as pd
 
-# TODO: Fix keys for calculating human accuracy
+
+def process_tagger_data(tagger_data):
+    tagger_data = tagger_data.replace("19: Maternal, Child", "19: Maternal Child")
+    tagger_data = tagger_data.replace("24: Data Science, Computational", "24: Data Science Computational")
+    tagger_data = tagger_data.replace("12: Brain Cells, Circuits", "12: Brain Cells Circuits")
+    tagger_data = tagger_data.strip("[]").replace("'", "")
+    return tagger_data
+
 
 def yield_preprocess_data(
         data,
@@ -34,25 +41,25 @@ def yield_preprocess_data(
     # cols = ['Grant Team', 'ERG', 'Lead Applicant', 'Organisation', 'Scheme', 'Title', 'Synopsis', 'Lay Summary', 'Qu.']
     processed_data = data.drop_duplicates(subset=["Grant_ID", "Sciencetags"])
     processed_data = processed_data.dropna(subset=["Synopsis"])
-    processed_data["intersection"] = processed_data["intersection"].str.replace("19: Maternal, Child", "19: Maternal Child")
-    processed_data["intersection"] = processed_data["intersection"].str.replace("24: Data Science, Computational", "24: Data Science Computational")
-    processed_data["Tagger 1 only"] = processed_data["Tagger 1 only"].str.replace("19: Maternal, Child", "19: Maternal Child")
-    processed_data["Tagger 1 only"] = processed_data["Tagger 1 only"].str.replace("24: Data Science, Computational", "24: Data Science Computational")
-    processed_data["Tagger 1 only"] = processed_data["Tagger 1 only"].str.replace("12: Brain Cells, Circuits", "12: Brain Cells Circuits")
-    processed_data["Tagger1_tags"] = processed_data.apply(
-        lambda x: x['intersection'].strip("[]").replace("'","").split(', ') + x['Tagger 1 only'].strip('[]').split(', '),
-        axis=1
-    )
-    processed_data = processed_data.groupby('Grant_ID').agg({
+    if "Tagger1_tags" in meta_cols:
+        processed_data["intersection"] = processed_data["intersection"].apply(lambda x: process_tagger_data(x))
+        processed_data["Tagger 1 only"] = processed_data["Tagger 1 only"].apply(lambda x: process_tagger_data(x))
+        processed_data["Tagger1_tags"] = processed_data.apply(
+            lambda x: (x['intersection'] + x['Tagger 1 only']).split(", "),
+            axis=1
+        )
+    aggregations = {
         'Sciencetags': lambda x: ",".join(x),
         'Title': lambda x: x.iloc[0],
         'Synopsis': lambda x: x.iloc[0],
         'Lay Summary': lambda x: x.iloc[0],
         'Qu.': lambda x: x.iloc[0],
         'Scheme': lambda x: x.iloc[0],
-        'Team': lambda x: x.iloc[0],
-        'Tagger1_tags': lambda x: x.iloc[0]
-    }).reset_index()
+        'Team': lambda x: x.iloc[0]
+    }
+    if "Tagger1_tags" in meta_cols:
+        aggregations['Tagger1_tags'] = lambda x: x.iloc[0]
+    processed_data = processed_data.groupby('Grant_ID').agg(aggregations).reset_index()
     processed_data = processed_data[processed_data["Synopsis"] != "No Data Entered"]
     processed_data = processed_data[processed_data["Sciencetags"] != "No tag"]
     processed_data = processed_data[processed_data["Sciencetags"] != "Not enough information available"]

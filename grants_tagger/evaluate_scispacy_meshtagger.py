@@ -3,7 +3,6 @@ Evaluates SciSpacyMesh tagger against a subset of Mesh
 """
 from argparse import ArgumentParser
 import pickle
-import json
 
 import pandas as pd
 
@@ -28,6 +27,7 @@ def evaluate_scispacy_meshtagger(mesh_label_binarizer_path, mesh_tags_path, mesh
     scispacy_meshtagger.fit()
     score = scispacy_meshtagger.score(X, Y)
     print(score)
+
 
 if __name__ == "__main__":
     argparser = ArgumentParser(description=__doc__.strip())

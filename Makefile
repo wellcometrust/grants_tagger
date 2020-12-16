@@ -22,7 +22,7 @@ sync_artifacts:
 $(VIRTUALENV)/.installed:
 	@if [ -d $(VIRTUALENV) ]; then rm -rf $(VIRTUALENV); fi
 	@mkdir -p $(VIRTUALENV)
-	virtualenv --python python3 $(VIRTUALENV)
+	virtualenv --python python3.7 $(VIRTUALENV)
 	$(VIRTUALENV)/bin/pip install -r requirements.txt
 	$(VIRTUALENV)/bin/pip install -r requirements_test.txt
 	$(VIRTUALENV)/bin/pip install -e .
@@ -44,7 +44,7 @@ test: virtualenv
 
 .PHONY: test_scispacy
 test_scispacy: virtualenv_scispacy
-	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov-append --cov=grants_tagger tests/test_scispacy_meshtagger.py
+	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov-append --cov=grants_tagger -m "scispacy"
 
 
 .PHONY: run_codecov

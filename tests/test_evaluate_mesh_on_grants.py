@@ -48,6 +48,6 @@ def test_evaluate_mesh_on_grants():
             f.write(pickle.dumps(model))
 
         data = pd.DataFrame.from_records(VAL_DATA)
-        data.to_excel(data_path)
+        data.to_excel(data_path, engine="openpyxl")
 
         evaluate_mesh_on_grants(data_path, model_path, label_binarizer_path)

@@ -33,7 +33,7 @@ def get_texts(data):
 
 
 def evaluate_mesh_on_grants(data_path, model_path, label_binarizer_path):
-    data = pd.read_excel(data_path)
+    data = pd.read_excel(data_path, engine="openpyxl")
 
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())

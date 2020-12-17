@@ -22,7 +22,7 @@ DEFAULT_LABELBINARIZER_PATH = os.path.join(FILEPATH, '../models/label_binarizer.
 
 
 def load_model(model_path):
-    if model_path.endswith('.pkl'):
+    if str(model_path).endswith('.pkl'):
         with open(model_path, "rb") as f:
             model = pickle.loads(f.read())
             return model
@@ -101,9 +101,9 @@ def predict(X_test, model_path, nb_labels=None, threshold=0.5, return_probabilit
             Y_pred = Y_pred_proba
         else:
             Y_pred = Y_pred_proba > threshold
-    elif "disease_mesh_cnn" in model_path:
+    elif "disease_mesh_cnn" in str(model_path):
         Y_pred = predict_cnn(X_test, model_path, threshold, return_probabilities)
-    elif "disease_mesh_tfidf" in model_path:
+    elif "disease_mesh_tfidf" in str(model_path):
         Y_pred = predict_tfidf_svm(X_test, model_path, nb_labels, threshold, return_probabilities)
     else:
         model = load_model(model_path)

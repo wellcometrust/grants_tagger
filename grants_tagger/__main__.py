@@ -8,7 +8,7 @@ import typer
 from grants_tagger.evaluate_mti import evaluate_mti
 from grants_tagger.evaluate_human import evaluate_human
 from grants_tagger.tag_grants import tag_grants
-from grants_tagger.pretrain import pretrain
+from grants_tagger.pretrain import pretrain as pretrain_model
 from grants_tagger.evaluate_model import evaluate_model
 from grants_tagger.predict import predict_tags
 from grants_tagger.preprocess import preprocess
@@ -133,8 +133,8 @@ def predict(
         texts: List[str],
         model_path: Path,
         label_binarizer_path: Path,
-        probabilities: bool = False,
-        threshold: float = 0.5):
+        probabilities: Optional[bool] = typer.Option(False),
+        threshold: Optional[float] = typer.Option(0.5)):
     predict_tags(texts, model_path, label_binarizer_path,
                  probabilities, threshold)
 
@@ -159,6 +159,10 @@ def model(
         label_binarizer_path = cfg["ensemble"]["label_binarizer"]
         threshold = cfg["ensemble"]["threshold"]
 
+    if "," in threshold:
+        threshold = [float(t) for t in threshold.split(",")]
+    else:
+        threshold = float(threshold)
     evaluate_model(model_path, data_path, label_binarizer_path, threshold)
 
 
@@ -197,8 +201,8 @@ app.add_typer(evaluate_app, name="evaluate")
 def pretrain(
         data_path: Path = typer.Argument(..., help="data to pretrain model on"),
         model_path: Path = typer.Argument(..., help="path to save mode"),
-        model_name: str = typer.Option("doc2vec", help="name of model to pretrain"),
-        config: Path = typer.Option(None, help="config file with arguments for pretrain")):
+        model_name: Optional[str] = typer.Option("doc2vec", help="name of model to pretrain"),
+        config: Optional[Path] = typer.Option(None, help="config file with arguments for pretrain")):
 
     if config:
         cfg = configparser.ConfigParser(allow_no_value=True)
@@ -213,11 +217,11 @@ def pretrain(
         model_name = cfg_pretrain.get("model_name")
 
     if not model_path:
-        print(f"No pretraining defined. Skipping.")
+        print("No pretraining defined. Skipping.")
     elif os.path.exists(model_path):
         print(f"{model_path} exists. Remove if you want to rerun.")
     else:
-        pretrain(data_path, model_path, model_name)
+        pretrain_model(data_path, model_path, model_name)
 
 
 tune_app = typer.Typer()
@@ -244,7 +248,6 @@ def params(
         approach: str = typer.Argument(..., help=""),
         params: Optional[str] = typer.Option(None, help="")):
     optimise_params(data_path, label_binarizer_path, approach, params=None)
-
 
 
 app.add_typer(tune_app, name="tune")
@@ -274,4 +277,5 @@ def explain():
     pass
 
 
-app(prog_name="grants_tagger")
+if __name__ == "__main__":
+    app(prog_name="grants_tagger")

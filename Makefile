@@ -44,7 +44,7 @@ test: virtualenv
 
 .PHONY: test_scispacy
 test_scispacy: virtualenv_scispacy
-	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov-append --cov=grants_tagger -m "scispacy"
+	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov-append --cov=grants_tagger tests/test_scispacy_meshtagger.py tests/test_evaluate_scispacy.py
 
 
 .PHONY: run_codecov

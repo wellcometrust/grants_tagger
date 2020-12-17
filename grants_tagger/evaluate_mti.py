@@ -9,7 +9,7 @@ import pickle
 import json
 import csv
 
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, f1_score
 
 
 def get_gold_tags(mesh_sample_data_path):
@@ -19,6 +19,7 @@ def get_gold_tags(mesh_sample_data_path):
             item = json.loads(line)
             gold_tags.append(item["tags"])
     return gold_tags
+
 
 def get_mti_tags(mti_output_path, mesh_tags):
     mti_data = dict()
@@ -35,8 +36,9 @@ def get_mti_tags(mti_output_path, mesh_tags):
     mti_tags = [mti_data[uid] for uid in range(len(mti_data))]
     return mti_tags
 
-def evaluate_mti(label_binarizer_path, mesh_sample_data_path, mti_output_path):
-    with open("models/disease_mesh_label_binarizer.pkl", "rb") as f:
+
+def evaluate_mti(label_binarizer_path, mesh_sample_data_path, mti_output_path, verbose=False):
+    with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
     disease_tags = set(label_binarizer.classes_)
 
@@ -45,8 +47,15 @@ def evaluate_mti(label_binarizer_path, mesh_sample_data_path, mti_output_path):
 
     Y = label_binarizer.transform(gold_tags)
     Y_pred = label_binarizer.transform(mti_tags)
-    print(classification_report(Y, Y_pred, target_names=label_binarizer.classes_))
 
+    f1 = f1_score(Y, Y_pred, average="micro")
+
+    if verbose:
+        print(classification_report(Y, Y_pred, target_names=label_binarizer.classes_))
+    else:
+        print(f1)
+
+    return f1
 
 if __name__ == "__main__":
     argparser = ArgumentParser(description=__doc__.strip())

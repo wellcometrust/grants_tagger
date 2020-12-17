@@ -7,7 +7,7 @@ from argparse import ArgumentParser
 import pickle
 import json
 
-from utils import load_data
+from grants_tagger.utils import load_data
 
 
 def yield_chunks(text, labels, accept_labels, grant_id, mode):
@@ -26,6 +26,23 @@ def yield_chunks(text, labels, accept_labels, grant_id, mode):
                 }
             })
 
+
+def create_prodigy_data(data_path, label_binarizer_path, output_path, mode):
+    with open(label_binarizer_path, 'rb') as f:
+        label_binarizer = pickle.load(f)
+
+    texts, cats, meta = load_data(data_path)
+    labels = label_binarizer.classes_
+
+    with open(output_path, 'w') as f:
+
+        for text, accept_labels, meta_ in zip(texts, cats, meta):
+            grant_id = meta_["Grant_ID"]
+            for chunk in yield_chunks(text, labels, accept_labels, grant_id, mode):
+                f.write(chunk)
+                f.write('\n')
+
+
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('--data', help='path to input JSON with grant data')
@@ -37,15 +54,4 @@ if __name__ == '__main__':
     mode = args.mode
     assert mode in ['teach', 'train']
 
-    with open(args.label_binarizer, 'rb') as f:
-        label_binarizer = pickle.load(f)
-
-    texts, cats, meta = load_data(args.data)
-    labels = label_binarizer.classes_
-
-    with open(args.output, 'w') as f:
-
-        for text, accept_labels, grant_id in zip(texts, cats, meta['Grant_ID']):
-            for chunk in yield_chunks(text, labels, accept_labels, grant_id, mode):
-                f.write(chunk)
-                f.write('\n')
+    create_prodigy_data(args.data, args.label_binarizer, args.output, args.mode)

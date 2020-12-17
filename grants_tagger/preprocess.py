@@ -13,7 +13,14 @@ import os
 
 import pandas as pd
 
-# TODO: Fix keys for calculating human accuracy
+
+def process_tagger_data(tagger_data):
+    tagger_data = tagger_data.replace("19: Maternal, Child", "19: Maternal Child")
+    tagger_data = tagger_data.replace("24: Data Science, Computational", "24: Data Science Computational")
+    tagger_data = tagger_data.replace("12: Brain Cells, Circuits", "12: Brain Cells Circuits")
+    tagger_data = tagger_data.strip("[]").replace("'", "")
+    return tagger_data
+
 
 def yield_preprocess_data(
         data,
@@ -34,7 +41,14 @@ def yield_preprocess_data(
     # cols = ['Grant Team', 'ERG', 'Lead Applicant', 'Organisation', 'Scheme', 'Title', 'Synopsis', 'Lay Summary', 'Qu.']
     processed_data = data.drop_duplicates(subset=["Grant_ID", "Sciencetags"])
     processed_data = processed_data.dropna(subset=["Synopsis"])
-    processed_data = processed_data.groupby('Grant_ID').agg({
+    if "Tagger1_tags" in meta_cols:
+        processed_data["intersection"] = processed_data["intersection"].apply(lambda x: process_tagger_data(x))
+        processed_data["Tagger 1 only"] = processed_data["Tagger 1 only"].apply(lambda x: process_tagger_data(x))
+        processed_data["Tagger1_tags"] = processed_data.apply(
+            lambda x: (x['intersection'] + x['Tagger 1 only']).split(", "),
+            axis=1
+        )
+    aggregations = {
         'Sciencetags': lambda x: ",".join(x),
         'Title': lambda x: x.iloc[0],
         'Synopsis': lambda x: x.iloc[0],
@@ -42,7 +56,10 @@ def yield_preprocess_data(
         'Qu.': lambda x: x.iloc[0],
         'Scheme': lambda x: x.iloc[0],
         'Team': lambda x: x.iloc[0]
-    }).reset_index()
+    }
+    if "Tagger1_tags" in meta_cols:
+        aggregations['Tagger1_tags'] = lambda x: x.iloc[0]
+    processed_data = processed_data.groupby('Grant_ID').agg(aggregations).reset_index()
     processed_data = processed_data[processed_data["Synopsis"] != "No Data Entered"]
     processed_data = processed_data[processed_data["Sciencetags"] != "No tag"]
     processed_data = processed_data[processed_data["Sciencetags"] != "Not enough information available"]
@@ -66,33 +83,3 @@ def preprocess(input_path, output_path, text_cols, meta_cols):
             f.write(json.dumps(chunk))
             f.write('\n')
             tags.append(chunk['tags'])
-
-if __name__ == '__main__':
-    argparser = ArgumentParser()
-    argparser.add_argument('--input', type=Path, help="path to raw Excel file with tagged or untagged grant data")
-    argparser.add_argument('--output', type=Path, help="path to JSONL output file that will be generated")
-    argparser.add_argument('--text_cols', type=str, default="Title,Synopsis", help="comma delimited column names to concatenate to text")
-    argparser.add_argument('--meta_cols', type=str, default="Grant_ID,Title", help="comma delimited column names to include in the meta")
-    argparser.add_argument('--config', type=Path, help="path to config file that defines the arguments")
-    args = argparser.parse_args()
-
-    if args.config:
-        cfg = ConfigParser(allow_no_value=True)
-        cfg.read(args.config)
-
-        input_path = cfg["preprocess"]["input"]
-        output_path = cfg["preprocess"]["output"]
-        text_cols = cfg["preprocess"]["text_cols"]
-        meta_cols = cfg["preprocess"].get("meta_cols", "Grant_ID,Title")
-    else:
-        input_path = args.input
-        output_path = args.output
-        text_cols = args.text_cols
-        meta_cols = args.meta_cols
-
-    text_cols = text_cols.split(",")
-    meta_cols = meta_cols.split(",")
-    if os.path.exists(output_path):
-        print(f"{output_path} exists. Remove if you want to rerun.")
-    else:
-        preprocess(input_path, output_path, text_cols, meta_cols)

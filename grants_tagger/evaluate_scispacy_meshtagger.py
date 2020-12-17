@@ -29,10 +29,11 @@ def evaluate_scispacy_meshtagger(mesh_label_binarizer_path, mesh_tags_path, mesh
     score = scispacy_meshtagger.score(X, Y)
     print(score)
 
-argparser = ArgumentParser(description=__doc__.strip())
-argparser.add_argument("--mesh_label_binarizer", help="label binarizer that transforms mesh names to binarized format")
-argparser.add_argument("--mesh_tags", help="csv that contains metadata about mesh such as UI, Name etc")
-argparser.add_argument("--mesh_data", help="JSONL of mesh data that contains text, tags and meta per line")
-args = argparser.parse_args()
+if __name__ == "__main__":
+    argparser = ArgumentParser(description=__doc__.strip())
+    argparser.add_argument("--mesh_label_binarizer", help="label binarizer that transforms mesh names to binarized format")
+    argparser.add_argument("--mesh_tags", help="csv that contains metadata about mesh such as UI, Name etc")
+    argparser.add_argument("--mesh_data", help="JSONL of mesh data that contains text, tags and meta per line")
+    args = argparser.parse_args()
 
-evaluate_scispacy_meshtagger(args.mesh_label_binarizer, args.mesh_tags, args.mesh_data)
+    evaluate_scispacy_meshtagger(args.mesh_label_binarizer, args.mesh_tags, args.mesh_data)

@@ -20,8 +20,10 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.preprocessing import Normalizer, OneHotEncoder, FunctionTransformer
 from scipy.sparse import hstack
 
+from pathlib import Path
 import pickle
 import os.path
+import json
 import ast
 
 from wellcomeml.ml import BiLSTMClassifier, CNNClassifier, KerasVectorizer, SpacyClassifier, BertVectorizer, BertClassifier, Doc2VecVectorizer, Sent2VecVectorizer
@@ -244,32 +246,9 @@ def train_and_evaluate(
     # so that run experiments can pass a model here
     model = create_model(approach, parameters)
 
-    if online_learning:    
-        X_test, Y_test = load_test_data(test_data_path, label_binarizer)
-    
-        # Note that not all online learning methods need multiple passes
-        for epoch in range(nb_epochs):
-            print(f"Epoch {epoch}")
-            batch = 0
-            for X_train, Y_train in yield_train_data(train_data_path, label_binarizer):
-                batch_size = len(X_train)
-                print(f"Batch {batch} - batch_size {batch_size}")
-                # Since partial fit does not work in a Pipeline
-                #   we assume two steps vectorizer and model to break down
-                if isinstance(model, Pipeline):
-                    vectorizer = model.steps[0][1]
-                    classifier = model.steps[1][1]
-                
-                    vectorizer.partial_fit(X_train)
-                    X_train = vectorizer.transform(X_train)
-                else:
-                    classifier = model
-
-                classifier.partial_fit(X_train, Y_train, classes=list(range(len(Y_train[0]))))
-                batch += 1
-            Y_pred_test = model.predict(X_test)
-            f1 = f1_score(Y_test, Y_pred_test, average='micro')
-            print(f"f1: {f1}")
+    if online_learning:
+        # OneVsRestClassifier does not work with partial fit
+        pass
     else:
         X_train, X_test, Y_train, Y_test = load_train_test_data(
             train_data_path=train_data_path,
@@ -313,6 +292,7 @@ def train_and_evaluate(
                 X_test_vec = vectorizer.transform(X_test)
                 Y_pred_test_i = classifier.predict(X_test_vec)
                 Y_pred_test.append(Y_pred_test_i)
+                print(Y_pred_test_i.shape)
             Y_pred_test = hstack(Y_pred_test)
         else:
             Y_pred_test = model.predict(X_test)

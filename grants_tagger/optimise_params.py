@@ -11,8 +11,8 @@ import os
 
 from sklearn.model_selection import GridSearchCV
 
-from utils import load_data
-from train import create_model
+from grants_tagger.utils import load_data
+from grants_tagger.train import create_model
 
 
 DEFAULT_PARAMS_SEARCH = {

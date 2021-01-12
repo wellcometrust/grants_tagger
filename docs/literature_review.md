@@ -1,6 +1,84 @@
-Last update: 10 Feb 2020
+Last update: 12 Jan 2020
 
-Overview
+Transformers review
+
+* Pre training on domain data from scratch is the best approach
+* A more computation efficient approach, if your dataset is small, is to create an expanded data from bringing the closest examples from the domain and pre training there
+* Training from scratch a smaller BERT performs much worse than distilling a bigger BERT into a smaller one
+
+# Don't stop pre training
+https://www.aclweb.org/anthology/2020.acl-main.740.pdf
+
+![dapt and tapt](https://user-images.githubusercontent.com/4975761/104292786-ed369580-54c5-11eb-98c1-f67fef49ef0c.png)
+
+Domain adaptive pre training (DAPT), which is defined as pre trained on
+generic domain data like biomedical, is better than task adaptive pre training,
+which is defined as pre training on the same data distribution as the data of
+the task i.e. unlabelled examples, but their combination performs slightly
+better than just domain adaptive pre training.
+
+One of the reasons DAPT outperforms is that the are usually much more data
+in the domain than the task.
+
+![curated tapt](https://user-images.githubusercontent.com/4975761/104292923-0d665480-54c6-11eb-8062-1db6652097b3.png)
+
+You can approach DAPT performance by selecting a subset of the domain data using
+the 500 nearest neighbours of each training example from the domain data.
+
+This reduces the data needed significantly (from 47GB to 24MB in one of the tasks)
+so makes pre training faster and less computationally demanding and costly.
+
+# Domain specific language pre training
+https://arxiv.org/abs/2007.15779
+
+![pubmedbert](https://user-images.githubusercontent.com/4975761/104292982-22db7e80-54c6-11eb-8660-351dd816a951.png)
+
+Domain pre training from scratch performs much better than continuing training
+a pre trained model which is firstly trained out of domain.
+
+SciBERT is the only biomedical BERT trained from scratch but it contains
+computer science and biomedical data. PubMedBert which is their model trained
+from scratch using PubMed performs the best but very close to SciBERT.
+
+![pubmed vocab](https://user-images.githubusercontent.com/4975761/104292984-24a54200-54c6-11eb-8d79-f3047851320e.png)
+
+Part of the reason is the better vocabulary that captures more biomedical
+related terms
+
+# Efficient transformers
+https://arxiv.org/pdf/2009.06732.pdf
+https://arxiv.org/abs/2001.04451
+https://arxiv.org/pdf/2006.16236v2.pdf
+
+The main limitation of transformers that most efficient transformers are trying
+to fix is the quadratic complexity in regards to sequence length and the fixed
+sequence length.
+
+![reformer vs linear transformer](https://user-images.githubusercontent.com/4975761/104293393-a006f380-54c6-11eb-8f0e-cb10dae703ea.png)
+
+Reformer (LSH-4) is a relatively new approach that use local sensitive hashing
+to reduce the complexity and has nlogn complexity.
+
+Linear transformer is one of the newest approaches that uses the kernel trick
+which ends up with a complexity of n
+
+Reformer seems to be 2x faster than BERT while Linear seems to be 3x faster and
+on par with BiLSTM. In terms of performance BERT seems superior still.
+
+Reformer is the only efficient transformer available in the hugging face library.
+
+Unfortunately all these transformers target the sequence length which is not
+the problem in our case. That said running time will reduce even in our approach.
+
+# Small practical BERT
+https://arxiv.org/pdf/1909.00100.pdf
+
+![distill](https://user-images.githubusercontent.com/4975761/104293533-c7f65700-54c6-11eb-94ec-3d375f3971d5.png)
+
+Distillation is more effective than pre training from scratch.
+
+
+General review
 
 Most improvements and ideas presented in the following
 papers have been incorporated to BERT already such as

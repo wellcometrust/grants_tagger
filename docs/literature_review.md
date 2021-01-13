@@ -1,13 +1,14 @@
 Last update: 12 Jan 2020
 
-Transformers review
+# Transformers review
 
 * Pre training on domain data from scratch is the best approach
 * A more computation efficient approach, if your dataset is small, is to create an expanded data from bringing the closest examples from the domain and pre training there
 * Training from scratch a smaller BERT performs much worse than distilling a bigger BERT into a smaller one
 
-# Don't stop pre training
+## Don't stop pre training
 https://www.aclweb.org/anthology/2020.acl-main.740.pdf
+Gururangan et al, 2020
 
 ![dapt and tapt](https://user-images.githubusercontent.com/4975761/104292786-ed369580-54c5-11eb-98c1-f67fef49ef0c.png)
 
@@ -28,8 +29,9 @@ the 500 nearest neighbours of each training example from the domain data.
 This reduces the data needed significantly (from 47GB to 24MB in one of the tasks)
 so makes pre training faster and less computationally demanding and costly.
 
-# Domain specific language pre training
+## Domain specific language pre training
 https://arxiv.org/abs/2007.15779
+Gu et al, 2020
 
 ![pubmedbert](https://user-images.githubusercontent.com/4975761/104292982-22db7e80-54c6-11eb-8660-351dd816a951.png)
 
@@ -45,7 +47,7 @@ from scratch using PubMed performs the best but very close to SciBERT.
 Part of the reason is the better vocabulary that captures more biomedical
 related terms
 
-# Efficient transformers
+## Efficient transformers
 https://arxiv.org/pdf/2009.06732.pdf
 https://arxiv.org/abs/2001.04451
 https://arxiv.org/pdf/2006.16236v2.pdf
@@ -70,15 +72,16 @@ Reformer is the only efficient transformer available in the hugging face library
 Unfortunately all these transformers target the sequence length which is not
 the problem in our case. That said running time will reduce even in our approach.
 
-# Small practical BERT
+## Small practical BERT
 https://arxiv.org/pdf/1909.00100.pdf
+Tsai et al, 2019
 
 ![distill](https://user-images.githubusercontent.com/4975761/104293533-c7f65700-54c6-11eb-94ec-3d375f3971d5.png)
 
 Distillation is more effective than pre training from scratch.
 
 
-General review
+# General review
 
 Most improvements and ideas presented in the following
 papers have been incorporated to BERT already such as
@@ -96,7 +99,7 @@ of some biomedical and other dataset that we could
 test our approach like Wiki-500 and HoC and finally
 the correlation among labels which is partly modelled.
 
-# DeepMesh
+## DeepMesh
 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4908368/
 
 DeepMesh is the best approach for Mesh indexing that has won
@@ -132,7 +135,7 @@ evidence. Finally DeepMesh was shown to perform 2% better than the
 previous best MeshLabeler from the same authors which did not use
 embeddings.
 
-# X-BERT
+## X-BERT
 https://arxiv.org/abs/1905.02331
 
 The authors are inspired from information retrieval approaches and the recent
@@ -164,7 +167,7 @@ ablation studies showing the superiority of BERT vs self attention and of rankin
 vs simple TFIDF. The biggest improvement seems to come from using a neural network
 approach for the second step instead of a linear model.
 
-# AttentionXML
+## AttentionXML
 https://arxiv.org/abs/1811.01727
 
 The authors propose a combined tree based and attention based architecture.
@@ -190,7 +193,7 @@ Finally they show that performance on tail labels is significantly improved,
 something that is the result of using trees more than attention since
 weights are only shared for the first biLSTM part.
 
-# MeshProbeNet
+## MeshProbeNet
 https://academic.oup.com/bioinformatics/article-abstract/35/19/3794/5372674?redirectedFrom=fulltext
 
 The most common approaches for indexing new pubmed articles with MeSH headings

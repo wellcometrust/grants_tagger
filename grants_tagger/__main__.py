@@ -81,8 +81,8 @@ preprocess_app = typer.Typer()
 
 @preprocess_app.command()
 def bioasq_mesh(
-        input_path: Path = typer.Argument(..., help="path to BioASQ JSON data"),
-        output_path: Path = typer.Argument(..., help="path to output JSONL data"),
+        input_path: Optional[Path] = typer.Argument(None, help="path to BioASQ JSON data"),
+        output_path: Optional[Path] = typer.Argument(None, help="path to output JSONL data"),
         mesh_metadata_path: Optional[Path] = typer.Option(None, help="path to xml file containing MeSH taxonomy"),
         config: Optional[Path] = typer.Option(None, help="path to config files that defines arguments")):
 
@@ -102,8 +102,8 @@ def bioasq_mesh(
 
 @preprocess_app.command()
 def wellcome_science(
-        input_path: Path = typer.Argument(..., help="path to raw Excel file with tagged or untagged grant data"),
-        output_path: Path = typer.Argument(..., help="path to JSONL output file that will be generated"),
+        input_path: Optional[Path] = typer.Argument(None, help="path to raw Excel file with tagged or untagged grant data"),
+        output_path: Optional[Path] = typer.Argument(None, help="path to JSONL output file that will be generated"),
         text_cols: str = typer.Option("Title,Synopsis", help="comma delimited column names to concatenate to text"),
         meta_cols: str = typer.Option("Grant_ID,Title", help="comma delimited column names to include in the meta"),
         config: Path = typer.Option(None, help="path to config file that defines the arguments")):
@@ -115,6 +115,8 @@ def wellcome_science(
         input_path = cfg["preprocess"]["input"]
         output_path = cfg["preprocess"]["output"]
         text_cols = cfg["preprocess"]["text_cols"]
+        if not text_cols:
+            text_cols = "Title,Synopsis"
         meta_cols = cfg["preprocess"].get("meta_cols", "Grant_ID,Title")
 
     text_cols = text_cols.split(",")

@@ -76,7 +76,7 @@ def test_create_scibert_svm():
 def test_create_bert():
     model = create_model('bert')
     assert isinstance(model, BertClassifier)
-    assert model.pretrained == 'bert'
+    assert model.pretrained == 'bert-base-uncased'
 
 
 def test_create_scibert():

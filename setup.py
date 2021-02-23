@@ -32,7 +32,7 @@ setup(
         'scikit-learn==0.23.2',
         'nltk',
         'matplotlib',
-        'wellcomeml[deep-learning]==2020.11.1',
+        'wellcomeml[deep-learning]==2021.2.1',
         'docutils==0.15',
         'scipy==1.4.1',
         'wasabi',

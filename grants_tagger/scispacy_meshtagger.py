@@ -24,10 +24,8 @@ class SciSpacyMeshTagger():
 
     def fit(self, *_):
         nlp = spacy.load("en_core_sci_sm")
-        abbreviation_resolver = AbbreviationDetector(nlp)
-        nlp.add_pipe(abbreviation_resolver)
-        linker = EntityLinker(resolve_abbreviations=True, name="mesh")
-        nlp.add_pipe(linker)
+        nlp.add_pipe("abbreviation_detector")
+        nlp.add_pipe("scispacy_linker", config={"resolve_abbreviations": True, "linker_name": "mesh"})
         self.nlp = nlp
 
     def _get_tags(self, doc):

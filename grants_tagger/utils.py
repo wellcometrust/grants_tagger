@@ -101,7 +101,7 @@ def load_dataset(data_path, tokenizer, label_binarizer, sparse_labels=False, dat
             tags.append(tags_)
 
             if len(texts) >= load_buffer: 
-                text_encoded, tags_encoded = transform_data(text, tags)
+                text_encoded, tags_encoded = transform_data(texts, tags)
                 for i in range(len(texts)):
                     yield text_encoded[i], tags_encoded[i]
 
@@ -109,7 +109,7 @@ def load_dataset(data_path, tokenizer, label_binarizer, sparse_labels=False, dat
                 tags = []
 
         if texts:
-            text_encoded, tags_encoded = transform_data(text, tags)   
+            text_encoded, tags_encoded = transform_data(texts, tags)   
             for i in range(len(texts)):
                 yield text_encoded[i], tags_encoded[i]
 

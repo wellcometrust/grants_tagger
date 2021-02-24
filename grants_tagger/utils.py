@@ -116,7 +116,7 @@ def load_dataset(data_path, tokenizer, label_binarizer, sparse_labels=False, dat
     data = tf.data.Dataset.from_generator(data_gen, output_types=(tf.int32, tf.int32))
 
     if shuffle:
-        data = data.shuffle(shuffle_buffer, seed=random_seed, reshuffle_each_iteration=False)
+        data = data.shuffle(shuffle_buffer, seed=random_seed)
     if data_cache:
         data = data.cache(data_cache)
     return data
@@ -127,7 +127,7 @@ def load_train_test_dataset(data_path, tokenizer, label_binarizer, test_data_pat
 
     if test_data_path:
         test_data = load_dataset(data_path, tokenizer, label_binarizer, sparse_labels=sparse_labels,
-                                 shuffle_buffer=shuffle_buffer, random_seed=random_seed) # cache will load train data if it has the same name
+                                 shuffle_buffer=shuffle_buffer, shuffle=False, random_seed=random_seed) # cache will load train data if it has the same name
         train_data = data
     else:
         print("Splitting train and test. This might take a while.")
@@ -140,9 +140,5 @@ def load_train_test_dataset(data_path, tokenizer, label_binarizer, test_data_pat
         train_data = data.take(train_steps)
         test_data = data.skip(train_steps)
         print(f"Splitted. Train data size {train_steps}. Test data size {steps-train_steps}")
-
-    if shuffle:
-        train_data = train_data.shuffle(shuffle_buffer, seed=random_seed)
-        test_data = test_data.shuffle(shuffle_buffer, seed=random_seed)
 
     return train_data, test_data

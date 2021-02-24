@@ -251,7 +251,7 @@ def train_and_evaluate(
             classifier.fit(train_data)
         else:
             # OneVsRestClassifier does not work with partial fit
-            # TODO: fit one SGDClassifier per label
+            # TODO: fit one SGDClassifier per label, use multiprocessing
             raise NotImplementedError
     else:
         X_train, X_test, Y_train, Y_test = load_train_test_data(

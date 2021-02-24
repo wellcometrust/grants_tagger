@@ -27,7 +27,7 @@ import json
 import ast
 
 from wellcomeml.ml import BiLSTMClassifier, CNNClassifier, KerasVectorizer, SpacyClassifier, BertVectorizer, BertClassifier, Doc2VecVectorizer, Sent2VecVectorizer
-from grants_tagger.utils import load_train_test_data, yield_train_data, load_test_data, yield_texts, yield_tags, load_train_test_dataset, load_tags
+from grants_tagger.utils import load_train_test_data, yield_texts, yield_tags, load_train_test_dataset
 
 
 class ApproachNotImplemented(Exception):

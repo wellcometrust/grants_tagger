@@ -32,19 +32,6 @@ def load_data(data_path, label_binarizer=None, X_format="List"):
         return X, tags, meta
 
     return texts, tags, meta
-        
-
-def load_tags(data_path, label_binarizer=None):
-    tags = []
-    with open(data_path) as f:
-        for line in f:
-            item = json.loads(line)
-            tags.append(item["tags"])
-
-    if label_binarizer:
-        tags = label_binarizer.transform(tags)
-    return tags
-
 
 def load_train_test_data(
         train_data_path, label_binarizer,
@@ -69,25 +56,6 @@ def load_train_test_data(
         )
            
     return X_train, X_test, Y_train, Y_test
-
-def yield_train_data(data_path, label_binarizer, batch_size=100):
-    with open(data_path) as f:
-        i = 0
-        X = []
-        Y = []
-        for line in f:
-            i += 1
-            item = json.loads(line)
-            X.append(item['text'])
-            tags = item['tags']
-            Y.append(label_binarizer.transform([tags])[0])
-            if i % batch_size == 0:
-                Y = np.array(Y)
-                yield X, Y
-                X = []
-                Y = []
-        if X:
-            yield X, Y
 
 def load_test_data(data_path, label_binarizer):
     X = []

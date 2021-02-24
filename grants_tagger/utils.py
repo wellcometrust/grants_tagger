@@ -57,7 +57,6 @@ def load_train_test_data(
            
     return X_train, X_test, Y_train, Y_test
 
-
 # TODO: Move to common for cases where Y is a matrix
 def calc_performance_per_tag(Y_true, Y_pred, tags):
     metrics = []

@@ -28,7 +28,7 @@ def train(
         approach: str = typer.Option("tfidf-svm", help="tfidf-svm, scibert, cnn, ..."),
         parameters: str = typer.Option("{}", help="model params in sklearn format e.g. {'svm__kernel: linear'}"),
         test_data_path: Path = typer.Option(None, help="path to processed JSON test data"),
-        online_learning: bool = typer.Option(False, help="flag to train in an online way"),
+        incremental_learning: bool = typer.Option(False, help="flag to train in an online way"),
         nb_epochs: int = typer.Option(5, help="number of passes of training data in online training"),
         from_same_distribution: bool = typer.Option(False, help="whether train and test contain the same examples but differ in other ways, important when loading train and test parts of datasets"),
         threshold: float = typer.Option(None, help="threshold to assign a tag"),
@@ -48,7 +48,7 @@ def train(
         parameters = cfg["model"]["parameters"]
         model_path = cfg["model"]["model_path"]
         test_data_path = cfg["data"]["test_data_path"]
-        online_learning = bool(cfg["model"].get("online_learning", False))
+        incremental_learning = bool(cfg["model"].get("incremental_learning", False))
         nb_epochs = int(cfg["model"].get("nb_epochs", 5))
         from_same_distribution = bool(cfg["data"].get("from_same_distribution", False))
         threshold = cfg["model"].get("threshold", None)
@@ -75,7 +75,7 @@ def train(
             data_path, label_binarizer_path, approach,
             parameters, model_path=model_path,
             test_data_path=test_data_path,
-            online_learning=online_learning,
+            incremental_learning=incremental_learning,
             nb_epochs=nb_epochs,
             from_same_distribution=from_same_distribution,
             threshold=threshold, y_batch_size=y_batch_size,

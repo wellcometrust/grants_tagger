@@ -218,7 +218,7 @@ def create_model(approach, parameters=None):
 def train_and_evaluate(
         train_data_path, label_binarizer_path, approach,
         parameters=None, model_path=None, test_data_path=None,
-        online_learning=False, nb_epochs=5,
+        incremental_learning=False, nb_epochs=5,
         from_same_distribution=False, threshold=None,
         y_batch_size=None, X_format="List",
         test_size=0.25, sparse_labels=False,
@@ -235,7 +235,7 @@ def train_and_evaluate(
     # so that run experiments can pass a model here
     model = create_model(approach, parameters)
 
-    if online_learning:
+    if incremental_learning:
         if approach in ["cnn", "bilstm"]:
             vectorizer = model.steps[0][1]
             classifier = model.steps[1][1]
@@ -288,7 +288,7 @@ def train_and_evaluate(
             Y_pred_prob = model.predict_proba(X_test)
         Y_pred_test = Y_pred_prob > threshold
     else:
-        if online_learning:
+        if incremental_learning:
             if approach in ["cnn", "bilstm"]:
                 if sparse_labels:
                     Y_test = []
@@ -297,8 +297,10 @@ def train_and_evaluate(
                         Y_test.append(Y_batch)
                     Y_test = vstack(Y_test)
                 else:
-                    pass # ??
-    
+                    Y_test = []
+                    for _, Y_batch in test_data:
+                        Y_test.append(Y_batch)
+                    Y_test = np.vstack(Y_test)
                 Y_pred_test = classifier.predict(test_data)
             else:
                 raise NotImplementedError

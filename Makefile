@@ -39,7 +39,6 @@ virtualenv_scispacy: virtualenv
 
 .PHONY: test
 test: virtualenv
-	$(VIRTUALENV)/bin/python -m spacy download en_trf_bertbaseuncased_lg
 	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov=grants_tagger -m "not scispacy"
 
 .PHONY: test_scispacy

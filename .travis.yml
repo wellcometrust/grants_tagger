@@ -8,7 +8,7 @@ install:
 
 script:
   - make test
-  # - make test_scispacy
+  - make test_scispacy
 
 branches:
   only:

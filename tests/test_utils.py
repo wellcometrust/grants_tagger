@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 from grants_tagger.utils import (load_data, calc_performance_per_tag,
-    load_test_data, yield_train_data, load_train_test_data)
+    load_train_test_data)
 
 
 def test_load_data():    
@@ -101,55 +101,3 @@ def test_load_train_test_data():
     assert np.array_equal(tags_train[0], [1, 0])
     assert np.array_equal(tags_train[1], [0, 1])
     assert np.array_equal(tags_test[0], [1, 1])
-
-def test_yield_train_data():
-    data = [
-        {
-            'text': 'A',
-            'tags': ['T1', 'T2'],
-            'meta': {'Grant_ID': 1, 'Title': 'A'}
-        },
-        {
-            'text': 'B',
-            'tags': ['T1'],
-            'meta': {'Grant_ID': 2, 'Title': 'B'}
-        }
-    ]
-    with tempfile.NamedTemporaryFile('w') as tmp:
-        for line in data:
-            tmp.write(json.dumps(line))
-            tmp.write('\n')
-        tmp.seek(0)
-        label_binarizer = MultiLabelBinarizer()
-        label_binarizer.fit([['T1','T2']])
-        texts = []
-        tags = []
-        for text, tag in yield_train_data(tmp.name, label_binarizer):
-            texts.extend(text)
-            tags.extend(tag)
-    assert np.array_equal(tags[0], [1, 1])
-    assert np.array_equal(tags[1], [1, 0])
-
-def test_load_test_data():
-    data = [
-        {
-            'text': 'A',
-            'tags': ['T1','T2'],
-            'meta': {'Grant_ID': 1, 'Title': 'A'}
-        },
-        {
-            'text': 'B',
-            'tags': ['T1'],
-            'meta': {'Grant_ID': 2, 'Title': 'B'}
-        }
-    ]
-    with tempfile.NamedTemporaryFile('w') as tmp:
-        for line in data:
-            tmp.write(json.dumps(line))
-            tmp.write('\n')
-        tmp.seek(0)
-        label_binarizer = MultiLabelBinarizer()
-        label_binarizer.fit([['T1','T2']])
-        texts, tags = load_test_data(tmp.name, label_binarizer)
-    assert np.array_equal(tags[0], [1, 1])
-    assert np.array_equal(tags[1], [1, 0])

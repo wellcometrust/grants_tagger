@@ -57,13 +57,6 @@ def load_train_test_data(
            
     return X_train, X_test, Y_train, Y_test
 
-def load_test_data(data_path, label_binarizer):
-    X = []
-    Y = []
-    for x, y in yield_train_data(data_path, label_binarizer):
-        X.extend(x)
-        Y.extend(y)
-    return X, np.array(Y)
 
 # TODO: Move to common for cases where Y is a matrix
 def calc_performance_per_tag(Y_true, Y_pred, tags):
@@ -89,41 +82,37 @@ def yield_tags(data_path):
             item = json.loads(line)
             yield item["tags"]
 
-def load_dataset(data_path, tokenizer, label_binarizer, sparse_labels=False, data_cache=None, random_seed=42, shuffle=True, shuffle_buffer=1000):
+def load_dataset(data_path, tokenizer, label_binarizer, sparse_labels=False, data_cache=None, random_seed=42, 
+                 shuffle=True, shuffle_buffer=1000, load_buffer=1000):
+    def transform_data(texts, tags):
+        text_encoded = tokenizer.transform(texts)
+        tags_encoded = label_binarizer.transform(tags)
+
+        if sparse_labels:
+            tags_encoded = tags_encoded.todense() # returns matrix
+            tags_encoded = np.asarray(tags_encoded)
+        
+        return text_encoded, tags_encoded
+
     def data_gen():
-        with open(data_path) as f:
-            texts = []
-            tags = []
-            for line in f:
-                item = json.loads(line)
-                texts.append(item["text"])
-                tags.append(item["tags"])
+        texts = []
+        tags = []
+        for text, tags_ in zip(yield_texts(data_path), yield_tags(data_path)):
+            texts.append(text)
+            tags.append(tags_)
 
-                if len(texts) >= 1000: 
-                    text_encoded = tokenizer.transform(texts)
-                    tags_encoded = label_binarizer.transform(tags)
-
-                    if sparse_labels:
-                        tags_encoded = tags_encoded.todense() # returns matrix
-                        tags_encoded = np.asarray(tags_encoded)
-                    
-                    for i in range(len(texts)):
-                        yield text_encoded[i], tags_encoded[i]
-
-                    texts = []
-                    tags = []
-            
-            # TODO: Refactor
-            if texts:
-                text_encoded = tokenizer.transform(texts)
-                tags_encoded = label_binarizer.transform(tags)
-
-                if sparse_labels:
-                    tags_encoded = tags_encoded.todense() # returns matrix
-                    tags_encoded = np.squeeze(np.asarray(tags_encoded))
-                    
+            if len(texts) >= load_buffer: 
+                text_encoded, tags_encoded = transform_data(text, tags)
                 for i in range(len(texts)):
                     yield text_encoded[i], tags_encoded[i]
+
+                texts = []
+                tags = []
+
+        if texts:
+            text_encoded, tags_encoded = transform_data(text, tags)   
+            for i in range(len(texts)):
+                yield text_encoded[i], tags_encoded[i]
 
     data = tf.data.Dataset.from_generator(data_gen, output_types=(tf.int32, tf.int32))
 

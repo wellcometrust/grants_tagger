@@ -1,4 +1,4 @@
 scikit-multilearn
 arff
 python-dateutil<2.8.1,>=2.1
--e git+git://github.com/wellcometrust/WellcomeML.git@ca5d1c38f28a50aacdefa5b5b47647389194e826#egg=wellcomeml[deep-learning]
+-e git+git://github.com/wellcometrust/WellcomeML.git@5ae533c598e25ba1bb95b7eebfd3dcf7db6a2b3d#egg=wellcomeml[deep-learning]

@@ -35,6 +35,8 @@ def train(
         y_batch_size: int = typer.Option(None, help="batch size for Y in cases where Y large. defaults to None i.e. no batching of Y"),
         x_format: str = typer.Option("List", help="format that will be used when loading the data. One of List,DataFrame"),
         test_size: float = typer.Option(0.25, help="float or int indicating either percentage or absolute number of test examples"),
+        sparse_labels: bool = typer.Option(False, help="flat about whether labels should be sparse when binarized"),
+        cache_path: Optional[Path] = typer.Option(None, help="path to cache data transformartions"),
         config: Path = None):
     if config:
         cfg = configparser.ConfigParser(allow_no_value=True)
@@ -57,7 +59,11 @@ def train(
             y_batch_size = int(y_batch_size)
         x_format = cfg["data"].get("x_format", "List")
         test_size = float(cfg["data"].get("test_size", 0.25))
-
+        sparse_labels = cfg["model"].get("sparse_labels", False)
+        if sparse_labels:
+            sparse_labels = bool(sparse_labels)
+        cache_path = cfg["data"].get("cache_path")
+        
     # CHECK that data_path, label_binarizer_path is provided
     # Do we need to provide model_path?
 
@@ -73,7 +79,8 @@ def train(
             nb_epochs=nb_epochs,
             from_same_distribution=from_same_distribution,
             threshold=threshold, y_batch_size=y_batch_size,
-            X_format=x_format, test_size=test_size)
+            X_format=x_format, test_size=test_size,
+            sparse_labels=sparse_labels, cache_path=cache_path)
 
 
 preprocess_app = typer.Typer()

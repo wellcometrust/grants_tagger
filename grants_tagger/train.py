@@ -18,7 +18,7 @@ from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import SGDClassifier
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.preprocessing import Normalizer, OneHotEncoder, FunctionTransformer
-from scipy.sparse import hstack
+from scipy.sparse import hstack, vstack, csr_matrix
 
 from pathlib import Path
 import pickle
@@ -27,28 +27,16 @@ import json
 import ast
 
 from wellcomeml.ml import BiLSTMClassifier, CNNClassifier, KerasVectorizer, SpacyClassifier, BertVectorizer, BertClassifier, Doc2VecVectorizer, Sent2VecVectorizer
-from grants_tagger.utils import load_train_test_data, yield_train_data, load_test_data
+from grants_tagger.utils import load_train_test_data, yield_train_data, load_test_data, yield_texts, yield_tags, load_train_test_dataset, load_tags
 
 
 class ApproachNotImplemented(Exception):
     pass
 
 
-def yield_tags(data_path):
-    """yields tags (list) line by line from file in data_path"""
-    with open(data_path) as f:
-        for i, line in enumerate(f):
-            item = json.loads(line)
-            yield item["tags"]
-
-
-def create_label_binarizer(data_path, label_binarizer_path, sparse=False):
-    data_tags = []
-    for tags in yield_tags(data_path):
-        data_tags.append(tags)
-        
+def create_label_binarizer(data_path, label_binarizer_path, sparse=False):        
     label_binarizer = MultiLabelBinarizer(sparse_output=sparse)
-    label_binarizer.fit(data_tags)
+    label_binarizer.fit(yield_tags(data_path))
     with open(label_binarizer_path, 'wb') as f:
         pickle.dump(label_binarizer, f)
 
@@ -233,7 +221,8 @@ def train_and_evaluate(
         online_learning=False, nb_epochs=5,
         from_same_distribution=False, threshold=None,
         y_batch_size=None, X_format="List",
-        test_size=0.25, sparse_labels=False, verbose=True):
+        test_size=0.25, sparse_labels=False,
+        cache_path=None, verbose=True):
 
     if os.path.exists(label_binarizer_path):
         print(f"{label_binarizer_path} exists. Loading existing")
@@ -247,8 +236,23 @@ def train_and_evaluate(
     model = create_model(approach, parameters)
 
     if online_learning:
-        # OneVsRestClassifier does not work with partial fit
-        pass
+        if approach in ["cnn", "bilstm"]:
+            vectorizer = model.steps[0][1]
+            classifier = model.steps[1][1]
+
+            print("Fitting vectorizer")
+            vectorizer.fit(yield_texts(train_data_path))
+            print("Fitting classifier")
+            train_data, test_data = load_train_test_dataset(
+                train_data_path, vectorizer, label_binarizer,
+                test_data_path=test_data_path, sparse_labels=sparse_labels,
+                test_size=test_size, data_cache=cache_path
+            )
+            classifier.fit(train_data)
+        else:
+            # OneVsRestClassifier does not work with partial fit
+            # TODO: fit one SGDClassifier per label
+            raise NotImplementedError
     else:
         X_train, X_test, Y_train, Y_test = load_train_test_data(
             train_data_path=train_data_path,
@@ -284,7 +288,21 @@ def train_and_evaluate(
             Y_pred_prob = model.predict_proba(X_test)
         Y_pred_test = Y_pred_prob > threshold
     else:
-        if y_batch_size:
+        if online_learning:
+            if approach in ["cnn", "bilstm"]:
+                if sparse_labels:
+                    Y_test = []
+                    for _, Y_batch in test_data:
+                        Y_batch = csr_matrix(Y_batch.numpy())
+                        Y_test.append(Y_batch)
+                    Y_test = vstack(Y_test)
+                else:
+                    pass # ??
+    
+                Y_pred_test = classifier.predict(test_data)
+            else:
+                raise NotImplementedError
+        elif y_batch_size:
             Y_pred_test = []
             for tag_i in range(0, Y_test.shape[1], y_batch_size):
                 with open(f"{model_path}/{tag_i}.pkl", "rb") as f:

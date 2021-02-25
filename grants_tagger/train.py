@@ -18,7 +18,7 @@ from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import SGDClassifier
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.preprocessing import Normalizer, OneHotEncoder, FunctionTransformer
-from scipy.sparse import hstack, vstack, csr_matrix
+from scipy import sparse as sp
 
 from pathlib import Path
 import pickle
@@ -293,9 +293,9 @@ def train_and_evaluate(
                 if sparse_labels:
                     Y_test = []
                     for _, Y_batch in test_data:
-                        Y_batch = csr_matrix(Y_batch.numpy())
+                        Y_batch = sp.csr_matrix(Y_batch.numpy())
                         Y_test.append(Y_batch)
-                    Y_test = vstack(Y_test)
+                    Y_test = sp.vstack(Y_test)
                 else:
                     Y_test = []
                     for _, Y_batch in test_data:
@@ -313,7 +313,7 @@ def train_and_evaluate(
                 Y_pred_test_i = classifier.predict(X_test_vec)
                 Y_pred_test.append(Y_pred_test_i)
                 print(Y_pred_test_i.shape)
-            Y_pred_test = hstack(Y_pred_test)
+            Y_pred_test = sp.hstack(Y_pred_test)
         else:
             Y_pred_test = model.predict(X_test)
             # Y_pred_train = model.predict(X_train)

@@ -123,7 +123,8 @@ def load_dataset(data_path, tokenizer, label_binarizer, sparse_labels=False, dat
 
 def load_train_test_dataset(data_path, tokenizer, label_binarizer, test_data_path=None, test_size=0.1, sparse_labels=False, data_cache=None, random_seed=42, shuffle=True, shuffle_buffer=1000):
     data = load_dataset(data_path, tokenizer, label_binarizer, sparse_labels=sparse_labels,
-                        shuffle_buffer=shuffle_buffer, data_cache=data_cache, random_seed=random_seed)
+                        shuffle_buffer=shuffle_buffer, shuffle=shuffle, data_cache=data_cache, 
+                        random_seed=random_seed)
 
     if test_data_path:
         test_data = load_dataset(data_path, tokenizer, label_binarizer, sparse_labels=sparse_labels,

@@ -19,6 +19,7 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.preprocessing import Normalizer, OneHotEncoder, FunctionTransformer
 from scipy import sparse as sp
+import numpy as np
 
 from pathlib import Path
 import pickle

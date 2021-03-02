@@ -122,8 +122,9 @@ def load_dataset(data_path, tokenizer, label_binarizer, sparse_labels=False, dat
     return data
 
 def load_train_test_dataset(data_path, tokenizer, label_binarizer, test_data_path=None, test_size=0.1, sparse_labels=False, data_cache=None, random_seed=42, shuffle=True, shuffle_buffer=1000):
+    # don't shuffle before splitting so only shuffle train_data
     data = load_dataset(data_path, tokenizer, label_binarizer, sparse_labels=sparse_labels,
-                        shuffle_buffer=shuffle_buffer, shuffle=shuffle, data_cache=data_cache, 
+                        shuffle_buffer=shuffle_buffer, shuffle=False, data_cache=data_cache, 
                         random_seed=random_seed)
 
     if test_data_path:
@@ -137,9 +138,15 @@ def load_train_test_dataset(data_path, tokenizer, label_binarizer, test_data_pat
             steps += 1
 
         train_steps = int((1-test_size) * steps)
-    
+
+        if shuffle:
+            # train / test shuffle should remain the same across epochs
+            data = data.shuffle(shuffle_buffer, seed=random_seed, reshuffle_each_iteration=False)
         train_data = data.take(train_steps)
         test_data = data.skip(train_steps)
         print(f"Splitted. Train data size {train_steps}. Test data size {steps-train_steps}")
+
+    if shuffle:
+        train_data = train_data.shuffle(shuffle_buffer, seed=random_seed)
 
     return train_data, test_data

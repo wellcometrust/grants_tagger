@@ -143,3 +143,48 @@ def test_load_train_test_dataset():
         assert np.array_equal(tags_train[0], [1, 1])
         assert np.array_equal(tags_train[1], [1, 0])
         assert np.array_equal(tags_test[0], [0, 1])
+
+
+def test_load_train_test_dataset_shuffle():
+    data = [
+        {
+            'text': 'A',
+            'tags': ['T1', 'T2'],
+            'meta': {'Grant_ID': 1, 'Title': 'A'}
+        },
+        {
+            'text': 'B',
+            'tags': ['T1'],
+            'meta': {'Grant_ID': 2, 'Title': 'B'}
+        },
+        {
+            'text': 'C',
+            'tags': ['T2'],
+            'meta': {'Grant_ID': 3, 'Title': 'C'}
+        }
+    ]
+    with tempfile.NamedTemporaryFile('w') as tmp:
+        for line in data:
+            tmp.write(json.dumps(line))
+            tmp.write('\n')
+        tmp.seek(0)
+        tokenizer = KerasVectorizer()
+        tokenizer.fit([d['text'] for d in data])
+        label_binarizer = MultiLabelBinarizer(classes=["T1", "T2"])
+        label_binarizer.fit([d['tags'] for d in data])
+        train_data, test_data = load_train_test_dataset(
+                tmp.name, tokenizer, label_binarizer,
+                shuffle=True, random_seed=42
+        )
+    
+        def get_tags(data):
+            tags = []
+            for example in data.as_numpy_iterator():
+                tags.append(example[1])
+            return tags
+        tags_train = get_tags(train_data)
+        tags_test = get_tags(test_data)
+        assert np.array_equal(tags_train[0], [1, 0])
+        assert np.array_equal(tags_train[1], [0, 1])
+        assert np.array_equal(tags_test[0], [1, 1])
+

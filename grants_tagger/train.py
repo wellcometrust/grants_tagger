@@ -241,6 +241,7 @@ def train_and_evaluate(
             vectorizer = model.steps[0][1]
             classifier = model.steps[1][1]
 
+            # Note that we fit the vectorizer using all data. See Issue#59.
             print("Fitting vectorizer")
             vectorizer.fit(yield_texts(train_data_path))
             print("Fitting classifier")

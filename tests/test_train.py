@@ -371,3 +371,41 @@ def test_create_label_binarizer_sparse():
         assert "two" in label_binarizer.classes_
         assert len(label_binarizer.classes_) == 2
         assert isinstance(Y, csr_matrix)
+
+
+def test_train_and_evaluate_incremental_learning():
+    approach = "cnn"
+
+    texts = ["one", "one two", "two"]
+    tags = [["one"], ["one", "two"], ["two"]]
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        train_data_path = os.path.join(tmp_dir, "data.jsonl")
+        label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
+
+        with open(train_data_path, "w") as f:
+            for text, tags_ in zip(texts, tags):
+                f.write(json.dumps({"text": text, "tags": tags_, "meta": {}}))
+                f.write("\n")
+
+        train_and_evaluate(train_data_path, label_binarizer_path, approach,
+                           incremental_learning=True, sparse_labels=True)
+
+
+def test_train_and_evaluate_incremental_learning_non_sparse_labels():
+    approach = "cnn"
+
+    texts = ["one", "one two", "two"]
+    tags = [["one"], ["one", "two"], ["two"]]
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        train_data_path = os.path.join(tmp_dir, "data.jsonl")
+        label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
+
+        with open(train_data_path, "w") as f:
+            for text, tags_ in zip(texts, tags):
+                f.write(json.dumps({"text": text, "tags": tags_, "meta": {}}))
+                f.write("\n")
+
+        train_and_evaluate(train_data_path, label_binarizer_path, approach,
+                           incremental_learning=True)

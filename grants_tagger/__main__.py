@@ -28,13 +28,15 @@ def train(
         approach: str = typer.Option("tfidf-svm", help="tfidf-svm, scibert, cnn, ..."),
         parameters: str = typer.Option("{}", help="model params in sklearn format e.g. {'svm__kernel: linear'}"),
         test_data_path: Path = typer.Option(None, help="path to processed JSON test data"),
-        online_learning: bool = typer.Option(False, help="flag to train in an online way"),
+        incremental_learning: bool = typer.Option(False, help="flag to train in an online way"),
         nb_epochs: int = typer.Option(5, help="number of passes of training data in online training"),
         from_same_distribution: bool = typer.Option(False, help="whether train and test contain the same examples but differ in other ways, important when loading train and test parts of datasets"),
         threshold: float = typer.Option(None, help="threshold to assign a tag"),
         y_batch_size: int = typer.Option(None, help="batch size for Y in cases where Y large. defaults to None i.e. no batching of Y"),
         x_format: str = typer.Option("List", help="format that will be used when loading the data. One of List,DataFrame"),
         test_size: float = typer.Option(0.25, help="float or int indicating either percentage or absolute number of test examples"),
+        sparse_labels: bool = typer.Option(False, help="flat about whether labels should be sparse when binarized"),
+        cache_path: Optional[Path] = typer.Option(None, help="path to cache data transformartions"),
         config: Path = None):
     if config:
         cfg = configparser.ConfigParser(allow_no_value=True)
@@ -46,7 +48,7 @@ def train(
         parameters = cfg["model"]["parameters"]
         model_path = cfg["model"]["model_path"]
         test_data_path = cfg["data"]["test_data_path"]
-        online_learning = bool(cfg["model"].get("online_learning", False))
+        incremental_learning = bool(cfg["model"].get("incremental_learning", False))
         nb_epochs = int(cfg["model"].get("nb_epochs", 5))
         from_same_distribution = bool(cfg["data"].get("from_same_distribution", False))
         threshold = cfg["model"].get("threshold", None)
@@ -57,7 +59,11 @@ def train(
             y_batch_size = int(y_batch_size)
         x_format = cfg["data"].get("x_format", "List")
         test_size = float(cfg["data"].get("test_size", 0.25))
-
+        sparse_labels = cfg["model"].get("sparse_labels", False)
+        if sparse_labels:
+            sparse_labels = bool(sparse_labels)
+        cache_path = cfg["data"].get("cache_path")
+        
     # CHECK that data_path, label_binarizer_path is provided
     # Do we need to provide model_path?
 
@@ -69,11 +75,12 @@ def train(
             data_path, label_binarizer_path, approach,
             parameters, model_path=model_path,
             test_data_path=test_data_path,
-            online_learning=online_learning,
+            incremental_learning=incremental_learning,
             nb_epochs=nb_epochs,
             from_same_distribution=from_same_distribution,
             threshold=threshold, y_batch_size=y_batch_size,
-            X_format=x_format, test_size=test_size)
+            X_format=x_format, test_size=test_size,
+            sparse_labels=sparse_labels, cache_path=cache_path)
 
 
 preprocess_app = typer.Typer()

@@ -20,9 +20,7 @@ DEFAULT_LABELBINARIZER_PATH = os.path.join(FILEPATH, '../models/label_binarizer.
 
 
 def predict(X_test, model_path, approach, threshold=0.5, return_probabilities=False):
-    # TODO: Use create model and limit approaches to production models
     if approach == 'mesh-cnn':
-        # TODO: pass params
         model = MeshCNN(
             threshold=threshold
         )

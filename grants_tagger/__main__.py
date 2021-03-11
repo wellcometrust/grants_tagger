@@ -54,12 +54,6 @@ def train(
             sparse_labels = bool(sparse_labels)
         cache_path = cfg["data"].get("cache_path")
     
-    # TODO: check x_format in configs and code
-    # TODO: check y_batch_size in config and pass as param to model
-
-    # CHECK that data_path, label_binarizer_path is provided
-    # Do we need to provide model_path?
-
     if os.path.exists(model_path):
         print(f"{model_path} exists. Remove if you want to rerun.")
     else:

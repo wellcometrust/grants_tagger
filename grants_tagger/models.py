@@ -41,15 +41,18 @@ def get_params_for_component(params, component):
 
 
 class ScienceEnsemble():
-    def __init__(self):
-        pass
+    def __init__(self, threshold=0.5):
+        self.threshold = threshold
 
     def fit(self, X, Y):
-        # Implement now or later?
-        return self
+        raise NotImplementedError
 
     def predict(self, X):
-        return self.model.predict(X)
+        if self.threshold != 0.5:
+            Y_pred = self.model.predict_proba(X) > self.threshold
+        else:
+            Y_pred = self.model.predict(X)
+        return Y_pred
 
     def predict_proba(self, X):
         # TODO: Replace with self.model.predict_proba(X) when implmented
@@ -59,11 +62,10 @@ class ScienceEnsemble():
         return Y_prob
 
     def save(self):
-        # Implement along with fit
-        pass
+        raise NotImplementedError
 
     def _load(self, model_path):
-        # TODO: find out model from meta.json
+        # TODO: Retrieve from predefined locations that save will use
         if "tfidf_svm" in model_path:
             with open(model_path, "rb") as f:
                 model = pickle.loads(f.read())
@@ -104,6 +106,7 @@ class MeshCNN():
         Add docstring
         """
         def yield_transformed_data(X_buffer, Y_buffer):
+            # TODO: This could move to WellcomeML to enable CNN to receive generators
             Y_den = None
             X_vec = self.vectorizer.transform(X_buffer)
             if Y_buffer:
@@ -139,42 +142,37 @@ class MeshCNN():
                 X_buffer.append(x)
 
                 if len(X_buffer) >= self.buffer_size:
-                    # Use yield from?
-                    for data_item in yield_transformed_data(X_buffer, Y_buffer):
-                        yield data_item
+                    yield from yield_transformed_data(X_buffer, Y_buffer)
 
                     X_buffer = []
                     Y_buffer = []
 
             if X_buffer:
-                # Use yield from?
-                for data_item in yield_transformed_data(X_buffer, Y_buffer):
-                    yield data_item
+                yield from yield_transformed_data(X_buffer, Y_buffer)
 
         output_types = (tf.int32, tf.int32) if Y else (tf.int32)
         data = tf.data.Dataset.from_generator(
                 data_gen, output_types=output_types)
          
-        # Note we need to enable shuffling after every epoch in model
-        #   here we just shuffle once
-        #   possibly we should not shuffle at all here
-        if self.shuffle:
-            data = data.shuffle(self.buffer_size, seed=self.random_seed, reshuffle_each_iteration=False)
         if self.data_cache:
             data = data.cache(self.data_cache)
         return data
 
-    def _init_model(self):
+    def _init_vectorizer(self):
         self.vectorizer = KerasVectorizer(
-                vocab_size=5_000, sequence_length=400)
+            vocab_size=5_000, sequence_length=400)
+        
+    def _init_classifier(self):
         self.classifier = CNNClassifier(
-                learning_rate=0.01, dropout=0.1, 
-                nb_epochs=20, nb_layers=4, multilabel=True,
-                threshold=self.threshold, batch_size=self.batch_size)
+            learning_rate=0.01, dropout=0.1, 
+            nb_epochs=20, nb_layers=4, multilabel=True,
+            threshold=self.threshold, batch_size=self.batch_size)
     
     def set_params(self, **params):
-        if not (hasattr(self, 'vectorizer') and hasattr(self, 'classifier')):
-            self._init_model()
+        if not hasattr(self, 'vectorizer'):
+            self._init_vectorizer()
+        if not hasattr(self, 'classifier'):
+            self._init_classifier()
         vec_params = get_params_for_component(params, 'vec')
         clf_params = get_params_for_component(params, 'cnn')
         self.vectorizer.set_params(**vec_params)
@@ -184,8 +182,10 @@ class MeshCNN():
         """
         Add docstring
         """
-        if not (hasattr(self, "vectorizer") and hasattr(self, "classifier")):
-            self._init_model()
+        if not hasattr(self, "vectorizer"):
+            self._init_vectorizer()
+        if not hasattr(self, "classifier"):
+            self._init_classifier()
 
         if type(X) in [list, np.ndarray]:
             print("Fitting vectorizer")
@@ -199,9 +199,15 @@ class MeshCNN():
             X_gen = X()
             self.vectorizer.fit(X_gen)
             print("Fitting classifier")
-            # Need to pass in vocab size, sequence length and nb_outputs
-            # to classifier through set_params
+            params_from_vectorizer = {
+                "sequence_length": self.vectorizer.sequence_length,
+                "vocab_size": self.vectorizer.vocab_size
+            }
+            self.classifier.set_params(**params_from_vectorizer)
             train_data = self._yield_data(X, self.vectorizer, Y)
+            # TODO: This should move inside CNNClassifier
+            if self.shuffle:
+                train_data = train_data.shuffle(self.buffer_size, seed=self.random_seed)
             self.classifier.fit(train_data)
             
         return self
@@ -216,9 +222,7 @@ class MeshCNN():
         return Y_pred
 
     def predict_proba(self, X):
-        # TODO: Should that be here or CNN, should it exist at all?
-        # what is the purpose, if Y is too large for memory whose
-        # responsibility is it?
+        # TODO: Maybe not needed beacause CNN batches in predict. Test in disease MeSH.
         if type(X) in [list, np.ndarray]:
             X_vec = self.vectorizer.transform(X)
             Y_pred_proba = []
@@ -235,23 +239,31 @@ class MeshCNN():
         if not os.path.exists(model_path):
             os.mkdir(model_path)
 
+        meta = {
+            "name": "MeshCNN",
+            "approach": "mesh-cnn"
+        }
+        meta_path = os.path.join(model_path, "meta.json")
+        with open(meta_path, "w") as f:
+            f.write(json.dumps(meta))
+        
         vectorizer_path = os.path.join(model_path, "vectorizer.pkl")
         with open(vectorizer_path, "wb") as f:
             f.write(pickle.dumps(self.vectorizer))
+        
         self.classifier.save(model_path)
 
-    def load(self, model_path):
-        # TODO: Compare with tfidf load and consider adding meta 
+    def load(self, model_path): 
+        meta_path = os.path.join(model_path, "meta.json")
+        with open(meta_path, "r") as f:
+            meta = json.loads(f.read())
+        self.set_params(**meta)
+        
         vectorizer_path = os.path.join(model_path, "vectorizer.pkl")
         with open(vectorizer_path, "rb") as f:
             self.vectorizer = pickle.loads(f.read())
-        print(self.vectorizer.sequence_length)
 
-        # TODO: Use init?
-        self.classifier = CNNClassifier(
-            threshold = self.threshold,
-            multilabel = True
-        )
+        self._init_classifier()
         self.classifier.load(model_path)
 
 
@@ -282,7 +294,7 @@ class MeshTfidfSVM():
         clf_params = get_params_for_component(params, 'clf')
         self.vectorizer.set_params(**vec_params)
         self.classifier.set_params(**clf_params)
-        # TODO: Generalise
+        # TODO: Create function that checks in params for arguments available in init
         if 'model_path' in params:
             self.model_path = params['model_path']
         if 'y_batch_size' in params:
@@ -344,6 +356,7 @@ class MeshTfidfSVM():
         # model saved during fit
         meta = {
             "name": "MeshTfidfSVM",
+            "approach": "mesh-tfidf-svm",
             "y_batch_size": self.y_batch_size,
             "nb_labels": self.nb_labels
         }

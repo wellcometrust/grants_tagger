@@ -41,8 +41,6 @@ def train_and_evaluate(
     else:
         label_binarizer = create_label_binarizer(train_data_path, label_binarizer_path, sparse_labels)
 
-    # model creation from approach could move outside this function
-    # so that run experiments can pass a model here
     model = create_model(approach, parameters)
 
     # X can be (numpy arrays, lists) or generators
@@ -51,7 +49,7 @@ def train_and_evaluate(
         test_size=test_size, data_format=data_format)
     model.fit(X_train, Y_train)
 
-    # This should be handled somewhere else?
+    # TODO: Can we handle it better?
     if data_format == "generator":
         Y_test_gen = Y_test()
         if sparse_labels:
@@ -63,19 +61,16 @@ def train_and_evaluate(
         else:
             Y_test = list(Y_test_gen)
     
-    # TODO: Use evaluation from predict or evaluate
     if threshold:
         Y_pred_prob = model.predict_proba(X_test)
         Y_pred_test = Y_pred_prob > threshold
     else:
         Y_pred_test = model.predict(X_test)
 
-    Y_pred_test = sp.csr_matrix(Y_pred_test)
-
     f1 = f1_score(Y_test, Y_pred_test, average='micro')
-#    if verbose:
-#        report = classification_report(Y_test, Y_pred_test, target_names=label_binarizer.classes_)
-#        print(report)
+    if verbose:
+        report = classification_report(Y_test, Y_pred_test, target_names=label_binarizer.classes_)
+        print(report)
 
     if model_path:
         if str(model_path).endswith('pkl') or str(model_path).endswith('pickle'):

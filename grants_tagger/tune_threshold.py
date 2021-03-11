@@ -94,9 +94,7 @@ def tune_threshold(approach, data_path, model_path, label_binarizer_path, thresh
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
 
-    # TODO: Same as evaluate_model
     _, X_test, _, Y_test = load_train_test_data(data_path, label_binarizer)
-    print(X_test)
     if not sample_size:
         sample_size = Y_test.shape[0]
 

@@ -15,9 +15,6 @@ def evaluate_model(approach, model_path, data_path, label_binarizer_path, thresh
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
 
-    # TODO: Remove if not needed
-    nb_labels = len(label_binarizer.classes_)
-
     # TODO: A user might be expecting to evaluate on all data passing
     # - add warning about this behaviour
     # - add flag to use all data instead of split

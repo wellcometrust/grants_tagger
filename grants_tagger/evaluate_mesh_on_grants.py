@@ -32,7 +32,7 @@ def get_texts(data):
     return texts
 
 
-def evaluate_mesh_on_grants(data_path, model_path, label_binarizer_path):
+def evaluate_mesh_on_grants(approach, data_path, model_path, label_binarizer_path):
     data = pd.read_excel(data_path, engine="openpyxl")
 
     with open(label_binarizer_path, "rb") as f:
@@ -42,7 +42,7 @@ def evaluate_mesh_on_grants(data_path, model_path, label_binarizer_path):
     Y = label_binarizer.transform(gold_tags)
 
     texts = get_texts(data)
-    Y_pred = predict(texts, model_path, label_binarizer_path)
+    Y_pred = predict(texts, model_path, approach)
     f1 = f1_score(Y, Y_pred, average='micro')
     print(f"F1 micro is {f1}")
 

@@ -28,12 +28,8 @@ def train(
         approach: str = typer.Option("tfidf-svm", help="tfidf-svm, scibert, cnn, ..."),
         parameters: str = typer.Option("{}", help="model params in sklearn format e.g. {'svm__kernel: linear'}"),
         test_data_path: Path = typer.Option(None, help="path to processed JSON test data"),
-        incremental_learning: bool = typer.Option(False, help="flag to train in an online way"),
-        nb_epochs: int = typer.Option(5, help="number of passes of training data in online training"),
-        from_same_distribution: bool = typer.Option(False, help="whether train and test contain the same examples but differ in other ways, important when loading train and test parts of datasets"),
         threshold: float = typer.Option(None, help="threshold to assign a tag"),
-        y_batch_size: int = typer.Option(None, help="batch size for Y in cases where Y large. defaults to None i.e. no batching of Y"),
-        x_format: str = typer.Option("List", help="format that will be used when loading the data. One of List,DataFrame"),
+        data_format: str = typer.Option("list", help="format that will be used when loading the data. One of list,generator"),
         test_size: float = typer.Option(0.25, help="float or int indicating either percentage or absolute number of test examples"),
         sparse_labels: bool = typer.Option(False, help="flat about whether labels should be sparse when binarized"),
         cache_path: Optional[Path] = typer.Option(None, help="path to cache data transformartions"),
@@ -48,22 +44,19 @@ def train(
         parameters = cfg["model"]["parameters"]
         model_path = cfg["model"]["model_path"]
         test_data_path = cfg["data"]["test_data_path"]
-        incremental_learning = bool(cfg["model"].get("incremental_learning", False))
-        nb_epochs = int(cfg["model"].get("nb_epochs", 5))
-        from_same_distribution = bool(cfg["data"].get("from_same_distribution", False))
         threshold = cfg["model"].get("threshold", None)
         if threshold:
             threshold = float(threshold)
-        y_batch_size = cfg["model"].get("y_batch_size")
-        if y_batch_size:
-            y_batch_size = int(y_batch_size)
-        x_format = cfg["data"].get("x_format", "List")
+        data_format = cfg["data"].get("data_format", "list")
         test_size = float(cfg["data"].get("test_size", 0.25))
         sparse_labels = cfg["model"].get("sparse_labels", False)
         if sparse_labels:
             sparse_labels = bool(sparse_labels)
         cache_path = cfg["data"].get("cache_path")
-        
+    
+    # TODO: check x_format in configs and code
+    # TODO: check y_batch_size in config and pass as param to model
+
     # CHECK that data_path, label_binarizer_path is provided
     # Do we need to provide model_path?
 
@@ -75,11 +68,8 @@ def train(
             data_path, label_binarizer_path, approach,
             parameters, model_path=model_path,
             test_data_path=test_data_path,
-            incremental_learning=incremental_learning,
-            nb_epochs=nb_epochs,
-            from_same_distribution=from_same_distribution,
-            threshold=threshold, y_batch_size=y_batch_size,
-            X_format=x_format, test_size=test_size,
+            threshold=threshold,
+            data_format=data_format, test_size=test_size,
             sparse_labels=sparse_labels, cache_path=cache_path)
 
 
@@ -139,20 +129,22 @@ app.add_typer(preprocess_app, name="preprocess")
 
 @app.command()
 def predict(
-        texts: List[str],
+        text: str,
         model_path: Path,
         label_binarizer_path: Path,
+        approach: str, 
         probabilities: Optional[bool] = typer.Option(False),
         threshold: Optional[float] = typer.Option(0.5)):
-    predict_tags(texts, model_path, label_binarizer_path,
-                 probabilities, threshold)
-
+    tags = predict_tags([text], model_path, label_binarizer_path,
+                 approach, probabilities, threshold)
+    print(tags[0])
 
 evaluate_app = typer.Typer()
 
 
 @evaluate_app.command()
 def model(
+        approach: str = typer.Argument(..., help="model approach e.g.mesh-cnn"),
         model_path: str = typer.Argument(..., help="comma separated paths to pretrained models"),
         data_path: Path = typer.Argument(..., help="path to data that was used for training"),
         label_binarizer_path: Path = typer.Argument(..., help="path to label binarize"),
@@ -163,6 +155,7 @@ def model(
         cfg = configparser.ConfigParser(allow_no_value=True)
         cfg.read(config)
 
+        approach = cfg["ensemble"]["approach"]
         model_path = cfg["ensemble"]["models"]
         data_path = cfg["ensemble"]["data"]
         label_binarizer_path = cfg["ensemble"]["label_binarizer"]
@@ -172,7 +165,7 @@ def model(
         threshold = [float(t) for t in threshold.split(",")]
     else:
         threshold = float(threshold)
-    evaluate_model(model_path, data_path, label_binarizer_path, threshold)
+    evaluate_model(approach, model_path, data_path, label_binarizer_path, threshold)
 
 
 @evaluate_app.command()
@@ -238,6 +231,7 @@ tune_app = typer.Typer()
 
 @tune_app.command()
 def threshold(
+        approach: str = typer.Argument(..., help="modelling approach e.g. mesh-cnn"),
         data_path: Path = typer.Argument(..., help="path to data in jsonl to train and test model"),
         model_path: Path = typer.Argument(..., help="path to data in jsonl to train and test model"),
         label_binarizer_path: Path = typer.Argument(..., help="path to label binarizer"),
@@ -246,8 +240,9 @@ def threshold(
         nb_thresholds: Optional[int] = typer.Option(None, help="number of thresholds to be tried divided evenly between 0 and 1"),
         init_threshold: Optional[float] = typer.Option(None, help="value to initialise threshold values")):
 
-    tune_threshold(data_path, model_path, label_binarizer_path, thresholds_path,
-                   sample_size, nb_thresholds, init_threshold)
+    tune_threshold(
+        approach, data_path, model_path, label_binarizer_path,
+        thresholds_path, sample_size, nb_thresholds, init_threshold)
 
 
 @tune_app.command()

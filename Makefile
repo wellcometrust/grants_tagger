@@ -26,24 +26,16 @@ $(VIRTUALENV)/.installed:
 	$(VIRTUALENV)/bin/pip install -r requirements.txt
 	$(VIRTUALENV)/bin/pip install -r requirements_test.txt
 	$(VIRTUALENV)/bin/pip install -e .
+	$(VIRTUALENV)/bin/pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.4.0/en_core_sci_sm-0.4.0.tar.gz
 	touch $@
 
 .PHONY: virtualenv
 virtualenv: $(VIRTUALENV)/.installed
 
-.PHONY: virtualenv_scispacy
-virtualenv_scispacy: virtualenv
-	$(VIRTUALENV)/bin/pip install -r requirements_scispacy.txt
-	rm $(VIRTUALENV)/.installed
-	echo "⚠️  Virtualenv is broken and needs to be reinstalled"
 
 .PHONY: test
 test: virtualenv
-	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov=grants_tagger -m "not scispacy"
-
-.PHONY: test_scispacy
-test_scispacy: virtualenv_scispacy
-	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov-append --cov=grants_tagger tests/test_scispacy_meshtagger.py tests/test_evaluate_scispacy.py
+	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov=grants_tagger
 
 
 .PHONY: run_codecov

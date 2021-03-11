@@ -1,250 +1,18 @@
 import tempfile
 import pickle
 import json
+import math
 import os
 
-from skmultilearn.problem_transform import ClassifierChain, BinaryRelevance, LabelPowerset
-from sklearn.preprocessing import MultiLabelBinarizer, OneHotEncoder
-from sklearn.feature_extraction.text import HashingVectorizer, TfidfVectorizer
-from sklearn.ensemble import GradientBoostingClassifier, AdaBoostClassifier
-from sklearn.linear_model import SGDClassifier
-from sklearn.svm import SVC
-from sklearn.multiclass import OneVsRestClassifier
-from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import MultiLabelBinarizer
 from scipy.sparse import csr_matrix
 import numpy as np
 
-from wellcomeml.ml import BertVectorizer, BertClassifier, BiLSTMClassifier, CNNClassifier, KerasVectorizer, Doc2VecVectorizer, Sent2VecVectorizer, SpacyClassifier
-from grants_tagger.train import train_and_evaluate, ApproachNotImplemented, create_model, create_label_binarizer
+from grants_tagger.train import train_and_evaluate, create_label_binarizer
 
 
-def test_create_hashing_vectorizer_svm():
-    model = create_model('hashing_vectorizer-svm')
-    vec = model.steps[0][1]
-    ovr = model.steps[1][1]
-    clf = ovr.get_params()['estimator']
-    assert isinstance(model, Pipeline)
-    assert isinstance(vec, HashingVectorizer)
-    assert isinstance(ovr, OneVsRestClassifier)
-    assert isinstance(clf, SGDClassifier)
-
-
-def test_create_hashing_vectorizer_nb():
-    model = create_model('hashing_vectorizer-nb')
-    vec = model.steps[0][1]
-    clf = model.steps[1][1]
-    assert isinstance(model, Pipeline)
-    assert isinstance(vec, HashingVectorizer)
-    assert isinstance(clf, OneVsRestClassifier)
-
-
-def test_create_tfidf_svm():
-    model = create_model('tfidf-svm')
-    vec = model.steps[0][1]
-    ovr = model.steps[1][1]
-    clf = ovr.get_params()['estimator']
-    assert isinstance(model, Pipeline)
-    assert isinstance(vec, TfidfVectorizer)
-    assert isinstance(ovr, OneVsRestClassifier)
-    assert isinstance(clf, SVC)
-
-
-def test_create_bert_svm():
-    model = create_model('bert-svm')
-    vec = model.steps[0][1]
-    ovr = model.steps[1][1]
-    clf = ovr.get_params()['estimator']
-    assert isinstance(model, Pipeline)
-    assert isinstance(vec, BertVectorizer)
-    assert isinstance(ovr, OneVsRestClassifier)
-    assert isinstance(clf, SVC)
-    assert vec.pretrained == 'bert'
-
-
-def test_create_scibert_svm():
-    model = create_model('scibert-svm')
-    vec = model.steps[0][1]
-    ovr = model.steps[1][1]
-    clf = ovr.get_params()['estimator']
-    assert isinstance(model, Pipeline)
-    assert isinstance(vec, BertVectorizer)
-    assert isinstance(ovr, OneVsRestClassifier)
-    assert isinstance(clf, SVC)
-    assert vec.pretrained == 'scibert'
-
-
-def test_create_bert():
-    model = create_model('bert')
-    assert isinstance(model, BertClassifier)
-    assert model.pretrained == 'bert-base-uncased'
-
-
-def test_create_scibert():
-    model = create_model('scibert')
-    assert isinstance(model, BertClassifier)
-    assert model.pretrained == 'scibert'
-
-
-def test_create_classifierchain_tfidf_svm():
-    model = create_model('classifierchain-tfidf-svm')
-    vec = model.steps[0][1]
-    cc = model.steps[1][1]
-    clf = cc.get_params()['classifier']
-    assert isinstance(model, Pipeline)
-    assert isinstance(vec, TfidfVectorizer)
-    assert isinstance(cc, ClassifierChain)
-    assert isinstance(clf, SVC)
-
-
-def test_create_labelpowerset_tfidf_svm():
-    model = create_model('labelpowerset-tfidf-svm')
-    vec = model.steps[0][1]
-    lp = model.steps[1][1]
-    clf = lp.get_params()['classifier']
-    assert isinstance(model, Pipeline)
-    assert isinstance(vec, TfidfVectorizer)
-    assert isinstance(lp, LabelPowerset)
-    assert isinstance(clf, SVC)
-
-
-def test_create_binaryrelevance_tfidf_svm():
-    model = create_model('binaryrelevance-tfidf-svm')
-    vec = model.steps[0][1]
-    br = model.steps[1][1]
-    clf = br.get_params()['classifier']
-    assert isinstance(model, Pipeline)
-    assert isinstance(vec, TfidfVectorizer)
-    assert isinstance(br, BinaryRelevance)
-    assert isinstance(clf, SVC)
-
-
-def test_create_binaryrelevance_tfidf_knn():
-    model = create_model('binaryrelevance-tfidf-knn')
-    vec = model.steps[0][1]
-    br = model.steps[1][1]
-#    clf = br.get_params()['classifier']
-    assert isinstance(model, Pipeline)
-    assert isinstance(vec, TfidfVectorizer)
-    assert isinstance(br, BinaryRelevance)
-#    assert isinstance(clf, KNeighborsClassifier)
-
-
-def test_create_bilstm():
-    model = create_model('bilstm')
-    vec = model.steps[0][1]
-    clf = model.steps[1][1]
-    assert isinstance(vec, KerasVectorizer)
-    assert isinstance(clf, BiLSTMClassifier)
-
-
-def test_create_cnn():
-    model = create_model('cnn')
-    vec = model.steps[0][1]
-    clf = model.steps[1][1]
-    assert isinstance(vec, KerasVectorizer)
-    assert isinstance(clf, CNNClassifier)
-
-
-def test_create_doc2vec_sgd():
-    model = create_model('doc2vec-sgd')
-    vec = model.steps[0][1]
-    ovr = model.steps[1][1]
-    clf = ovr.get_params()['estimator']
-    assert isinstance(model, Pipeline)
-    assert isinstance(vec, Doc2VecVectorizer)
-    assert isinstance(ovr, OneVsRestClassifier)
-    assert isinstance(clf, SGDClassifier)
-
-
-def test_create_sent2vec_sgd():
-    model = create_model('sent2vec-sgd')
-    vec = model.steps[0][1]
-    ovr = model.steps[1][1]
-    clf = ovr.get_params()['estimator']
-    assert isinstance(model, Pipeline)
-    assert isinstance(vec, Sent2VecVectorizer)
-    assert isinstance(ovr, OneVsRestClassifier)
-    assert isinstance(clf, SGDClassifier)
-
-
-def test_create_tfidf_adaboost():
-    model = create_model('tfidf-adaboost')
-    vec = model.steps[0][1]
-    ovr = model.steps[1][1]
-    clf = ovr.get_params()['estimator']
-    assert isinstance(model, Pipeline)
-    assert isinstance(vec, TfidfVectorizer)
-    assert isinstance(ovr, OneVsRestClassifier)
-    assert isinstance(clf, AdaBoostClassifier)
-
-
-def test_create_tfidf_gboost():
-    model = create_model('tfidf-gboost')
-    vec = model.steps[0][1]
-    ovr = model.steps[1][1]
-    clf = ovr.get_params()['estimator']
-    assert isinstance(model, Pipeline)
-    assert isinstance(vec, TfidfVectorizer)
-    assert isinstance(ovr, OneVsRestClassifier)
-    assert isinstance(clf, GradientBoostingClassifier)
-
-
-def test_create_spacy_textclassifier():
-    model = create_model("spacy-textclassifier")
-    assert isinstance(model, SpacyClassifier)
-
-
-def test_create_doc2vec_tfidf_sgd():
-    model = create_model('doc2vec-tfidf-sgd')
-    vec = model.steps[0][1]
-    ovr = model.steps[1][1]
-    doc2vec = vec.transformer_list[0][1].steps[0][1]
-    tfidf = vec.transformer_list[1][1].steps[0][1]
-    sgd = ovr.get_params()['estimator']
-    assert isinstance(model, Pipeline)
-    assert isinstance(doc2vec, Doc2VecVectorizer)
-    assert isinstance(tfidf, TfidfVectorizer)
-    assert isinstance(sgd, SGDClassifier)
-
-
-def test_create_sent2vec_tfidf_sgd():
-    model = create_model('sent2vec-tfidf-sgd')
-    vec = model.steps[0][1]
-    ovr = model.steps[1][1]
-    sent2vec = vec.transformer_list[0][1].steps[0][1]
-    tfidf = vec.transformer_list[1][1].steps[0][1]
-    sgd = ovr.get_params()['estimator']
-    assert isinstance(model, Pipeline)
-    assert isinstance(sent2vec, Sent2VecVectorizer)
-    assert isinstance(tfidf, TfidfVectorizer)
-    assert isinstance(sgd, SGDClassifier)
-
-
-def test_create_tfidf_onehot_team_svm():
-    model = create_model('tfidf+onehot_team-svm')
-    vec = model.steps[0][1]
-    ovr = model.steps[1][1]
-    tfidf = vec.transformer_list[0][1].steps[1][1]
-    onehot = vec.transformer_list[1][1].steps[1][1]
-    sgd = ovr.get_params()['estimator']
-    assert isinstance(model, Pipeline)
-    assert isinstance(onehot, OneHotEncoder)
-    assert isinstance(tfidf, TfidfVectorizer)
-    assert isinstance(sgd, SVC)
-
-
-def test_create_tfidf_onehot_scheme_svm():
-    model = create_model('tfidf+onehot_team-svm')
-    vec = model.steps[0][1]
-    ovr = model.steps[1][1]
-    tfidf = vec.transformer_list[0][1].steps[1][1]
-    onehot = vec.transformer_list[1][1].steps[1][1]
-    sgd = ovr.get_params()['estimator']
-    assert isinstance(model, Pipeline)
-    assert isinstance(onehot, OneHotEncoder)
-    assert isinstance(tfidf, TfidfVectorizer)
-    assert isinstance(sgd, SVC)
-
+# TODO: Use fixtures to reduce duplication
+# TODO: Add test for ScienceEnsemble
 
 def test_train_and_evaluate():
     approach = "tfidf-svm"
@@ -269,7 +37,7 @@ def test_train_and_evaluate():
 
 
 def test_train_and_evaluate_y_batch_size():
-    approach = "tfidf-svm"
+    approach = "mesh-tfidf-svm"
 
     texts = ["one", "one two", "all"]
     tags = [["1"], ["1", "2"], [str(i) for i in range(5000)]]
@@ -283,15 +51,24 @@ def test_train_and_evaluate_y_batch_size():
             for text, tags_ in zip(texts, tags):
                 train_data_tmp.write(json.dumps({"text": text, "tags": tags_, "meta": {}}))
                 train_data_tmp.write("\n")
-
+        
+        parameters = {
+            'vec__min_df': 1,
+            'vec__stop_words': None,
+            'y_batch_size': 512,
+            'model_path': model_path
+        }
         train_and_evaluate(
             train_data_path, label_binarizer_path, approach,
-            parameters="{'tfidf__min_df': 1, 'tfidf__stop_words': None}",
-            y_batch_size=512, model_path=model_path, sparse_labels=True)
+            parameters=str(parameters),
+            model_path=model_path, sparse_labels=True)
+
+        model_artifacts = os.listdir(model_path)
+        assert len(model_artifacts) == math.ceil(5000 / 512) + 2 # (vectorizer, meta)
 
 
 def test_train_cnn_save():
-    approach = "cnn"
+    approach = "mesh-cnn"
 
     texts = ["one", "one two", "two"]
     tags = [["one"], ["one","two"], ["two"]]
@@ -373,39 +150,56 @@ def test_create_label_binarizer_sparse():
         assert isinstance(Y, csr_matrix)
 
 
-def test_train_and_evaluate_incremental_learning():
-    approach = "cnn"
+def test_train_and_evaluate_generator():
+    approach = "mesh-cnn"
 
-    texts = ["one", "one two", "two"]
-    tags = [["one"], ["one", "two"], ["two"]]
+    train_texts = ["one", "one two"]
+    train_tags = [["one"], ["one", "two"]]
+    
+    test_texts = ["two"]
+    test_tags = [["two"]]
 
     with tempfile.TemporaryDirectory() as tmp_dir:
-        train_data_path = os.path.join(tmp_dir, "data.jsonl")
+        train_data_path = os.path.join(tmp_dir, "train_data.jsonl")
+        test_data_path = os.path.join(tmp_dir, "test_data.jsonl")
         label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
 
         with open(train_data_path, "w") as f:
-            for text, tags_ in zip(texts, tags):
+            for text, tags_ in zip(train_texts, train_tags):
+                f.write(json.dumps({"text": text, "tags": tags_, "meta": {}}))
+                f.write("\n")
+
+        with open(test_data_path, "w") as f:
+            for text, tags_ in zip(test_texts, test_tags):
                 f.write(json.dumps({"text": text, "tags": tags_, "meta": {}}))
                 f.write("\n")
 
         train_and_evaluate(train_data_path, label_binarizer_path, approach,
-                           incremental_learning=True, sparse_labels=True)
+                           data_format="generator", sparse_labels=True, test_data_path=test_data_path)
 
+def test_train_and_evaluate_generator_non_sparse_labels():
+    approach = "mesh-cnn"
 
-def test_train_and_evaluate_incremental_learning_non_sparse_labels():
-    approach = "cnn"
-
-    texts = ["one", "one two", "two"]
-    tags = [["one"], ["one", "two"], ["two"]]
+    train_texts = ["one", "one two"]
+    train_tags = [["one"], ["one", "two"]]
+    
+    test_texts = ["two"]
+    test_tags = [["two"]]
 
     with tempfile.TemporaryDirectory() as tmp_dir:
-        train_data_path = os.path.join(tmp_dir, "data.jsonl")
+        train_data_path = os.path.join(tmp_dir, "train_data.jsonl")
+        test_data_path = os.path.join(tmp_dir, "test_data.jsonl")
         label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
 
         with open(train_data_path, "w") as f:
-            for text, tags_ in zip(texts, tags):
+            for text, tags_ in zip(train_texts, train_tags):
                 f.write(json.dumps({"text": text, "tags": tags_, "meta": {}}))
                 f.write("\n")
 
+        with open(test_data_path, "w") as f:
+            for text, tags_ in zip(test_texts, test_tags):
+                f.write(json.dumps({"text": text, "tags": tags_, "meta": {}}))
+                f.write("\n")
+        
         train_and_evaluate(train_data_path, label_binarizer_path, approach,
-                           incremental_learning=True)
+                           data_format="generator", test_data_path=test_data_path)

@@ -1,16 +1,17 @@
 import tempfile
 import json
 import io
+import os
 
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics import f1_score
 import numpy as np
 import pandas as pd
 
-from wellcomeml.ml import KerasVectorizer
-from grants_tagger.utils import (load_data, calc_performance_per_tag,
-    load_train_test_data, load_train_test_dataset)
+from grants_tagger.utils import (load_data, calc_performance_per_tag,   load_train_test_data)
 
+
+# TODO: Use fixtures to remove duplication
 
 def test_load_data():    
     data = [
@@ -104,8 +105,8 @@ def test_load_train_test_data():
     assert np.array_equal(tags_test[0], [1, 1])
 
 
-def test_load_train_test_dataset():
-    data = [
+def test_load_train_test_data_generator():
+    train_data = [
         {
             'text': 'A',
             'tags': ['T1', 'T2'],
@@ -115,76 +116,38 @@ def test_load_train_test_dataset():
             'text': 'B',
             'tags': ['T1'],
             'meta': {'Grant_ID': 2, 'Title': 'B'}
-        },
+        }
+    ]
+    test_data = [
         {
             'text': 'C',
             'tags': ['T2'],
             'meta': {'Grant_ID': 3, 'Title': 'C'}
         }
     ]
-    with tempfile.NamedTemporaryFile('w') as tmp:
-        for line in data:
-            tmp.write(json.dumps(line))
-            tmp.write('\n')
-        tmp.seek(0)
-        tokenizer = KerasVectorizer()
-        tokenizer.fit([d['text'] for d in data])
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        train_data_path = os.path.join(tmp_dir, "train_data.jsonl")
+        test_data_path = os.path.join(tmp_dir, "test_data.jsonl")
+        
+        # TODO: Refactor
+        with open(train_data_path, "w") as f:
+            for line in train_data:
+                f.write(json.dumps(line))
+                f.write('\n')
+
+        with open(test_data_path, "w") as f:
+            for line in test_data:
+                f.write(json.dumps(line))
+                f.write('\n')
+
         label_binarizer = MultiLabelBinarizer(classes=["T1", "T2"])
-        label_binarizer.fit([d['tags'] for d in data])
-        train_data, test_data = load_train_test_dataset(tmp.name, tokenizer, label_binarizer, shuffle=False)
+        label_binarizer.fit([d['tags'] for d in train_data])
+
+        X_train, X_test, Y_train, Y_test = load_train_test_data(train_data_path, label_binarizer, test_data_path=test_data_path, data_format="generator")
     
-        def get_tags(data):
-            tags = []
-            for example in data.as_numpy_iterator():
-                tags.append(example[1])
-            return tags
-        tags_train = get_tags(train_data)
-        tags_test = get_tags(test_data)
+        tags_train = list(Y_train())
+        tags_test = list(Y_test())
         assert np.array_equal(tags_train[0], [1, 1])
         assert np.array_equal(tags_train[1], [1, 0])
         assert np.array_equal(tags_test[0], [0, 1])
-
-
-def test_load_train_test_dataset_shuffle():
-    data = [
-        {
-            'text': 'A',
-            'tags': ['T1', 'T2'],
-            'meta': {'Grant_ID': 1, 'Title': 'A'}
-        },
-        {
-            'text': 'B',
-            'tags': ['T1'],
-            'meta': {'Grant_ID': 2, 'Title': 'B'}
-        },
-        {
-            'text': 'C',
-            'tags': ['T2'],
-            'meta': {'Grant_ID': 3, 'Title': 'C'}
-        }
-    ]
-    with tempfile.NamedTemporaryFile('w') as tmp:
-        for line in data:
-            tmp.write(json.dumps(line))
-            tmp.write('\n')
-        tmp.seek(0)
-        tokenizer = KerasVectorizer()
-        tokenizer.fit([d['text'] for d in data])
-        label_binarizer = MultiLabelBinarizer(classes=["T1", "T2"])
-        label_binarizer.fit([d['tags'] for d in data])
-        train_data, test_data = load_train_test_dataset(
-                tmp.name, tokenizer, label_binarizer,
-                shuffle=True, random_seed=42
-        )
-    
-        def get_tags(data):
-            tags = []
-            for example in data.as_numpy_iterator():
-                tags.append(example[1])
-            return tags
-        tags_train = get_tags(train_data)
-        tags_test = get_tags(test_data)
-        assert np.array_equal(tags_train[0], [1, 0])
-        assert np.array_equal(tags_train[1], [0, 1])
-        assert np.array_equal(tags_test[0], [1, 1])
 

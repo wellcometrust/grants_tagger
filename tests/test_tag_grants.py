@@ -46,7 +46,10 @@ def train_test_model(scibert_path, tfidf_svm_path, label_binarizer_path):
     with open(tfidf_svm_path, "wb") as f:
         f.write(pickle.dumps(tfidf_svm))
 
-    scibert = BertClassifier()
+    scibert = BertClassifier(
+        epochs=1,
+        pretrained="scibert"
+    )
     scibert.fit(X, Y_vec)
     scibert.save(scibert_path)
 
@@ -79,7 +82,8 @@ def test_tag_grants():
                 grants_path,
                 tagged_grants_path,
                 model_path=tfidf_svm_path,
-                label_binarizer_path=label_binarizer_path
+                label_binarizer_path=label_binarizer_path,
+                approach="science-ensemble"
             )
         tagged_grants = []
         with open(tagged_grants_path) as f:

@@ -90,12 +90,13 @@ def optimise_threshold(Y_test, Y_pred_proba, nb_thresholds=None, init_threshold=
     return optimal_thresholds
 
 
-def tune_threshold(data_path, model_path, label_binarizer_path, thresholds_path, sample_size=None, nb_thresholds=None, init_threshold=None):
+def tune_threshold(approach, data_path, model_path, label_binarizer_path, thresholds_path, sample_size=None, nb_thresholds=None, init_threshold=None):
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
 
+    # TODO: Same as evaluate_model
     _, X_test, _, Y_test = load_train_test_data(data_path, label_binarizer)
-
+    print(X_test)
     if not sample_size:
         sample_size = Y_test.shape[0]
 
@@ -105,11 +106,11 @@ def tune_threshold(data_path, model_path, label_binarizer_path, thresholds_path,
     X_test_sample = X_test[sample_indices]
     Y_test_sample = Y_test[sample_indices, :]
 
-    Y_pred_proba = predict(X_test_sample, model_path, return_probabilities=True)
+    Y_pred_proba = predict(X_test_sample, model_path, approach, return_probabilities=True)
 
     optimal_thresholds = optimise_threshold(Y_test_sample, Y_pred_proba, nb_thresholds, init_threshold)
 
-    Y_pred = predict(X_test, model_path, threshold=optimal_thresholds)
+    Y_pred = predict(X_test, model_path, approach, threshold=optimal_thresholds)
     
     optimal_f1 = f1_score(Y_test, Y_pred, average="micro")
     print("---Optimal f1---")

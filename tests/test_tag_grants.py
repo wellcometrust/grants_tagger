@@ -53,6 +53,8 @@ def train_test_model(scibert_path, tfidf_svm_path, label_binarizer_path):
     scibert.fit(X, Y_vec)
     scibert.save(scibert_path)
 
+# TODO: Patch predict_tags
+
 def test_tag_grants():
     with tempfile.TemporaryDirectory() as tmp_dir:
         scibert_path = f"{tmp_dir}/scibert/"

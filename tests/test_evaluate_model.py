@@ -31,6 +31,7 @@ def create_test_data(data_path):
             item = json.dumps({"text": x, "tags": y, "meta": ""})
             f.write(item+"\n")
 
+# TODO: patch predict
 
 def test_evaluate_model():
     with tempfile.TemporaryDirectory() as tmp_dir:

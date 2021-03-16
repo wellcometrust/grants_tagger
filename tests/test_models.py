@@ -12,6 +12,8 @@ from wellcomeml.ml import BertVectorizer, BertClassifier, BiLSTMClassifier, CNNC
 from grants_tagger.models import create_model, ApproachNotImplemented
 
 
+# TODO: Test new models
+
 def test_create_hashing_vectorizer_svm():
     model = create_model('hashing_vectorizer-svm')
     vec = model.steps[0][1]

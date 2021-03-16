@@ -40,7 +40,7 @@ def predict(X_test, model_path, approach, threshold=0.5, return_probabilities=Fa
     else:
         return model.predict(X_test)
 
-
+# TODO: Is y_batch_size needed?
 def predict_tags(
         X, model_path, label_binarizer_path,
         approach, probabilities=False,
@@ -48,10 +48,12 @@ def predict_tags(
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
 
+    # TODO: Remove?
     nb_labels = len(label_binarizer.classes_)
 
     Y_pred_proba = predict(X, model_path, threshold=threshold, return_probabilities=True, approach=approach)
 
+    # TODO: Now that all models accept threshold, is that needed?
     tags = []
     for y_pred_proba in Y_pred_proba:
         if probabilities:

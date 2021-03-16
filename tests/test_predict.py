@@ -92,7 +92,7 @@ def train_test_ensemble_model(scibert_path, tfidf_svm_path, label_binarizer_path
     scibert.fit(X, Y_vec)
     scibert.save(scibert_path)
 
-
+# TODO: Remove when production models test for thresholds
 def test_predict_threshold():
     with tempfile.TemporaryDirectory() as tmp_dir:
         model_path = f"{tmp_dir}/disease_mesh_tfidf_model/"
@@ -110,6 +110,9 @@ def test_predict_threshold():
                 threshold=1, return_probabilities=False)
         assert Y.sum() == 0 # all 0
 
+
+# TODO: Add test for probabilities for each production model
+# TODO: ADd test for threshold for each production model
 
 def test_predict_tags_science_ensemble():
     with tempfile.TemporaryDirectory() as tmp_dir:

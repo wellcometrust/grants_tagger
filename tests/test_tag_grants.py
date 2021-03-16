@@ -1,92 +1,47 @@
+from unittest.mock import patch
 import tempfile
 import shutil
 import pickle
 import csv
 import os
 
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.preprocessing import MultiLabelBinarizer
-from sklearn.multiclass import OneVsRestClassifier
-from sklearn.linear_model import SGDClassifier
-from sklearn.pipeline import Pipeline
-from wellcomeml.ml import BertClassifier
+import pytest
 
 from grants_tagger.tag_grants import tag_grants
 
-X = [
-    "all",
-    "one two",
-    "two",
-    "four",
-    "twenty four"
-]
-Y = [
-    [str(i) for i in range(24)],
-    ["1", "2"],
-    ["2"],
-    ["4"],
-    ["24"]
-]
 
-def train_test_model(scibert_path, tfidf_svm_path, label_binarizer_path):
-    label_binarizer = MultiLabelBinarizer()
-    label_binarizer.fit(Y)
-    with open(f"{label_binarizer_path}", "wb") as f:
-        f.write(pickle.dumps(label_binarizer))
-        f.seek(0)
+@pytest.fixture
+def grants_path(tmp_path):
+    grants_path = os.path.join(tmp_path, "grants.csv")
+    with open(grants_path, "w") as tmp_grants:
+        csvwriter = csv.DictWriter(tmp_grants, fieldnames=["title", "synopsis", "grant_id", "grant_no", "reference"])
+        csvwriter.writeheader()
 
-    Y_vec = label_binarizer.transform(Y)
+        X = [str(i) for i in range(5)]
+        for i, x in enumerate(X):
+            csvwriter.writerow({
+                "title": "",
+                "synopsis": x,
+                "grant_id": i,
+                "reference": i,
+                "grant_no": i
+            })
+    return grants_path
 
-    tfidf_svm = Pipeline([
-        ('tfidf', TfidfVectorizer()),
-        ('svm', OneVsRestClassifier(SGDClassifier(loss='log')))
-    ])
-    
-    tfidf_svm.fit(X, Y_vec)
-    with open(tfidf_svm_path, "wb") as f:
-        f.write(pickle.dumps(tfidf_svm))
+@pytest.fixture
+def tagged_grants_path(tmp_path):
+    return os.path.join(tmp_path, "tagged_grants.csv")
 
-    scibert = BertClassifier(
-        epochs=1,
-        pretrained="scibert"
-    )
-    scibert.fit(X, Y_vec)
-    scibert.save(scibert_path)
-
-# TODO: Patch predict_tags
-
-def test_tag_grants():
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        scibert_path = f"{tmp_dir}/scibert/"
-        os.mkdir(scibert_path)
-        tfidf_svm_path = f"{tmp_dir}/tfidf_svm.pkl"
-        label_binarizer_path = f"{tmp_dir}/label_binarizer.pkl"
-        train_test_model(scibert_path, tfidf_svm_path, label_binarizer_path)
-        
-        tagged_grants_path = f"{tmp_dir}/tagged_grants.csv"
-        grants_path = f"{tmp_dir}/grants.csv"
-        with open(grants_path, "w") as tmp_grants:
-            csvwriter = csv.DictWriter(tmp_grants, fieldnames=["title", "synopsis", "grant_id", "grant_no", "reference"])
-            csvwriter.writeheader()
-
-            for i, x in enumerate(X):
-                csvwriter.writerow({
-                    "title": "",
-                    "synopsis": x,
-                    "grant_id": i,
-                    "reference": i,
-                    "grant_no": i
-                })
-
-            tmp_grants.seek(0)
-
-            tag_grants(
-                grants_path,
-                tagged_grants_path,
-                model_path=tfidf_svm_path,
-                label_binarizer_path=label_binarizer_path,
-                approach="science-ensemble"
-            )
+def test_tag_grants(grants_path, tagged_grants_path):
+    with patch('grants_tagger.tag_grants.predict_tags') as mock_predict:
+        mock_predict.return_value = [[f"tag #{i}"] for i in range(5)]
+        tag_grants(
+            grants_path,
+            tagged_grants_path,
+            model_path="tfidf_svm_path",
+            label_binarizer_path="label_binarizer_path",
+            approach="science-ensemble"
+        )
         tagged_grants = []
         with open(tagged_grants_path) as f:
             for line in f:

@@ -308,6 +308,9 @@ class MeshTfidfSVM():
         if not hasattr(self, 'classifier'):
             self._init_classifier()
 
+        # TODO: Currently Y is expected to be sparse, otherwise predict does not
+        # work, add a check and warn user.
+
         print(f"Creating {self.model_path}")
         Path(self.model_path).mkdir(exist_ok=True)
         print("Fitting vectorizer")

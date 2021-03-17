@@ -51,34 +51,17 @@ def test_data_path(tmp_path):
 
     return test_data_path
 
-# TODO: Refactor to use train_data_path and test_data_path
-
 @pytest.fixture
-def data_path(tmp_path):
-    test_data = [
-        {
-            'text': 'A',
-            'tags': ['T1', 'T2'],
-            'meta': {'Grant_ID': 1, 'Title': 'A'}
-        },
-        {
-            'text': 'B',
-            'tags': ['T1'],
-            'meta': {'Grant_ID': 2, 'Title': 'B'}
-        },
-        {
-            'text': 'C',
-            'tags': ['T2'],
-            'meta': {'Grant_ID': 3, 'Title': 'C'}
-        }
-    ]
-    test_data_path = os.path.join(tmp_path, "train_data.jsonl")
-    with open(test_data_path, 'w') as f:
-        for line in test_data:
-            f.write(json.dumps(line))
-            f.write('\n')
-
-    return test_data_path
+def data_path(tmp_path, train_data_path, test_data_path):
+    data_path = os.path.join(tmp_path, "data.jsonl")
+    with open(data_path, "w") as data_f:
+        with open(train_data_path, "r") as train_f:
+            for line in train_f:
+                data_f.write(line)
+        with open(test_data_path, "r") as test_f:
+            for line in test_f:
+                data_f.write(line)
+    return data_path
 
 @pytest.fixture
 def label_binarizer():

@@ -124,7 +124,7 @@ class MeshCNN():
 
         X: list of texts
         vectorizer: vectorizer class that implements transform which transforms texts to integers
-        Y: 2d numpy array that represents targets (tags) assigned.
+        Y: 2d numpy array or sparse csr_matrix that represents targets (tags) assigned.
 
         If Y is missing, for example when called by predict, yield_data yields only X vectorized
         """
@@ -209,8 +209,8 @@ class MeshCNN():
 
     def fit(self, X, Y):
         """
-        X: list, np.array or generator of texts
-        Y: 2d np.array of tags assigned 
+        X: list or generator of texts
+        Y: 2d numpy array or sparse csr_matrix or generator of 2d numpy array of tags assigned 
 
         If X is a generator it need to be callable i.e. return 
         the generator by calling it X_gen = X(). This is so
@@ -347,8 +347,8 @@ class MeshTfidfSVM():
 
     def fit(self, X, Y):
         """
-        X: np.array or list of texts
-        Y: 2d np.array of tags assigned
+        X: list of texts
+        Y: sparse csr_matrix of tags assigned
         """
         if not hasattr(self, 'vectorizer'):
             self._init_vectorizer()

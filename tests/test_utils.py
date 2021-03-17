@@ -12,8 +12,6 @@ import pytest
 from grants_tagger.utils import (load_data, calc_performance_per_tag,   load_train_test_data)
 
 
-# TODO: Use fixtures to remove duplication
-
 @pytest.fixture
 def train_data_path(tmp_path):
     test_data = [

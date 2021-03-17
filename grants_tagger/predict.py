@@ -44,6 +44,14 @@ def predict_tags(
         X, model_path, label_binarizer_path,
         approach, probabilities=False,
         threshold=0.5):
+    """
+    X: list or numpy array of texts
+    model_path: path to trained model
+    label_binarizer_path: path to trained label_binarizer
+    approach: approach used to train the model
+    probabilities: bool, default False. When true probabilities are returned along with tags
+    threshold: float, default 0.5. Probability threshold to be used to assign tags.
+    """
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
 

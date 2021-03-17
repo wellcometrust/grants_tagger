@@ -77,9 +77,9 @@ def mesh_tfidf_svm_path(tmp_path):
 
     model_path = os.path.join(tmp_path, "mesh_tfidf_svm")
     parameters = {
-        'vec__min_df': 1,
-        'vec__stop_words': None,
-        'clf__estimator__loss': 'log',
+        'tfidf__min_df': 1,
+        'tfidf__stop_words': None,
+        'svm__estimator__loss': 'log',
         'model_path': model_path
     }
     train_and_evaluate(mesh_data_path, label_binarizer_path,

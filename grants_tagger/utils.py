@@ -35,12 +35,14 @@ def load_data(data_path, label_binarizer=None, X_format="List"):
     return texts, tags, meta
  
 def yield_texts(data_path):
+    """Yields texts from JSONL with text field"""
     with open(data_path) as f:
         for line in f:
             item = json.loads(line)
             yield item["text"]
 
 def yield_tags(data_path, label_binarizer=None):
+    """Yields tags from JSONL with tags field. Transforms if label binarizer provided."""
     with open(data_path) as f:
         for line in f:
             item = json.loads(line)
@@ -54,7 +56,13 @@ def yield_tags(data_path, label_binarizer=None):
 def load_train_test_data(
         train_data_path, label_binarizer, test_data_path=None,
         test_size=None, data_format="list"):
-
+    """
+    train_data_path: path. path to JSONL data that contains text and tags fields
+    label_binarizer: MultiLabelBinarizer. multilabel binarizer instance used to transform tags
+    test_data_path: path, default None. path to test JSONL data similar to train_data
+    test_size: float, default None. if test_data_path not provided, dictates portion to be used as test
+    data_format: str, default list. controls data are returned as lists or generators for memory efficiency
+    """
     if data_format == "list":
         if test_data_path:
             X_train, Y_train, _ = load_data(train_data_path, label_binarizer)

@@ -67,9 +67,9 @@ def test_mesh_tfidf_svm(tmp_path):
 
     model_path = os.path.join(tmp_path, "model")
     params = {
-        "vec__stop_words": None, 
-        "vec__min_df": 1,
-        "clf__estimator__loss": "log",
+        "tfidf__stop_words": None, 
+        "tfidf__min_df": 1,
+        "svm__estimator__loss": "log",
         "model_path": model_path,
         "y_batch_size": 64}
     model.set_params(**params)

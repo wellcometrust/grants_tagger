@@ -32,6 +32,15 @@ class ApproachNotImplemented(Exception):
 
 
 def get_params_for_component(params, component):
+    """
+    Returns a dictionary of all params for one component defined
+    in params in the form component__param: value
+
+    e.g.
+    >> params = {"vec__min_df": 1, "clf__probability": True}
+    >> get_params_for_component(params, "vec")
+    {"min_df": 1}
+    """
     component_params = {}
     for k, v in params.items():
         if k.startswith(component):
@@ -94,6 +103,14 @@ class ScienceEnsemble():
 class MeshCNN():
     def __init__(self, threshold=0.5, batch_size=256, shuffle=True,
             buffer_size=1000, data_cache=None, random_seed=42):
+        """
+        threshold: float, default 0.5. Probability threshold on top of which a tag should be assigned.
+        batch_size: int, default 256. Size of batches used for training and prediction.
+        shuffle: bool, default True. Flag on whether to shuffle data before fit.
+        buffer_size: int, default 1000. Buffer size used for shuffling or transforming data before fit.
+        data_cache: path, default None. Path to use for caching data transformations.
+        random_seed: int, default 42. Random seed that controls reproducibility.
+        """
         self.threshold = threshold
         self.batch_size = batch_size
         self.shuffle = shuffle
@@ -103,7 +120,13 @@ class MeshCNN():
 
     def _yield_data(self, X, vectorizer, Y=None):
         """
-        Add docstring
+        Generator to yield vectorized X and Y data one by one
+
+        X: list of texts
+        vectorizer: vectorizer class that implements transform which transforms texts to integers
+        Y: 2d numpy array that represents targets (tags) assigned.
+
+        If Y is missing, for example when called by predict, yield_data yields only X vectorized
         """
         def yield_transformed_data(X_buffer, Y_buffer):
             # TODO: This could move to WellcomeML to enable CNN to receive generators
@@ -124,6 +147,12 @@ class MeshCNN():
                     yield X_vec[i]
 
         def data_gen():
+            """
+            Wrapper on top of yield_transformed_data to get a callable function
+            which enables to restart the iterator.
+
+            This function also implements buffering for more efficient transformations
+            """
             X_buffer = []
             Y_buffer = []
 
@@ -180,7 +209,12 @@ class MeshCNN():
 
     def fit(self, X, Y):
         """
-        Add docstring
+        X: list, np.array or generator of texts
+        Y: 2d np.array of tags assigned 
+
+        If X is a generator it need to be callable i.e. return 
+        the generator by calling it X_gen = X(). This is so
+        we can iterate on the data again.
         """
         if not hasattr(self, "vectorizer"):
             self._init_vectorizer()
@@ -270,6 +304,15 @@ class MeshCNN():
 class MeshTfidfSVM():
     def __init__(self, y_batch_size=256, nb_labels=None, model_path=None,
             threshold=0.5):
+        """
+        y_batch_size: int, default 256. Size of column batches for Y i.e. tags that each classifier will train on
+        nb_labels: int, default None. Number of tags that will be trained.
+        model_path: path, default None. Model path being used to save intermediate classifiers
+        threshold: float, default 0.5. Threshold probability on top of which a tag is assigned
+
+        Note that model_path needs to be provided as it is used to save
+        intermediate classifiers trained to reduce memory usage.
+        """
         self.y_batch_size=y_batch_size
         self.model_path=model_path
         self.nb_labels=None
@@ -290,10 +333,10 @@ class MeshTfidfSVM():
         if not hasattr(self, 'classifier'):
             self._init_classifier()
 
-        vec_params = get_params_for_component(params, 'vec')
-        clf_params = get_params_for_component(params, 'clf')
-        self.vectorizer.set_params(**vec_params)
-        self.classifier.set_params(**clf_params)
+        tfidf_params = get_params_for_component(params, 'tfidf')
+        svm_params = get_params_for_component(params, 'svm')
+        self.vectorizer.set_params(**tfidf_params)
+        self.classifier.set_params(**svm_params)
         # TODO: Create function that checks in params for arguments available in init
         if 'model_path' in params:
             self.model_path = params['model_path']
@@ -303,6 +346,10 @@ class MeshTfidfSVM():
             self.nb_labels = params['nb_labels']
 
     def fit(self, X, Y):
+        """
+        X: np.array or list of texts
+        Y: 2d np.array of tags assigned
+        """
         if not hasattr(self, 'vectorizer'):
             self._init_vectorizer()
         if not hasattr(self, 'classifier'):

@@ -7,18 +7,20 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, classification_report, precision_score, recall_score
 from wasabi import table
 
-from grants_tagger.utils import load_train_test_data
+from grants_tagger.utils import load_train_test_data, load_data
 from grants_tagger.predict import predict
 
 
-def evaluate_model(approach, model_path, data_path, label_binarizer_path, threshold):
+def evaluate_model(approach, model_path, data_path, label_binarizer_path,
+        threshold, split_data=True):
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
 
-    # TODO: A user might be expecting to evaluate on all data passing
-    # - add warning about this behaviour
-    # - add flag to use all data instead of split
-    X_train, X_test, Y_train, Y_test = load_train_test_data(data_path, label_binarizer)   
+    if split_data:
+        print("Warning: Data will be split in the same way as train. If you don't want that you set split_data=False")
+        _, X_test, _, Y_test = load_train_test_data(data_path, label_binarizer)   
+    else:
+        X_test, Y_test, _ = load_data(data_path, label_binarizer)
 
     if type(threshold) == list:
         results = []

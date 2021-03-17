@@ -1,3 +1,6 @@
+import math
+import os
+
 from skmultilearn.problem_transform import ClassifierChain, BinaryRelevance, LabelPowerset
 from sklearn.feature_extraction.text import HashingVectorizer, TfidfVectorizer
 from sklearn.ensemble import GradientBoostingClassifier, AdaBoostClassifier
@@ -5,14 +8,95 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.svm import SVC
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder, MultiLabelBinarizer
 
 from wellcomeml.ml import BertVectorizer, BertClassifier, BiLSTMClassifier, CNNClassifier, KerasVectorizer, Doc2VecVectorizer, Sent2VecVectorizer, SpacyClassifier
 
-from grants_tagger.models import create_model, ApproachNotImplemented
+from grants_tagger.models import create_model, ApproachNotImplemented, MeshCNN, MeshTfidfSVM
 
 
-# TODO: Test new models
+X = [
+    "all",
+    "one two",
+    "two",
+    "four",
+    "one thousand"
+]
+
+Y_mesh = [
+    [str(i) for i in range(5000)],
+    ["1", "2"],
+    ["2"],
+    ["200"],
+    ["1000"]
+]
+
+def test_mesh_cnn(tmp_path):
+    label_binarizer = MultiLabelBinarizer()
+    label_binarizer.fit(Y_mesh)
+
+    Y_vec = label_binarizer.transform(Y_mesh)
+
+    model = MeshCNN(batch_size=32)
+    assert model.batch_size == 32
+
+    params = {"vec__vocab_size": 1000, "cnn__batch_size": 64}
+    model.set_params(**params)
+    assert model.vectorizer.vocab_size == 1000
+    assert model.classifier.batch_size == 64
+
+    model.fit(X, Y_vec)
+    model.save(tmp_path)
+    
+    meta_path = os.path.join(tmp_path, "meta.json")
+    vectorizer_path = os.path.join(tmp_path, "vectorizer.pkl")
+    assets_path = os.path.join(tmp_path, "assets")
+    assert os.path.exists(meta_path)
+    assert os.path.exists(vectorizer_path)
+    assert os.path.exists(assets_path)
+
+def test_mesh_tfidf_svm(tmp_path):
+    label_binarizer = MultiLabelBinarizer()
+    label_binarizer.fit(Y_mesh)
+
+    Y_vec = label_binarizer.transform(Y_mesh)
+
+    model = MeshTfidfSVM(y_batch_size=32, model_path=tmp_path)
+    assert model.y_batch_size == 32
+    assert model.model_path == tmp_path
+
+    model_path = os.path.join(tmp_path, "model")
+    params = {
+        "vec__stop_words": None, 
+        "vec__min_df": 1,
+        "clf__estimator__loss": "log",
+        "model_path": model_path,
+        "y_batch_size": 64}
+    model.set_params(**params)
+    assert model.vectorizer.stop_words is None
+    assert model.classifier.estimator.loss == "log"
+    assert model.model_path == model_path
+    assert model.y_batch_size == 64
+
+    model.fit(X, Y_vec)
+    model.save(model_path)
+   
+    meta_path = os.path.join(model_path, "meta.json")
+    vectorizer_path = os.path.join(model_path, "vectorizer.pkl")
+    clf_paths = [
+        p for p in os.listdir(model_path)
+        if "meta" not in p and "vectorizer" not in p]
+    assert os.path.exists(meta_path)
+    assert os.path.exists(vectorizer_path)
+    assert len(clf_paths) == math.ceil(5000 / 64)
+
+def test_create_mesh_cnn():
+    model = create_model('mesh-cnn')
+    assert isinstance(model, MeshCNN)
+
+def test_create_mesh_tfidf_svm():
+    model = create_model('mesh-tfidf-svm')
+    assert isinstance(model, MeshTfidfSVM)
 
 def test_create_hashing_vectorizer_svm():
     model = create_model('hashing_vectorizer-svm')

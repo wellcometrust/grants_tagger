@@ -356,7 +356,9 @@ class MeshTfidfSVM():
         return self._predict(X, return_probabilities=True)
 
     def save(self, model_path):
-        # model saved during fit
+        if model_path != self.model_path:
+            print(f"{model_path} is different from self.model_path {self.model_path}. This will result in model and meta.json be saved in different paths")
+
         meta = {
             "name": "MeshTfidfSVM",
             "approach": "mesh-tfidf-svm",

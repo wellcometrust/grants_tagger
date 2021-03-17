@@ -155,35 +155,3 @@ def test_train_and_evaluate_threshold(data_path, label_binarizer_path):
         threshold=0, parameters="{'tfidf__min_df': 1, 'tfidf__stop_words': None}")
     assert f1 == (2/3) # P: 0.5, R: 1.0, F: 0.66
 
-
-# TODO: Move to models
-def test_train_and_evaluate_y_batch_size():
-    approach = "mesh-tfidf-svm"
-
-    texts = ["one", "one two", "all"]
-    tags = [["1"], ["1", "2"], [str(i) for i in range(5000)]]
-
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
-        train_data_path = os.path.join(tmp_dir, "train_data.jsonl")
-        model_path = os.path.join(tmp_dir, "model")
-
-        with open(train_data_path, "w") as train_data_tmp:
-            for text, tags_ in zip(texts, tags):
-                train_data_tmp.write(json.dumps({"text": text, "tags": tags_, "meta": {}}))
-                train_data_tmp.write("\n")
-        
-        parameters = {
-            'vec__min_df': 1,
-            'vec__stop_words': None,
-            'y_batch_size': 512,
-            'model_path': model_path
-        }
-        train_and_evaluate(
-            train_data_path, label_binarizer_path, approach,
-            parameters=str(parameters),
-            model_path=model_path, sparse_labels=True)
-
-        model_artifacts = os.listdir(model_path)
-        assert len(model_artifacts) == math.ceil(5000 / 512) + 2 # (vectorizer, meta)
-

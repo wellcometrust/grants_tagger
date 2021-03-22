@@ -25,7 +25,7 @@ def yield_grants(grants_path, batch_size=32):
             yield grants
 
 
-def yield_tagged_grants(grants, model_path, label_binarizer_path, threshold):
+def yield_tagged_grants(grants, model_path, label_binarizer_path, approach, threshold):
     """
     Tags grants and outputs tagged grant data structure
 
@@ -40,6 +40,7 @@ def yield_tagged_grants(grants, model_path, label_binarizer_path, threshold):
     grants_tags = predict_tags(
         grants_texts,
         threshold=threshold,
+        approach=approach,
         model_path=model_path,
         label_binarizer_path=label_binarizer_path
     )
@@ -57,7 +58,7 @@ def yield_tagged_grants(grants, model_path, label_binarizer_path, threshold):
         yield tagged_grant
 
 
-def tag_grants(grants_path, tagged_grants_path, model_path, label_binarizer_path, threshold=0.5):
+def tag_grants(grants_path, tagged_grants_path, model_path, label_binarizer_path, approach, threshold=0.5):
     with open(tagged_grants_path, 'w') as f_o:
         fieldnames = ["Grant ID", "Reference", "Grant No."]
         fieldnames += [f"Tag #{i}" for i in range(1,11)]
@@ -65,5 +66,5 @@ def tag_grants(grants_path, tagged_grants_path, model_path, label_binarizer_path
         csv_writer.writeheader()
 
         for grants in yield_grants(grants_path, batch_size=512):
-            for tagged_grant in yield_tagged_grants(grants, model_path, label_binarizer_path, threshold):
+            for tagged_grant in yield_tagged_grants(grants, model_path, label_binarizer_path, approach, threshold):
                 csv_writer.writerow(tagged_grant)

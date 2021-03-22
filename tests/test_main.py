@@ -13,7 +13,7 @@ from typer.testing import CliRunner
 import pytest
 
 from grants_tagger.__main__ import app
-
+from grants_tagger.models import MeshCNN
 
 runner = CliRunner()
 
@@ -102,10 +102,7 @@ def read_pickle(path):
 
 
 def create_model(model_path, label_binarizer_path, data):
-    model = Pipeline([
-        ("tfidf", TfidfVectorizer(stop_words=None, min_df=1)),
-        ("svm", OneVsRestClassifier(SVC(probability=True)))
-    ])
+    model = MeshCNN()
     X = [example["text"] for example in data]
 
     tags = [example["tags"] for example in data]
@@ -113,7 +110,7 @@ def create_model(model_path, label_binarizer_path, data):
     Y = label_binarizer.transform(tags)
 
     model.fit(X, Y)
-    write_pickle(model_path, model)
+    model.save(model_path)
 
 
 def create_label_binarizer(label_binarizer_path, data):
@@ -174,35 +171,38 @@ def test_pretrain_command():
 
 def test_predict_command():
     with tempfile.TemporaryDirectory() as tmp_dir:
-        model_path = os.path.join(tmp_dir, "model.pkl")
+        model_path = os.path.join(tmp_dir)
         label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
 
         create_label_binarizer(label_binarizer_path, DATA)
         create_model(model_path, label_binarizer_path, DATA)
 
-        texts = "malaria"
+        text = "malaria"
         result = runner.invoke(app, [
             "predict",
-            texts,
+            text,
             model_path,
-            label_binarizer_path
+            label_binarizer_path,
+            "mesh-cnn"
         ])
+        print(result)
         assert result.exit_code == 0
 
 
 def test_evaluate_model_command():
     with tempfile.TemporaryDirectory() as tmp_dir:
-        model_path = os.path.join(tmp_dir, "model.pkl")
+        model_path = os.path.join(tmp_dir)
         data_path = os.path.join(tmp_dir, "data.jsonl")
         label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
 
-        create_label_binarizer(label_binarizer_path, DATA)
-        create_model(model_path, label_binarizer_path, DATA)
-        write_jsonl(data_path, DATA)
+        create_label_binarizer(label_binarizer_path, MESH_DATA)
+        create_model(model_path, label_binarizer_path, MESH_DATA)
+        write_jsonl(data_path, MESH_DATA)
 
         result = runner.invoke(app, [
             "evaluate",
             "model",
+            "mesh-cnn",
             model_path,
             data_path,
             label_binarizer_path
@@ -274,17 +274,18 @@ def test_evaluate_mti_command():
 def test_tune_threshold_command():
     with tempfile.TemporaryDirectory() as tmp_dir:
         data_path = os.path.join(tmp_dir, "data.jsonl")
-        model_path = os.path.join(tmp_dir, "model.pkl")
+        model_path = os.path.join(tmp_dir)
         label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
         thresholds_path = os.path.join(tmp_dir, "thresholds.pkl")
 
-        write_jsonl(data_path, DATA)
-        create_label_binarizer(label_binarizer_path, DATA)
-        create_model(model_path, label_binarizer_path, DATA)
+        write_jsonl(data_path, MESH_DATA)
+        create_label_binarizer(label_binarizer_path, MESH_DATA)
+        create_model(model_path, label_binarizer_path, MESH_DATA)
 
         result = runner.invoke(app, [
             "tune",
             "threshold",
+            "mesh-cnn",
             data_path,
             model_path,
             label_binarizer_path,

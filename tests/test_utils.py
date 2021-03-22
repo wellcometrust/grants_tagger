@@ -1,40 +1,20 @@
 import tempfile
 import json
 import io
+import os
 
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics import f1_score
 import numpy as np
 import pandas as pd
+import pytest
 
-from wellcomeml.ml import KerasVectorizer
-from grants_tagger.utils import (load_data, calc_performance_per_tag,
-    load_train_test_data, load_train_test_dataset)
+from grants_tagger.utils import (load_data, calc_performance_per_tag,   load_train_test_data)
 
 
-def test_load_data():    
-    data = [
-        {
-            'text': 'A',
-            'tags': ['T1', 'T2'],
-            'meta': {'Grant_ID': 1, 'Title': 'A'}
-        }
-    ]
-    with tempfile.NamedTemporaryFile('w') as tmp:
-        for line in data:
-            tmp.write(json.dumps(line))
-            tmp.write('\n')
-        tmp.seek(0)
-        texts, tags, meta = load_data(tmp.name)
-    assert len(texts) == 1
-    assert len(tags) == 1
-    assert len(meta) == 1
-    assert texts == ['A']
-    assert tags == [['T1', 'T2']]
-    assert meta == [{'Grant_ID': 1, 'Title': 'A'}]
-
-def test_load_data_with_label_binarizer():
-    data = [
+@pytest.fixture
+def train_data_path(tmp_path):
+    test_data = [
         {
             'text': 'A',
             'tags': ['T1', 'T2'],
@@ -46,16 +26,63 @@ def test_load_data_with_label_binarizer():
             'meta': {'Grant_ID': 2, 'Title': 'B'}
         }
     ]
-    with tempfile.NamedTemporaryFile('w') as tmp:
-        for line in data:
-            tmp.write(json.dumps(line))
-            tmp.write('\n')
-        tmp.seek(0)
-        label_binarizer = MultiLabelBinarizer()
-        label_binarizer.fit([['T1','T2']])
-        texts, tags, meta = load_data(tmp.name, label_binarizer)
+    test_data_path = os.path.join(tmp_path, "train_data.jsonl")
+    with open(test_data_path, 'w') as f:
+        for line in test_data:
+            f.write(json.dumps(line))
+            f.write('\n')
+
+    return test_data_path
+
+@pytest.fixture
+def test_data_path(tmp_path):
+    test_data = [
+        {
+            'text': 'C',
+            'tags': ['T2'],
+            'meta': {'Grant_ID': 3, 'Title': 'C'}
+        }
+    ]
+    test_data_path = os.path.join(tmp_path, "test_data.jsonl")
+    with open(test_data_path, 'w') as f:
+        for line in test_data:
+            f.write(json.dumps(line))
+            f.write('\n')
+
+    return test_data_path
+
+@pytest.fixture
+def data_path(tmp_path, train_data_path, test_data_path):
+    data_path = os.path.join(tmp_path, "data.jsonl")
+    with open(data_path, "w") as data_f:
+        with open(train_data_path, "r") as train_f:
+            for line in train_f:
+                data_f.write(line)
+        with open(test_data_path, "r") as test_f:
+            for line in test_f:
+                data_f.write(line)
+    return data_path
+
+@pytest.fixture
+def label_binarizer():
+    label_binarizer = MultiLabelBinarizer(classes=["T1", "T2"])
+    label_binarizer.fit([['T1','T2']])
+    return label_binarizer
+
+def test_load_data(data_path):    
+    texts, tags, meta = load_data(data_path)
+    assert len(texts) == 3
+    assert len(tags) == 3
+    assert len(meta) == 3
+    assert texts[0] == 'A'
+    assert tags[0] == ['T1', 'T2']
+    assert meta[0] == {'Grant_ID': 1, 'Title': 'A'}
+
+def test_load_data_with_label_binarizer(data_path, label_binarizer):
+    texts, tags, meta = load_data(data_path, label_binarizer)
     assert np.array_equal(tags[0], [1, 1])
     assert np.array_equal(tags[1], [1, 0])
+    assert np.array_equal(tags[2], [0, 1])
 
 def test_calc_performance_per_tag():
     Y_true = np.array([[1,0,0], [1,1,0], [0,0,1]])
@@ -73,118 +100,21 @@ def test_calc_performance_per_tag():
     print(performance_per_tag)
     assert performance_per_tag.equals(performance_per_tag_test)
 
-def test_load_train_test_data():
-    data = [
-        {
-            'text': 'A',
-            'tags': ['T1', 'T2'],
-            'meta': {'Grant_ID': 1, 'Title': 'A'}
-        },
-        {
-            'text': 'B',
-            'tags': ['T1'],
-            'meta': {'Grant_ID': 2, 'Title': 'B'}
-        },
-        {
-            'text': 'C',
-            'tags': ['T2'],
-            'meta': {'Grant_ID': 3, 'Title': 'C'}
-        }
-    ]
-    with tempfile.NamedTemporaryFile('w') as tmp:
-        for line in data:
-            tmp.write(json.dumps(line))
-            tmp.write('\n')
-        tmp.seek(0)
-        label_binarizer = MultiLabelBinarizer()
-        label_binarizer.fit([['T1','T2']])
-        texts_train, texts_test, tags_train, tags_test = load_train_test_data(tmp.name, label_binarizer)
+def test_load_train_test_data(data_path, label_binarizer):
+    texts_train, texts_test, tags_train, tags_test = load_train_test_data(data_path, label_binarizer)
     assert np.array_equal(tags_train[0], [1, 0])
     assert np.array_equal(tags_train[1], [0, 1])
     assert np.array_equal(tags_test[0], [1, 1])
 
 
-def test_load_train_test_dataset():
-    data = [
-        {
-            'text': 'A',
-            'tags': ['T1', 'T2'],
-            'meta': {'Grant_ID': 1, 'Title': 'A'}
-        },
-        {
-            'text': 'B',
-            'tags': ['T1'],
-            'meta': {'Grant_ID': 2, 'Title': 'B'}
-        },
-        {
-            'text': 'C',
-            'tags': ['T2'],
-            'meta': {'Grant_ID': 3, 'Title': 'C'}
-        }
-    ]
-    with tempfile.NamedTemporaryFile('w') as tmp:
-        for line in data:
-            tmp.write(json.dumps(line))
-            tmp.write('\n')
-        tmp.seek(0)
-        tokenizer = KerasVectorizer()
-        tokenizer.fit([d['text'] for d in data])
-        label_binarizer = MultiLabelBinarizer(classes=["T1", "T2"])
-        label_binarizer.fit([d['tags'] for d in data])
-        train_data, test_data = load_train_test_dataset(tmp.name, tokenizer, label_binarizer, shuffle=False)
+def test_load_train_test_data_generator(train_data_path, test_data_path, label_binarizer):
+    X_train, X_test, Y_train, Y_test = load_train_test_data(
+        train_data_path, label_binarizer, test_data_path=test_data_path,
+        data_format="generator")
     
-        def get_tags(data):
-            tags = []
-            for example in data.as_numpy_iterator():
-                tags.append(example[1])
-            return tags
-        tags_train = get_tags(train_data)
-        tags_test = get_tags(test_data)
-        assert np.array_equal(tags_train[0], [1, 1])
-        assert np.array_equal(tags_train[1], [1, 0])
-        assert np.array_equal(tags_test[0], [0, 1])
-
-
-def test_load_train_test_dataset_shuffle():
-    data = [
-        {
-            'text': 'A',
-            'tags': ['T1', 'T2'],
-            'meta': {'Grant_ID': 1, 'Title': 'A'}
-        },
-        {
-            'text': 'B',
-            'tags': ['T1'],
-            'meta': {'Grant_ID': 2, 'Title': 'B'}
-        },
-        {
-            'text': 'C',
-            'tags': ['T2'],
-            'meta': {'Grant_ID': 3, 'Title': 'C'}
-        }
-    ]
-    with tempfile.NamedTemporaryFile('w') as tmp:
-        for line in data:
-            tmp.write(json.dumps(line))
-            tmp.write('\n')
-        tmp.seek(0)
-        tokenizer = KerasVectorizer()
-        tokenizer.fit([d['text'] for d in data])
-        label_binarizer = MultiLabelBinarizer(classes=["T1", "T2"])
-        label_binarizer.fit([d['tags'] for d in data])
-        train_data, test_data = load_train_test_dataset(
-                tmp.name, tokenizer, label_binarizer,
-                shuffle=True, random_seed=42
-        )
-    
-        def get_tags(data):
-            tags = []
-            for example in data.as_numpy_iterator():
-                tags.append(example[1])
-            return tags
-        tags_train = get_tags(train_data)
-        tags_test = get_tags(test_data)
-        assert np.array_equal(tags_train[0], [1, 0])
-        assert np.array_equal(tags_train[1], [0, 1])
-        assert np.array_equal(tags_test[0], [1, 1])
+    tags_train = list(Y_train())
+    tags_test = list(Y_test())
+    assert np.array_equal(tags_train[0], [1, 1])
+    assert np.array_equal(tags_train[1], [1, 0])
+    assert np.array_equal(tags_test[0], [0, 1])
 

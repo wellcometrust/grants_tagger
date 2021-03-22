@@ -2,9 +2,11 @@ from unittest.mock import patch
 import tempfile
 import pickle
 import json
+import os
 
 from sklearn.preprocessing import MultiLabelBinarizer
 import numpy as np
+import pytest
 
 from grants_tagger.evaluate_model import evaluate_model, predict
 
@@ -24,49 +26,42 @@ Y = [
     ["24"]
 ]
 
+def binarize_Y(Y, label_binarizer_path):
+    with open(label_binarizer_path, "rb") as f:
+        label_binarizer = pickle.loads(f.read())
+    return label_binarizer.transform(Y)
 
-def create_test_data(data_path):
+@pytest.fixture
+def label_binarizer_path(tmp_path):
+    label_binarizer_path = os.path.join(tmp_path, "label_binarizer.pkl")
+
+    label_binarizer = MultiLabelBinarizer()
+    label_binarizer.fit(Y)
+    with open(label_binarizer_path, "wb") as f:
+        f.write(pickle.dumps(label_binarizer))
+    return label_binarizer_path
+
+@pytest.fixture
+def data_path(tmp_path):
+    data_path = os.path.join(tmp_path, "data.jsonl")
     with open(data_path, "w") as f:
         for x, y in zip(X, Y):
             item = json.dumps({"text": x, "tags": y, "meta": ""})
             f.write(item+"\n")
+    return data_path
 
+def test_evaluate_model(data_path, label_binarizer_path):
+    with patch('grants_tagger.evaluate_model.predict') as mock_predict:
+        Y_test = [["1"], ["2"]]
+        mock_predict.return_value = binarize_Y(Y_test, label_binarizer_path)
 
-def test_evaluate_model():
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        label_binarizer_path = f"{tmp_dir}/label_binarizer.pkl"
-        data_path = f"{tmp_dir}/data.jsonl"
+        evaluate_model("mesh-cnn", "model_path", data_path, label_binarizer_path, 0.5)
+        mock_predict.assert_called()
 
-        label_binarizer = MultiLabelBinarizer()
-        label_binarizer.fit(Y)
-        with open(label_binarizer_path, "wb") as f:
-            f.write(pickle.dumps(label_binarizer))
+def test_evaluate_model_multiple_thresholds(data_path, label_binarizer_path):
+    with patch('grants_tagger.evaluate_model.predict') as mock_predict:
+        Y_test = [["1"], ["2"]]
+        mock_predict.return_value = binarize_Y(Y_test, label_binarizer_path)
 
-        create_test_data(data_path)
-
-        with patch('grants_tagger.evaluate_model.predict') as mock_predict:
-            Y_test = [["1"], ["2"]]
-            mock_predict.return_value = label_binarizer.transform(Y_test)
-
-            evaluate_model("model_path", data_path, label_binarizer_path, 0.5)
-            mock_predict.assert_called()
-
-
-def test_evaluate_model_multiple_thresholds():
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        label_binarizer_path = f"{tmp_dir}/label_binarizer.pkl"
-        data_path = f"{tmp_dir}/data.jsonl"
-
-        label_binarizer = MultiLabelBinarizer()
-        label_binarizer.fit(Y)
-        with open(label_binarizer_path, "wb") as f:
-            f.write(pickle.dumps(label_binarizer))
-
-        create_test_data(data_path)
-
-        with patch('grants_tagger.evaluate_model.predict') as mock_predict:
-            Y_test = [["1"], ["2"]]
-            mock_predict.return_value = label_binarizer.transform(Y_test)
-
-            evaluate_model("model_path", data_path, label_binarizer_path, [0,1,0.5,0.9])
-            mock_predict.assert_called()
+        evaluate_model("mesh-cnn", "model_path", data_path, label_binarizer_path, [0,1,0.5,0.9])
+        mock_predict.assert_called()

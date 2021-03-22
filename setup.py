@@ -32,11 +32,12 @@ setup(
         'scikit-learn==0.23.2',
         'nltk',
         'matplotlib',
-        'wellcomeml[deep-learning]==2021.2.1',
+        'wellcomeml[deep-learning]==1.0.2',
         'docutils==0.15',
         'scipy==1.4.1',
         'wasabi',
-        'typer'
+        'typer',
+        'scispacy'
     ],
     tests_require=[
         'pytest',

@@ -24,7 +24,7 @@ from scipy import sparse as sp
 import tensorflow as tf
 import numpy as np
 
-from wellcomeml.ml import BiLSTMClassifier, CNNClassifier, KerasVectorizer, SpacyClassifier, BertVectorizer, BertClassifier, Doc2VecVectorizer, Sent2VecVectorizer, WellcomeVotingClassifier
+from wellcomeml.ml import BiLSTMClassifier, CNNClassifier, KerasVectorizer, SpacyClassifier, BertVectorizer, BertClassifier, Doc2VecVectorizer, Sent2VecVectorizer, WellcomeVotingClassifier, TransformersTokenizer
 
 
 class ApproachNotImplemented(Exception):
@@ -428,6 +428,41 @@ class MeshTfidfSVM():
 
         self.model_path = model_path
 
+
+class TfidfTransformersSVM:
+    def _init_model(self):
+        self.tokenizer = TransformersTokenizer()
+        self.model = Pipeline([
+            ('tfidf', TfidfVectorizer(
+                stop_words='english', max_df=0.95,
+                min_df=0.0, ngram_range=(1,1), 
+                tokenizer=self.tokenizer.tokenize
+            )),
+            ('svm', OneVsRestClassifier(SVC(kernel='linear', probability=True)))
+        ])
+
+    def set_params(self, **params):
+        if not hasattr(self, "model"):
+            self._init_model()
+
+        # TODO: Pass params to TransformersTokenizer
+        self.model.set_params(**params)
+
+    def fit(self, X, Y):
+        if not hasattr(self, "model"):
+            self.model = self._init_model()
+
+        self.tokenizer.fit(X)
+        self.model.fit(X, Y)
+        return self
+
+    def predict(self, X):
+        return self.model.predict(X)
+
+    def predict_proba(self, X):
+        return self.model.predict_proba(X)
+
+
 def create_model(approach, parameters=None):
     if approach == 'tfidf-svm':
         model = Pipeline([
@@ -437,6 +472,8 @@ def create_model(approach, parameters=None):
             )),
             ('svm', OneVsRestClassifier(SVC(kernel='linear', probability=True)))
         ])
+    elif approach == 'tfidf-transformers-svm':
+        model = TfidfTransformersSVM()
     elif approach == 'bert-svm':
         model = Pipeline([
             ('bert', BertVectorizer(pretrained='bert')),

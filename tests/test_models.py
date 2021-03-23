@@ -12,7 +12,7 @@ from sklearn.preprocessing import OneHotEncoder, MultiLabelBinarizer
 
 from wellcomeml.ml import BertVectorizer, BertClassifier, BiLSTMClassifier, CNNClassifier, KerasVectorizer, Doc2VecVectorizer, Sent2VecVectorizer, SpacyClassifier
 
-from grants_tagger.models import create_model, ApproachNotImplemented, MeshCNN, MeshTfidfSVM
+from grants_tagger.models import create_model, ApproachNotImplemented, MeshCNN, MeshTfidfSVM, TfidfTransformersSVM
 
 
 X = [
@@ -89,6 +89,26 @@ def test_mesh_tfidf_svm(tmp_path):
     assert os.path.exists(meta_path)
     assert os.path.exists(vectorizer_path)
     assert len(clf_paths) == math.ceil(5000 / 64)
+
+def test_tfidf_transformers_svm():
+    label_binarizer = MultiLabelBinarizer()
+    label_binarizer.fit(Y_mesh)
+
+    Y_vec = label_binarizer.transform(Y_mesh)
+
+    model = TfidfTransformersSVM()
+
+    params = {
+        "tfidf__stop_words": None,
+        "tfidf__min_df": 1
+    }
+    model.set_params(**params)
+
+    model.fit(X, Y_vec)
+
+def test_create_tfidf_transformers_svm():
+    model = create_model('tfidf-transformers-svm')
+    assert isinstance(model, TfidfTransformersSVM)
 
 def test_create_mesh_cnn():
     model = create_model('mesh-cnn')

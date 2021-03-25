@@ -47,7 +47,7 @@ Version   | Approach    | Micro f1 | Description
 2020.10.15 | tfidf-svm | 0.71 | same as 2020.5.2 but train on title+synopsis and test on title+synopsis+research_question
 2020.10.16 | tfidf+onehot_team | 0.71 | similar to 2020.5.2 but we add team as one hot variable to the features. as data get shuffled differently it seems as the performance stays the same but it actually increases 1% compared to removing the team variable
 2020.10.17 | tfidf+onehot_scheme | 0.68 | similar to 2020.10.16 but this time we add scheme as one hot variable.
-2021.03.0 | cnn | 0.60 | same as 2020.04.3 but with transformers tokenizer for encoder
+2021.03.0 | cnn | 0.58 | same as 2020.04.3 but with transformers tokenizer for encoder
 2021.03.1 | tfidf-transformers-svm | 0.68 | same as 2020.05.2 but tokenizer is TransformersTokenizer
 
 ## 2020.02.0
@@ -1677,34 +1677,34 @@ weighted avg       0.75      0.76      0.75       927
                                                          precision    recall  f1-score   support
 
                                               10: Fungi       0.00      0.00      0.00         5
-                                          11: Parasites       0.86      0.75      0.80        24
-                     12: Brain Cells Circuits & Systems       0.75      0.88      0.81        74
-                           13: Sensory & Motor Function       0.71      0.38      0.50        26
-                              14: Behaviour & Cognition       0.59      0.80      0.68        51
-                      15: Behavioural & Social Sciences       0.33      0.29      0.31        21
-                                16: Health Intervention       0.64      0.46      0.54        54
-                          17: Health Services & Systems       0.56      0.31      0.40        32
-                                       18: Surveillance       0.48      0.44      0.46        34
-                 19: Maternal Child & Adolescent Health       0.33      0.13      0.19        30
-                                 1: Genetics & Genomics       0.65      0.25      0.36        61
-                             20: Nutrition & Metabolism       0.75      0.20      0.32        15
-                                     21: Cardiovascular       0.67      0.12      0.21        16
+                                          11: Parasites       0.75      0.88      0.81        24
+                     12: Brain Cells Circuits & Systems       0.87      0.80      0.83        74
+                           13: Sensory & Motor Function       0.75      0.58      0.65        26
+                              14: Behaviour & Cognition       0.62      0.78      0.70        51
+                      15: Behavioural & Social Sciences       0.33      0.10      0.15        21
+                                16: Health Intervention       0.74      0.43      0.54        54
+                          17: Health Services & Systems       1.00      0.03      0.06        32
+                                       18: Surveillance       0.42      0.53      0.47        34
+                 19: Maternal Child & Adolescent Health       1.00      0.13      0.24        30
+                                 1: Genetics & Genomics       0.53      0.54      0.54        61
+                             20: Nutrition & Metabolism       1.00      0.13      0.24        15
+                                     21: Cardiovascular       0.00      0.00      0.00        16
                               22: Experimental Medicine       0.00      0.00      0.00        21
-                                    23: Medical Imaging       0.43      0.50      0.46         6
-24: Data Science Computational & Mathematical Modelling       0.51      0.50      0.51        38
-                2: Gene Regulation and Genome Integrity       0.78      0.66      0.72        71
-                        3: Protein Structure & Function       0.76      0.79      0.78        81
-                                        4: Cell Biology       0.58      0.57      0.58        79
-                               5: Developmental Biology       0.81      0.43      0.57        30
-                                   6: Stem Cell Biology       0.80      0.53      0.64        15
-                                          7: Immunology       0.80      0.74      0.77        72
-                                            8: Bacteria       0.85      0.35      0.49        49
-                                             9: Viruses       0.74      0.64      0.69        45
+                                    23: Medical Imaging       0.00      0.00      0.00         6
+24: Data Science Computational & Mathematical Modelling       0.48      0.29      0.36        38
+                2: Gene Regulation and Genome Integrity       0.90      0.52      0.66        71
+                        3: Protein Structure & Function       0.88      0.60      0.72        81
+                                        4: Cell Biology       0.59      0.52      0.55        79
+                               5: Developmental Biology       0.67      0.27      0.38        30
+                                   6: Stem Cell Biology       0.67      0.27      0.38        15
+                                          7: Immunology       0.78      0.64      0.70        72
+                                            8: Bacteria       0.85      0.47      0.61        49
+                                             9: Viruses       0.88      0.51      0.65        45
 
-                                              micro avg       0.68      0.54      0.60       950
-                                              macro avg       0.60      0.45      0.49       950
-                                           weighted avg       0.66      0.54      0.57       950
-                                            samples avg       0.68      0.58      0.59       950
+                                              micro avg       0.71      0.48      0.58       950
+                                              macro avg       0.61      0.38      0.43       950
+                                           weighted avg       0.71      0.48      0.54       950
+                                            samples avg       0.67      0.53      0.55       950
 ```
 
 ## 2021.03.1

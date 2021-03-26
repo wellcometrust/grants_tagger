@@ -17,7 +17,7 @@ Version   | Approach    | Micro f1 in Pubs | Micro f1 in Grants | Description
 2020.9.4  | cnn         | 0.62             |                    | 1e-3 lr, **0 dr**, 1e-7 l2, 4 layers, attention
 2020.9.5  | cnn         | 0.63             |                    | 1e-3 lr, 0.1 dr, **1e-9 l2**, 4 layers, attention
 2020.9.6  | cnn         | 0.64             |                    | 1e-3 lr, 0.1 dr, 1e-7 l2, 8 layers, attention
-2021.3.0  | cnn         | 0.63             |                    | same as 2020.09.0 but with transformers as tokenizers_library
+2021.3.0  | cnn         | 0.63             |                    | same as 2020.09.0 but with transformers as tokenizers_library, model size reduced from 2.6GB to 760MB
 
 ## 2020.07.0
 

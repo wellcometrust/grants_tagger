@@ -17,6 +17,11 @@ from sklearn.preprocessing import MultiLabelBinarizer
 from grants_tagger.models import create_model
 from grants_tagger.utils import load_train_test_data, yield_tags
 
+from tensorflow.random import set_seed
+
+# TODO: Remove when WellcomeML implements setting random_seed inside models
+# replace with param in configs then
+set_seed(41)
 
 def create_label_binarizer(data_path, label_binarizer_path, sparse=False):        
     """Creates, saves and returns a multilabel binarizer for targets Y"""

@@ -42,7 +42,7 @@ def train(
         label_binarizer_path = cfg["model"]["label_binarizer_path"]
         approach = cfg["model"]["approach"]
         parameters = cfg["model"]["parameters"]
-        model_path = cfg["model"]["model_path"]
+        model_path = cfg["model"].get("model_path", None)
         test_data_path = cfg["data"]["test_data_path"]
         threshold = cfg["model"].get("threshold", None)
         if threshold:
@@ -54,7 +54,7 @@ def train(
             sparse_labels = bool(sparse_labels)
         cache_path = cfg["data"].get("cache_path")
     
-    if os.path.exists(model_path):
+    if model_path and os.path.exists(model_path):
         print(f"{model_path} exists. Remove if you want to rerun.")
     else:
 

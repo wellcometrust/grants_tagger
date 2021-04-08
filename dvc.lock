@@ -1,0 +1,102 @@
+schema: '2.0'
+stages:
+  preprocess_wellcome_science:
+    cmd: grants_tagger preprocess wellcome-science data/raw/science_tags_full_version.xlsx
+      data/processed/science_grants_tagged_title_synopsis.jsonl
+    deps:
+    - path: data/raw/science_tags_full_version.xlsx
+      md5: 74da2bf7a507e52b8b677ddce19156a9
+      size: 2638299
+    - path: grants_tagger/preprocess.py
+      md5: 959ffb629c7f2c7010052c92c2b18116
+      size: 3559
+    params:
+      params.yaml:
+        preprocess_wellcome_science.meta_cols: Grant_ID,Title
+        preprocess_wellcome_science.text_cols: Title,Synopsis
+    outs:
+    - path: data/processed/science_grants_tagged_title_synopsis.jsonl
+      md5: 2fb37d57daeece50a0190e16e229647a
+      size: 2809039
+  train:
+    cmd: grants_tagger train data/processed/science_grants_tagged_title_synopsis.jsonl
+      models/label_binarizer.pkl models/tfidf-svm-2020.05.2.pkl --approach tfidf-svm
+    deps:
+    - path: data/processed/science_grants_tagged_title_synopsis.jsonl
+      md5: 2fb37d57daeece50a0190e16e229647a
+      size: 2809039
+    - path: grants_tagger/train.py
+      md5: 162e8650a0a7e970420f48eb5c253f82
+      size: 3970
+    params:
+      params.yaml:
+        train.class_weight: balanced
+        train.min_df: 5
+        train.ngram_range:
+        - 1
+        - 2
+    outs:
+    - path: models/label_binarizer.pkl
+      md5: 220319a004a60bd6475e2fb617c2c1f3
+      size: 1067
+    - path: models/tfidf-svm-2020.05.2.pkl
+      md5: eceaf3846999e47380ca670c096b810a
+      size: 17768856
+  train_tfidf_svm:
+    cmd: grants_tagger train data/processed/science_grants_tagged_title_synopsis.jsonl
+      models/label_binarizer.pkl models/tfidf-svm-2020.05.2.pkl --approach tfidf-svm
+    deps:
+    - path: data/processed/science_grants_tagged_title_synopsis.jsonl
+      md5: 2fb37d57daeece50a0190e16e229647a
+      size: 2809039
+    - path: grants_tagger/train.py
+      md5: 162e8650a0a7e970420f48eb5c253f82
+      size: 3970
+    params:
+      params.yaml:
+        train.tfidf-svm.svm__estimator.class_weight: balanced
+        train.tfidf-svm.tfidf.min_df: 5
+        train.tfidf-svm.tfidf.ngram_range:
+        - 1
+        - 2
+    outs:
+    - path: models/label_binarizer.pkl
+      md5: 220319a004a60bd6475e2fb617c2c1f3
+      size: 1067
+    - path: models/tfidf-svm-2020.05.2.pkl
+      md5: f24b224be6a867f96400b3df2ad26ac9
+      size: 17768856
+  evaluate:
+    cmd: grants_tagger evaluate model tfidf-svm models/tfidf-svm-2020.05.2.pkl data/processed/science_grants_tagged_title_synopsis.jsonl
+      models/label_binarizer.pkl
+    deps:
+    - path: grants_tagger/evaluate_model.py
+      md5: cd583e8d10e0c889647834cab217ce2f
+      size: 1872
+    - path: models/label_binarizer.pkl
+      md5: 220319a004a60bd6475e2fb617c2c1f3
+      size: 1067
+    - path: models/tfidf-svm-2020.05.2.pkl
+      md5: f24b224be6a867f96400b3df2ad26ac9
+      size: 17768856
+    outs:
+    - path: results.json
+      md5: 1d0d4fb63ae1d1b911373cc558147737
+      size: 89
+  evaluate_tfidf_svm:
+    cmd: grants_tagger evaluate model tfidf-svm models/tfidf-svm-2020.05.2.pkl data/processed/science_grants_tagged_title_synopsis.jsonl
+      models/label_binarizer.pkl
+    deps:
+    - path: grants_tagger/evaluate_model.py
+      md5: cd583e8d10e0c889647834cab217ce2f
+      size: 1872
+    - path: models/label_binarizer.pkl
+      md5: 220319a004a60bd6475e2fb617c2c1f3
+      size: 1067
+    - path: models/tfidf-svm-2020.05.2.pkl
+      md5: f24b224be6a867f96400b3df2ad26ac9
+      size: 17768856
+    outs:
+    - path: results.json
+      md5: 1d0d4fb63ae1d1b911373cc558147737
+      size: 89

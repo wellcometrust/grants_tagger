@@ -6,6 +6,7 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 import argparse
 import json
+import sys
 import os
 
 import pandas as pd
@@ -29,7 +30,7 @@ def filter_disease_codes(mesh_descriptions_file):
             print(mesh_name)
             mesh_Df = mesh_Df.append({'DescriptorName':mesh_name, 'DescriptorUI':mesh_code, 'TreeNumberList':mesh_tree}, ignore_index=True)
 #    mesh_Df.to_csv(mesh_export_file)
-
+    return mesh_Df
 
 def yield_raw_data(input_path):
     with open(input_path, encoding='latin-1') as f_i:

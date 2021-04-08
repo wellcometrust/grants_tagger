@@ -1,6 +1,7 @@
 from typing import List, Optional
 from pathlib import Path
 import configparser
+import yaml
 import os
 
 import typer
@@ -20,13 +21,23 @@ from grants_tagger.optimise_params import optimise_params
 app = typer.Typer(add_completion=False)
 
 
+def convert_dvc_to_sklearn_params(parameters):
+    if not parameters:
+        return {}
+
+    return {
+        f"{pipeline_name}__{param_name}": param_value
+        for pipeline_name, params in parameters.items()
+        for param_name, param_value in params.items()
+    }
+
 @app.command()
 def train(
         data_path: Optional[Path] = typer.Argument(None, help="path to processed JSON data to be used for training"),
         label_binarizer_path: Optional[Path] = typer.Argument(None, help="path to label binarizer"),
         model_path: Optional[Path] = typer.Argument(None, help="path to output model.pkl or dir to save model"),
         approach: str = typer.Option("tfidf-svm", help="tfidf-svm, scibert, cnn, ..."),
-        parameters: str = typer.Option("{}", help="model params in sklearn format e.g. {'svm__kernel: linear'}"),
+        parameters: str = typer.Option(None, help="model params in sklearn format e.g. {'svm__kernel: linear'}"),
         test_data_path: Path = typer.Option(None, help="path to processed JSON test data"),
         threshold: float = typer.Option(None, help="threshold to assign a tag"),
         data_format: str = typer.Option("list", help="format that will be used when loading the data. One of list,generator"),
@@ -34,6 +45,19 @@ def train(
         sparse_labels: bool = typer.Option(False, help="flat about whether labels should be sparse when binarized"),
         cache_path: Optional[Path] = typer.Option(None, help="path to cache data transformartions"),
         config: Path = None):
+
+    params_path = os.path.join(os.path.dirname(__file__), "../params.yaml")
+    with open(params_path) as f:
+        params = yaml.safe_load(f)
+
+    # If parameters not provided from user we initialise from DVC
+    if not parameters:
+        parameters = params["train"].get(approach)
+        parameters = convert_dvc_to_sklearn_params(parameters)
+        parameters = str(parameters)
+        print(parameters)
+
+    # Note that config overwrites parameters for backwards compatibility
     if config:
         cfg = configparser.ConfigParser(allow_no_value=True)
         cfg.read(config)
@@ -75,7 +99,18 @@ def bioasq_mesh(
         input_path: Optional[Path] = typer.Argument(None, help="path to BioASQ JSON data"),
         output_path: Optional[Path] = typer.Argument(None, help="path to output JSONL data"),
         mesh_metadata_path: Optional[Path] = typer.Option(None, help="path to xml file containing MeSH taxonomy"),
+        filter_tags: Optional[str] = typer.Option(None, help="filter mesh subbranch like disease"),
         config: Optional[Path] = typer.Option(None, help="path to config files that defines arguments")):
+
+    params_path = os.path.join(os.path.dirname(__file__), "../params.yaml")
+    with open(params_path) as f:
+        params = yaml.safe_load(f)
+
+    # Default values from params
+    if not filter_tags:
+        filter_tags = params["preprocess_bioasq_mesh"]["filter_tags"]
+    if not mesh_metadata_path:
+        mesh_metadata_path = params["preprocess_bioasq_mesh"]["mesh_metadata_path"]
 
     if config:
         cfg = configparser.ConfigParser()
@@ -84,21 +119,33 @@ def bioasq_mesh(
         input_path = cfg["preprocess"]["input"]
         output_path = cfg["preprocess"]["output"]
         mesh_metadata_path = cfg["filter_disease_codes"]["mesh_descriptions_file"]
+        filter_tags = cfg["filter_disease_codes"].get("filter_tags")
 
     if os.path.exists(output_path):
         print(f"{output_path} exists. Remove if you want to rerun.")
     else:
-        preprocess_mesh(input_path, output_path, mesh_metadata_path=mesh_metadata_path, filter_tags="disease")
+        preprocess_mesh(input_path, output_path, mesh_metadata_path=mesh_metadata_path, filter_tags=filter_tags)
 
 
 @preprocess_app.command()
 def wellcome_science(
         input_path: Optional[Path] = typer.Argument(None, help="path to raw Excel file with tagged or untagged grant data"),
         output_path: Optional[Path] = typer.Argument(None, help="path to JSONL output file that will be generated"),
-        text_cols: str = typer.Option("Title,Synopsis", help="comma delimited column names to concatenate to text"),
-        meta_cols: str = typer.Option("Grant_ID,Title", help="comma delimited column names to include in the meta"),
+        text_cols: Optional[str] = typer.Option(None, help="comma delimited column names to concatenate to text"),
+        meta_cols: Optional[str] = typer.Option(None, help="comma delimited column names to include in the meta"),
         config: Path = typer.Option(None, help="path to config file that defines the arguments")):
 
+    params_path = os.path.join(os.path.dirname(__file__), "../params.yaml")
+    with open(params_path) as f:
+        params = yaml.safe_load(f)
+
+    # Default values from params
+    if not text_cols:
+        text_cols = params["preprocess_wellcome_science"]["text_cols"]
+    if not meta_cols:
+        meta_cols = params["preprocess_wellcome_science"]["meta_cols"]
+
+    # Note that config overides values if provided, this ensures backwards compatibility
     if config:
         cfg = configparser.ConfigParser(allow_no_value=True)
         cfg.read(config)

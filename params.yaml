@@ -1,0 +1,11 @@
+preprocess_wellcome_science:
+  text_cols: "Title,Synopsis"
+  meta_cols: "Grant_ID,Title"
+
+train:
+  tfidf-svm:
+    tfidf:
+      min_df: 5
+      ngram_range: [1,2]
+    svm__estimator:
+      class_weight: "balanced"

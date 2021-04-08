@@ -24,16 +24,19 @@ def predict(X_test, model_path, approach, threshold=0.5, return_probabilities=Fa
         model = MeshCNN(
             threshold=threshold
         )
+        model.load(model_path)
     elif approach == 'mesh-tfidf-svm':
         model = MeshTfidfSVM(
             threshold=threshold,
         )
+        model.load(model_path)
     elif approach == 'science-ensemble':
         model = ScienceEnsemble()
+        model.load(model_path)
     else:
-        raise NotImplementedError
-
-    model.load(model_path)
+        print("Approach not in [mesh-cnn,mesh-tfidf-svm,science-ensemble]. Assuming model can be loaded via pickle")
+        with open(model_path, "rb") as f:
+            model = pickle.loads(f.read())
 
     if return_probabilities:
         return model.predict_proba(X_test)

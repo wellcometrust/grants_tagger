@@ -25,11 +25,14 @@ def convert_dvc_to_sklearn_params(parameters):
     if not parameters:
         return {}
 
-    return {
-        f"{pipeline_name}__{param_name}": param_value
-        for pipeline_name, params in parameters.items()
-        for param_name, param_value in params.items()
-    }
+    if any([k for k in parameters.keys() if "__" in k]):
+        return {
+            f"{pipeline_name}__{param_name}": param_value
+            for pipeline_name, params in parameters.items()
+            for param_name, param_value in params.items()
+        }
+    else:
+        return parameters
 
 @app.command()
 def train(
@@ -190,6 +193,7 @@ def model(
         data_path: Path = typer.Argument(..., help="path to data that was used for training"),
         label_binarizer_path: Path = typer.Argument(..., help="path to label binarize"),
         threshold: Optional[str] = typer.Option("0.5", help="threshold or comma separated thresholds used to assign tags"),
+        results_path: str = typer.Option("results.json", help="path to save results"),
         config: Optional[Path] = typer.Option(None, help="path to config file that defines arguments")):
 
     if config:
@@ -201,12 +205,13 @@ def model(
         data_path = cfg["ensemble"]["data"]
         label_binarizer_path = cfg["ensemble"]["label_binarizer"]
         threshold = cfg["ensemble"]["threshold"]
+        results_path = cfg["ensemble"].get("results_path", "results.json")
 
     if "," in threshold:
         threshold = [float(t) for t in threshold.split(",")]
     else:
         threshold = float(threshold)
-    evaluate_model(approach, model_path, data_path, label_binarizer_path, threshold)
+    evaluate_model(approach, model_path, data_path, label_binarizer_path, threshold, results_path=results_path)
 
 
 @evaluate_app.command()

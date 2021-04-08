@@ -23,16 +23,9 @@ stages:
     outs:
     - models/label_binarizer.pkl
     - models/tfidf-svm-2020.05.2.pkl
-  preprocess_bioasq_mesh:
-    cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2020.json data/processed/mesh2020.jsonl
-    deps:
-    - data/raw/allMeSH_2020.json
-    - grants_tagger/preprocess_mesh.py
-    outs:
-    - data/processed/mesh2020.jsonl
   evaluate_tfidf_svm:
     cmd: grants_tagger evaluate model tfidf-svm models/tfidf-svm-2020.05.2.pkl data/processed/science_grants_tagged_title_synopsis.jsonl
-      models/label_binarizer.pkl
+      models/label_binarizer.pkl --results_path results/tfidf_svm.json
     deps:
     - grants_tagger/evaluate_model.py
     - models/label_binarizer.pkl
@@ -40,3 +33,36 @@ stages:
     metrics:
     - results.json:
         cache: false
+  train_scibert:
+    cmd: grants_tagger train data/processed/science_grants_tagged_title_synopsis.jsonl
+      models/label_binarizer.pkl models/scibert-2020.05.5 --approach scibert
+    deps:
+    - data/processed/science_grants_tagged_title_synopsis.jsonl
+    - grants_tagger/train.py
+    params:
+    - train.scibert.validation_split
+    - train.scibert.learning_rate
+    - train.scibert.epochs
+  preprocess_bioasq_mesh:
+    cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2020.json data/processed/mesh2020.jsonl
+    deps:
+    - data/raw/allMeSH_2020.json
+    - grants_tagger/preprocess_mesh.py
+    outs:
+    - data/processed/mesh2020.jsonl
+  train_mesh_tfidf_svm:
+    cmd: grants_tagger train data/processed/disease_mesh.jsonl
+      models/disease_mesh_label_binarizer.pkl models/disease_mesh_tfidf-svm-2020.07.0
+      --aproach tfidf-sgd
+    deps:
+    - data/processed/disease_mesh.jsonl
+    - grants_tagger/train.py
+    - grants_tagger/models.py
+    params:
+    - train.mesh-tfidf-svm.tfidf.ngram_range
+    - train.mesh-tfidf-svm.tfidf.max_features
+    - train.mesh-tfidf-svm.svm__estimator.loss
+    - train.mesh-tfidf-svm.svm__estimator.alpha
+    - train.mesh-tfidf-svm.model_path
+    outs:
+    - models/disease_mesh_tfidf-svm-2020.07.0

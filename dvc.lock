@@ -64,7 +64,7 @@ stages:
       md5: 220319a004a60bd6475e2fb617c2c1f3
       size: 1067
     - path: models/tfidf-svm-2020.05.2.pkl
-      md5: f24b224be6a867f96400b3df2ad26ac9
+      md5: 71b027ca4a23825ff708039473a2ae5e
       size: 17768856
   evaluate:
     cmd: grants_tagger evaluate model tfidf-svm models/tfidf-svm-2020.05.2.pkl data/processed/science_grants_tagged_title_synopsis.jsonl
@@ -94,7 +94,7 @@ stages:
       md5: 220319a004a60bd6475e2fb617c2c1f3
       size: 1067
     - path: models/tfidf-svm-2020.05.2.pkl
-      md5: f24b224be6a867f96400b3df2ad26ac9
+      md5: 71b027ca4a23825ff708039473a2ae5e
       size: 17768856
     outs:
     - path: results.json

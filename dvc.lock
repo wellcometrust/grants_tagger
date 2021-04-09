@@ -85,7 +85,7 @@ stages:
       size: 89
   evaluate_tfidf_svm:
     cmd: grants_tagger evaluate model tfidf-svm models/tfidf-svm-2020.05.2.pkl data/processed/science_grants_tagged_title_synopsis.jsonl
-      models/label_binarizer.pkl
+      models/label_binarizer.pkl --results-path results/tfidf_svm.json
     deps:
     - path: grants_tagger/evaluate_model.py
       md5: cd583e8d10e0c889647834cab217ce2f
@@ -97,6 +97,21 @@ stages:
       md5: 71b027ca4a23825ff708039473a2ae5e
       size: 17768856
     outs:
-    - path: results.json
+    - path: results/tfidf_svm.json
       md5: 1d0d4fb63ae1d1b911373cc558147737
       size: 89
+  train_scibert:
+    cmd: grants_tagger train data/processed/science_grants_tagged_title_synopsis.jsonl
+      models/label_binarizer.pkl models/scibert-2020.05.5 --approach scibert
+    deps:
+    - path: data/processed/science_grants_tagged_title_synopsis.jsonl
+      md5: 2fb37d57daeece50a0190e16e229647a
+      size: 2809039
+    - path: grants_tagger/train.py
+      md5: 162e8650a0a7e970420f48eb5c253f82
+      size: 3970
+    params:
+      params.yaml:
+        train.scibert.epochs: 10
+        train.scibert.learning_rate: 2e-05
+        train.scibert.validation_split: 0.1

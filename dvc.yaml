@@ -25,13 +25,13 @@ stages:
     - models/tfidf-svm-2020.05.2.pkl
   evaluate_tfidf_svm:
     cmd: grants_tagger evaluate model tfidf-svm models/tfidf-svm-2020.05.2.pkl data/processed/science_grants_tagged_title_synopsis.jsonl
-      models/label_binarizer.pkl --results_path results/tfidf_svm.json
+      models/label_binarizer.pkl --results-path results/tfidf_svm.json
     deps:
     - grants_tagger/evaluate_model.py
     - models/label_binarizer.pkl
     - models/tfidf-svm-2020.05.2.pkl
     metrics:
-    - results.json:
+    - results/tfidf_svm.json:
         cache: false
   train_scibert:
     cmd: grants_tagger train data/processed/science_grants_tagged_title_synopsis.jsonl
@@ -43,13 +43,38 @@ stages:
     - train.scibert.validation_split
     - train.scibert.learning_rate
     - train.scibert.epochs
+  evaluate_scibert:
+    cmd: grants_tagger evaluate model scibert models/scibert-2020.05.5 data/processed/science_grants_tagged_title_synopsis.jsonl
+      models/label_binarizer.pkl --results-path results/scibert.json
+    deps:
+    - grants_tagger/evaluate_model.py
+    - models/label_binarizer.pkl
+    - models/scibert-2020.05.5
+    metrics:
+    - results/scibert.json:
+        cache: false
+  train_science_ensemble:
+    cmd: grants_tagger train data/processed/science_grants_tagged_title_synopsis.jsonl
+      models/label_binarizer.pkl models/science_ensemble --approach science-ensemble
+    deps:
+    - data/processed/science_grants_tagged_title_synopsis.jsonl
+    - grants_tagger/train.py
+    params:
+    - train.tfidf-svm.tfidf.min_df
+    - train.tfidf-svm.svm__estimator.class_weight
+    - train.tfidf-svm.tfidf.ngram_range
+    - train.scibert.validation_split
+    - train.scibert.learning_rate
+    - train.scibert.epochs
+    outs:
+    - models/science_ensemble 
   preprocess_bioasq_mesh:
     cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2020.json data/processed/mesh2020.jsonl
     deps:
     - data/raw/allMeSH_2020.json
     - grants_tagger/preprocess_mesh.py
     outs:
-    - data/processed/mesh2020.jsonl
+    - data/processed/diseas_mesh.jsonl
   train_mesh_tfidf_svm:
     cmd: grants_tagger train data/processed/disease_mesh.jsonl
       models/disease_mesh_label_binarizer.pkl models/disease_mesh_tfidf-svm-2020.07.0

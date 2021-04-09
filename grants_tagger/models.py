@@ -641,7 +641,10 @@ def create_model(approach, parameters=None):
         ])
         scibert = BertClassifier(pretrained="scibert") 
         model = WellcomeVotingClassifier(
-            estimators=(tfidf_svm, scibert),
+            estimators=[
+                ("tfidf-svm", tfidf_svm),
+                ("scibert", scibert)
+            ],
             voting="soft",
             multilabel=True
         )

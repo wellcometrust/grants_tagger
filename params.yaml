@@ -21,7 +21,6 @@ train:
       loss: "log"
       alpha: 1e-9
   mesh-cnn:
-    model_path: models/disease_mesh_cnn-2021.03.0
     vec:
       tokenizer_library: "transformers"
       vocab_size: 30_000

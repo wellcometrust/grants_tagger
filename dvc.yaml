@@ -78,7 +78,7 @@ stages:
   train_mesh_tfidf_svm:
     cmd: grants_tagger train data/processed/disease_mesh.jsonl
       models/disease_mesh_label_binarizer.pkl models/disease_mesh_tfidf-svm-2020.07.0
-      --aproach tfidf-sgd
+      --approach tfidf-sgd --sparse-labels
     deps:
     - data/processed/disease_mesh.jsonl
     - grants_tagger/train.py
@@ -94,7 +94,7 @@ stages:
   train_mesh_cnn:
     cmd: grants_tagger train data/processed/disease_mesh.jsonl
       models/disease_mesh_label_binarizer.pkl models/disease_mesh_cnn-2021.03.0
-      --aproach mesh-cnn --sparse-labels
+      --approach mesh-cnn --sparse-labels
     deps:
     - data/processed/disease_mesh.jsonl
     - grants_tagger/train.py

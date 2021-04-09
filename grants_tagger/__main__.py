@@ -25,7 +25,7 @@ def convert_dvc_to_sklearn_params(parameters):
     if not parameters:
         return {}
 
-    if any([k for k in parameters.keys() if "__" in k]):
+    if any([v for v in parameters.values() if type(v) is dict]):
         return {
             f"{pipeline_name}__{param_name}": param_value
             for pipeline_name, params in parameters.items()

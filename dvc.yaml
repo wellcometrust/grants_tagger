@@ -91,3 +91,27 @@ stages:
     - train.mesh-tfidf-svm.model_path
     outs:
     - models/disease_mesh_tfidf-svm-2020.07.0
+  train_mesh_cnn:
+    cmd: grants_tagger train data/processed/disease_mesh.jsonl
+      models/disease_mesh_label_binarizer.pkl models/disease_mesh_cnn-2021.03.0
+      --aproach mesh-cnn --sparse-labels
+    deps:
+    - data/processed/disease_mesh.jsonl
+    - grants_tagger/train.py
+    - grants_tagger/models.py
+    params:
+    - train.mesh-cnn.vec.tokenizer_library
+    - train.mesh-cnn.vec.vocab_size
+    - train.mesh-cnn.vec.sequence_length
+    - train.mesh-cnn.cnn.attention
+    - train.mesh-cnn.cnn.multilabel
+    - train.mesh-cnn.cnn.l2
+    - train.mesh-cnn.cnn.hidden_size
+    - train.mesh-cnn.cnn.dense_size
+    - train.mesh-cnn.cnn.batch_size
+    - train.mesh-cnn.cnn.learning_rate
+    - train.mesh-cnn.cnn.learning_rate_decay
+    - train.mesh-cnn.cnn.nb_epochs
+    - train.mesh-cnn.cnn.dropout
+    outs:
+    - models/disease_mesh_cnn-2021.03.0

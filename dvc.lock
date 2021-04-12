@@ -103,7 +103,7 @@ stages:
       size: 89
   train_scibert:
     cmd: grants_tagger train data/processed/science_grants_tagged_title_synopsis.jsonl
-      models/label_binarizer.pkl models/scibert-2020.05.5 --approach scibert
+      models/label_binarizer-2020.05.5.pkl models/scibert-2020.05.5 --approach scibert
     deps:
     - path: data/processed/science_grants_tagged_title_synopsis.jsonl
       md5: 2fb37d57daeece50a0190e16e229647a
@@ -116,3 +116,11 @@ stages:
         train.scibert.epochs: 10
         train.scibert.learning_rate: 2e-05
         train.scibert.validation_split: 0.1
+    outs:
+    - path: models/label_binarizer-2020.05.5.pkl
+      md5: 220319a004a60bd6475e2fb617c2c1f3
+      size: 1067
+    - path: models/scibert-2020.05.5
+      md5: 7bc28b9fdffa23d771a66938696a301e.dir
+      size: 440019948
+      nfiles: 2

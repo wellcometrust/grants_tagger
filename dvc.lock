@@ -124,3 +124,21 @@ stages:
       md5: 7bc28b9fdffa23d771a66938696a301e.dir
       size: 440019948
       nfiles: 2
+  evaluate_scibert:
+    cmd: grants_tagger evaluate model scibert models/scibert-2020.05.5 data/processed/science_grants_tagged_title_synopsis.jsonl
+      models/label_binarizer-2020.05.5.pkl --results-path results/scibert.json
+    deps:
+    - path: grants_tagger/evaluate_model.py
+      md5: 083842b637a370b689e471cd31f50571
+      size: 1902
+    - path: models/label_binarizer-2020.05.5.pkl
+      md5: 220319a004a60bd6475e2fb617c2c1f3
+      size: 1067
+    - path: models/scibert-2020.05.5
+      md5: 7bc28b9fdffa23d771a66938696a301e.dir
+      size: 440019948
+      nfiles: 2
+    outs:
+    - path: results/scibert.json
+      md5: e3ccf07bfd0e4a7ba8ed5215da1db9f0
+      size: 88

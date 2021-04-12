@@ -11,6 +11,7 @@ import os
 
 import numpy as np
 
+from wellcomeml.ml import BertClassifier
 from grants_tagger.models import MeshCNN, MeshTfidfSVM, ScienceEnsemble 
 
 FILEPATH = os.path.dirname(__file__)

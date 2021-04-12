@@ -44,7 +44,8 @@ stages:
       size: 17768856
   train_tfidf_svm:
     cmd: grants_tagger train data/processed/science_grants_tagged_title_synopsis.jsonl
-      models/label_binarizer.pkl models/tfidf-svm-2020.05.2.pkl --approach tfidf-svm
+      models/label_binarizer-2020.05.2.pkl models/tfidf-svm-2020.05.2.pkl --approach
+      tfidf-svm
     deps:
     - path: data/processed/science_grants_tagged_title_synopsis.jsonl
       md5: 2fb37d57daeece50a0190e16e229647a
@@ -60,11 +61,11 @@ stages:
         - 1
         - 2
     outs:
-    - path: models/label_binarizer.pkl
+    - path: models/label_binarizer-2020.05.2.pkl
       md5: 220319a004a60bd6475e2fb617c2c1f3
       size: 1067
     - path: models/tfidf-svm-2020.05.2.pkl
-      md5: 71b027ca4a23825ff708039473a2ae5e
+      md5: 2ceb26a0702c08df638124159fd6f102
       size: 17768856
   evaluate:
     cmd: grants_tagger evaluate model tfidf-svm models/tfidf-svm-2020.05.2.pkl data/processed/science_grants_tagged_title_synopsis.jsonl
@@ -88,13 +89,13 @@ stages:
       models/label_binarizer.pkl --results-path results/tfidf_svm.json
     deps:
     - path: grants_tagger/evaluate_model.py
-      md5: cd583e8d10e0c889647834cab217ce2f
-      size: 1872
-    - path: models/label_binarizer.pkl
+      md5: 083842b637a370b689e471cd31f50571
+      size: 1902
+    - path: models/label_binarizer-2020.05.2.pkl
       md5: 220319a004a60bd6475e2fb617c2c1f3
       size: 1067
     - path: models/tfidf-svm-2020.05.2.pkl
-      md5: 71b027ca4a23825ff708039473a2ae5e
+      md5: 2ceb26a0702c08df638124159fd6f102
       size: 17768856
     outs:
     - path: results/tfidf_svm.json

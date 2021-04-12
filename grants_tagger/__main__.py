@@ -22,10 +22,14 @@ app = typer.Typer(add_completion=False)
 
 
 def convert_dvc_to_sklearn_params(parameters):
+    """converts dvc key value params to sklearn nested params if needed"""
+    # converts None to empty dict
     if not parameters:
         return {}
 
-    if any([v for v in parameters.values() if type(v) is dict]):
+    # indication of sklearn pipeline
+    has_nested_params = any([v for v in parameters.values() if type(v) is dict])
+    if has_nested_params:
         return {
             f"{pipeline_name}__{param_name}": param_value
             for pipeline_name, params in parameters.items()

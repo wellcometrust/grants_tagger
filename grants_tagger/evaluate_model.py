@@ -5,7 +5,7 @@ import pickle
 import json
 
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import f1_score, classification_report, precision_score, recall_score, precision_recall_fscore_support
+from sklearn.metrics import classification_report, precision_recall_fscore_support
 from wasabi import table
 
 from grants_tagger.utils import load_train_test_data, load_data
@@ -23,6 +23,7 @@ def evaluate_model(approach, model_path, data_path, label_binarizer_path,
     else:
         X_test, Y_test, _ = load_data(data_path, label_binarizer)
 
+    # TODO: Combine the two approaches. In default just print one row.
     if type(threshold) == list:
         results = []
         for threshold_ in threshold:

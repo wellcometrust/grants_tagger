@@ -12,7 +12,7 @@ stages:
     - data/processed/science_grants_tagged_title_synopsis.jsonl
   train_tfidf_svm:
     cmd: grants_tagger train data/processed/science_grants_tagged_title_synopsis.jsonl
-      models/label_binarizer.pkl models/tfidf-svm-2020.05.2.pkl --approach tfidf-svm
+      models/label_binarizer-2020.05.2.pkl models/tfidf-svm-2020.05.2.pkl --approach tfidf-svm
     deps:
     - data/processed/science_grants_tagged_title_synopsis.jsonl
     - grants_tagger/train.py
@@ -21,21 +21,21 @@ stages:
     - train.tfidf-svm.svm__estimator.class_weight
     - train.tfidf-svm.tfidf.ngram_range
     outs:
-    - models/label_binarizer.pkl
+    - models/label_binarizer-2020.05.2.pkl
     - models/tfidf-svm-2020.05.2.pkl
   evaluate_tfidf_svm:
     cmd: grants_tagger evaluate model tfidf-svm models/tfidf-svm-2020.05.2.pkl data/processed/science_grants_tagged_title_synopsis.jsonl
       models/label_binarizer.pkl --results-path results/tfidf_svm.json
     deps:
     - grants_tagger/evaluate_model.py
-    - models/label_binarizer.pkl
+    - models/label_binarizer-2020.05.2.pkl
     - models/tfidf-svm-2020.05.2.pkl
     metrics:
     - results/tfidf_svm.json:
         cache: false
   train_scibert:
     cmd: grants_tagger train data/processed/science_grants_tagged_title_synopsis.jsonl
-      models/label_binarizer.pkl models/scibert-2020.05.5 --approach scibert
+      models/label_binarizer-2020.05.5.pkl models/scibert-2020.05.5 --approach scibert
     deps:
     - data/processed/science_grants_tagged_title_synopsis.jsonl
     - grants_tagger/train.py
@@ -43,19 +43,22 @@ stages:
     - train.scibert.validation_split
     - train.scibert.learning_rate
     - train.scibert.epochs
+    outs:
+    - models/label_binarizer-2020.05.5.pkl
+    - models/scibert-2020.05.5
   evaluate_scibert:
     cmd: grants_tagger evaluate model scibert models/scibert-2020.05.5 data/processed/science_grants_tagged_title_synopsis.jsonl
       models/label_binarizer.pkl --results-path results/scibert.json
     deps:
     - grants_tagger/evaluate_model.py
-    - models/label_binarizer.pkl
+    - models/label_binarizer-2020.05.5.pkl
     - models/scibert-2020.05.5
     metrics:
     - results/scibert.json:
         cache: false
   train_science_ensemble:
     cmd: grants_tagger train data/processed/science_grants_tagged_title_synopsis.jsonl
-      models/label_binarizer.pkl models/science_ensemble --approach science-ensemble
+      models/label_binarizer-2021.04.0.pkl models/science_ensemble-2021.04.0 --approach science-ensemble
     deps:
     - data/processed/science_grants_tagged_title_synopsis.jsonl
     - grants_tagger/train.py
@@ -67,17 +70,29 @@ stages:
     - train.scibert.learning_rate
     - train.scibert.epochs
     outs:
-    - models/science_ensemble 
+    - models/science_ensemble-2021.04.0
+  evaluate_science_ensemble:
+    cmd: grants_tagger evaluate model science-ensemble models/science_ensemble-2021.04.0
+      data/processed/science_grants_tagged_title_synopsis.jsonl models/label_binarizer-2021.04.0.pkl
+      --results_path results/science_ensemble.json
+    deps:
+    - grants_tagger/evaluate_model.py
+    - models/label_binarizer-2021.04.0.pkl
+    - models/science_ensemble-2021.04.0
+    metrics:
+    - results/science_ensemble.json:
+        cache: false
   preprocess_bioasq_mesh:
     cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2020.json data/processed/mesh2020.jsonl
     deps:
     - data/raw/allMeSH_2020.json
+    - data/raw/desc2020.xml
     - grants_tagger/preprocess_mesh.py
     outs:
-    - data/processed/diseas_mesh.jsonl
+    - data/processed/disease_mesh.jsonl
   train_mesh_tfidf_svm:
     cmd: grants_tagger train data/processed/disease_mesh.jsonl
-      models/disease_mesh_label_binarizer.pkl models/disease_mesh_tfidf-svm-2020.07.0
+      models/disease_mesh_label_binarizer-2020.07.0.pkl models/disease_mesh_tfidf-svm-2020.07.0
       --approach tfidf-sgd --sparse-labels
     deps:
     - data/processed/disease_mesh.jsonl
@@ -90,10 +105,22 @@ stages:
     - train.mesh-tfidf-svm.svm__estimator.alpha
     - train.mesh-tfidf-svm.model_path
     outs:
+    - models/disease_mesh_label_binarizer-2020.07.0
     - models/disease_mesh_tfidf-svm-2020.07.0
+  evaluate_mesh_tfidf_svm:
+    cmd: grans_tagget evaluate model mesh-tfidf-svm models/disease_mesh_tfidf-svm-2020.07.0
+      data/processed/disease_mesh.jsonl models/disease_mesh_label_binarizer-2020.07.0.pkl
+      --results_path results/mesh_tfidf_svm.json
+    deps:
+    - grants_tagger/evaluate_models.py
+    - models/disease_mesh_label-binarizer-2020.07.0.pkl
+    - models/disease_mesh_tfidf-svm-2020.07.0
+    metrics:
+    - results/mesh_tfidf_svm.json:
+        cache: false
   train_mesh_cnn:
     cmd: grants_tagger train data/processed/disease_mesh.jsonl
-      models/disease_mesh_label_binarizer.pkl models/disease_mesh_cnn-2021.03.0
+      models/disease_mesh_label_binarizer-2021.03.0.pkl models/disease_mesh_cnn-2021.03.0
       --approach mesh-cnn --sparse-labels
     deps:
     - data/processed/disease_mesh.jsonl
@@ -114,4 +141,16 @@ stages:
     - train.mesh-cnn.cnn.nb_epochs
     - train.mesh-cnn.cnn.dropout
     outs:
+    - models/disease_mesh_label_binarizer-2021.03.0
     - models/disease_mesh_cnn-2021.03.0
+  evaluate_mesh_cnn:
+    cmd: grants_tagger evaluate model mesh-cnn models/disease_mesh_cnn-2021.03.0
+      data/processed/disease_mesh.jsonl models/disease_mesh_label_binarizer-2021.03.0.pkl
+      --results_path results/mesh_cnn.json
+    deps:
+    - grants_tagger/evaluate_models.py
+    - models/disease_mesh_cnn-2021.03.0
+    - models/disease_mesh_label_binarizer-2021.03.0.pkl
+    metrics:
+    - results/mesh_cnn.json:
+        cache: false

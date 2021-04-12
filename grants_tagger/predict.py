@@ -33,10 +33,16 @@ def predict(X_test, model_path, approach, threshold=0.5, return_probabilities=Fa
     elif approach == 'science-ensemble':
         model = ScienceEnsemble()
         model.load(model_path)
-    else:
-        print("Approach not in [mesh-cnn,mesh-tfidf-svm,science-ensemble]. Assuming model can be loaded via pickle")
+    # part of science-ensemble
+    elif approach == 'tfidf-svm':
         with open(model_path, "rb") as f:
             model = pickle.loads(f.read())
+    # part of science-ensemble
+    elif approach == 'scibert':
+        model = BertClassifier(pretrained="scibert")
+        model.load(model_path)
+    else:
+        raise NotImplementedError
 
     if return_probabilities:
         return model.predict_proba(X_test)

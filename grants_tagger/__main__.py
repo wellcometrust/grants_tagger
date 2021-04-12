@@ -116,8 +116,6 @@ def bioasq_mesh(
     # Default values from params
     if not filter_tags:
         filter_tags = params["preprocess_bioasq_mesh"]["filter_tags"]
-    if not mesh_metadata_path:
-        mesh_metadata_path = params["preprocess_bioasq_mesh"]["mesh_metadata_path"]
 
     if config:
         cfg = configparser.ConfigParser()

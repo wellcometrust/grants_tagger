@@ -38,5 +38,4 @@ train:
       learning_rate_decay: 0.8
 preprocess_bioasq_mesh:
   filter_tags: "disease"
-  mesh_metadata_path: "data/raw/desc2020.xml"
 

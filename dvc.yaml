@@ -83,7 +83,8 @@ stages:
     - results/science_ensemble.json:
         cache: false
   preprocess_bioasq_mesh:
-    cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2020.json data/processed/mesh2020.jsonl
+    cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2020.json data/processed/disease_mesh.jsonl
+      --mesh-metadata-path data/raw/desc2020.xml
     deps:
     - data/raw/allMeSH_2020.json
     - data/raw/desc2020.xml

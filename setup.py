@@ -38,7 +38,8 @@ setup(
         'wasabi',
         'typer',
         'scispacy',
-        'dvc'
+        'dvc',
+        'tqdm'
     ],
     tests_require=[
         'pytest',

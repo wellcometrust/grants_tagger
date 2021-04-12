@@ -103,10 +103,11 @@ preprocess_app = typer.Typer()
 
 @preprocess_app.command()
 def bioasq_mesh(
-        input_path: Optional[Path] = typer.Argument(None, help="path to BioASQ JSON data"),
-        output_path: Optional[Path] = typer.Argument(None, help="path to output JSONL data"),
-        mesh_metadata_path: Optional[Path] = typer.Option(None, help="path to xml file containing MeSH taxonomy"),
+        input_path: Optional[str] = typer.Argument(None, help="path to BioASQ JSON data"),
+        output_path: Optional[str] = typer.Argument(None, help="path to output JSONL data"),
+        mesh_metadata_path: Optional[str] = typer.Option(None, help="path to xml file containing MeSH taxonomy"),
         filter_tags: Optional[str] = typer.Option(None, help="filter mesh subbranch like disease"),
+        test_split: Optional[float] = typer.Option(None, help="split percentage for test data. if None no split."),
         config: Optional[Path] = typer.Option(None, help="path to config files that defines arguments")):
 
     params_path = os.path.join(os.path.dirname(__file__), "../params.yaml")
@@ -125,11 +126,13 @@ def bioasq_mesh(
         output_path = cfg["preprocess"]["output"]
         mesh_metadata_path = cfg["filter_disease_codes"]["mesh_descriptions_file"]
         filter_tags = cfg["filter_disease_codes"].get("filter_tags")
+        test_split = cfg["preprocess"].get("test_split")
 
-    if os.path.exists(output_path):
-        print(f"{output_path} exists. Remove if you want to rerun.")
-    else:
-        preprocess_mesh(input_path, output_path, mesh_metadata_path=mesh_metadata_path, filter_tags=filter_tags)
+#    if os.path.exists(output_path):
+#        print(f"{output_path} exists. Remove if you want to rerun.")
+#    else:
+    preprocess_mesh(input_path, output_path, mesh_metadata_path=mesh_metadata_path,
+            filter_tags=filter_tags, test_split=test_split)
 
 
 @preprocess_app.command()

@@ -142,3 +142,20 @@ stages:
     - path: results/scibert.json
       md5: e3ccf07bfd0e4a7ba8ed5215da1db9f0
       size: 88
+  preprocess_bioasq_mesh:
+    cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2020.json data/processed/disease_mesh.jsonl
+      --mesh-metadata-path data/raw/desc2020.xml
+    deps:
+    - path: data/raw/allMeSH_2020.json
+      md5: ab9c0fef793ca03c0a3984c3194925eb
+      size: 26219751317
+    - path: data/raw/desc2020.xml
+      md5: 0ded6315fca9d03a2712bd55c85f6e3c
+      size: 295102741
+    - path: grants_tagger/preprocess_mesh.py
+      md5: 49b176f0a97416d3cddf5282a9968a48
+      size: 3813
+    outs:
+    - path: data/processed/disease_mesh.jsonl
+      md5: faf23aee47fd978f6deb264851d41dbe
+      size: 11482247962

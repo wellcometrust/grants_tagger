@@ -157,5 +157,27 @@ stages:
       size: 3813
     outs:
     - path: data/processed/disease_mesh.jsonl
-      md5: faf23aee47fd978f6deb264851d41dbe
+      md5: de5f70c61a480ff2d0cdba2fe43cbc43
       size: 11482247962
+  evaluate_science_ensemble:
+    cmd: grants_tagger evaluate model science-ensemble models/tfidf-svm-2020.05.2.pkl,models/scibert-2020.05.5
+      data/processed/science_grants_tagged_title_synopsis.jsonl models/label_binarizer-2020.05.2.pkl
+      --results-path results/science_ensemble.json
+    deps:
+    - path: grants_tagger/evaluate_model.py
+      md5: 083842b637a370b689e471cd31f50571
+      size: 1902
+    - path: models/label_binarizer-2020.05.2.pkl
+      md5: 220319a004a60bd6475e2fb617c2c1f3
+      size: 1067
+    - path: models/scibert-2020.05.5
+      md5: 7bc28b9fdffa23d771a66938696a301e.dir
+      size: 440019948
+      nfiles: 2
+    - path: models/tfidf-svm-2020.05.2.pkl
+      md5: 2ceb26a0702c08df638124159fd6f102
+      size: 17768856
+    outs:
+    - path: results/science_ensemble.json
+      md5: e0399f1c68eb86a16ef4a639c7d1dd4f
+      size: 89

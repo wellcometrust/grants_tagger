@@ -74,7 +74,7 @@ stages:
   evaluate_science_ensemble:
     cmd: grants_tagger evaluate model science-ensemble models/tfidf-svm-2020.05.2.pkl,models/scibert-2020.05.5
       data/processed/science_grants_tagged_title_synopsis.jsonl models/label_binarizer-2020.05.2.pkl
-      --results_path results/science_ensemble.json
+      --results-path results/science_ensemble.json
     deps:
     - grants_tagger/evaluate_model.py
     - models/tfidf-svm-2020.05.2.pkl

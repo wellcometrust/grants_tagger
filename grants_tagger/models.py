@@ -75,7 +75,7 @@ class ScienceEnsemble():
 
     def _load(self, model_path):
         # TODO: Retrieve from predefined locations that save will use
-        if "tfidf_svm" in model_path:
+        if "tfidf-svm" in model_path:
             with open(model_path, "rb") as f:
                 model = pickle.loads(f.read())
             return model

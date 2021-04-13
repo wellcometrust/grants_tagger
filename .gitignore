@@ -8,6 +8,7 @@ models/**
 **/*.xml
 **/*.csv
 **/*.json
+!results/*.json
 
 # Hidden files
 .DS_Store

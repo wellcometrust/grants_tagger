@@ -41,8 +41,9 @@ def create_data(X, Y, data_path):
             f.write(json.dumps({"text": x, "tags": y, "meta": {}}))
             f.write("\n")
 
+
 @pytest.fixture
-def science_ensemble_path(tmp_path):
+def tfidf_svm_path(tmp_path):
     data_path = os.path.join(tmp_path, "data.jsonl")
     create_data(X, Y, data_path)
 
@@ -50,7 +51,7 @@ def science_ensemble_path(tmp_path):
     label_binarizer = create_label_binarizer(data_path, label_binarizer_path)
 
     # TODO: Replace approach with science-ensemble when fit implemented
-    tfidf_svm_path = os.path.join(tmp_path, "tfidf_svm.pkl")
+    tfidf_svm_path = os.path.join(tmp_path, "tfidf-svm.pkl")
     parameters = {
         'tfidf__min_df': 1,
         'tfidf__stop_words': None
@@ -58,6 +59,15 @@ def science_ensemble_path(tmp_path):
     train_and_evaluate(data_path, label_binarizer_path,
             approach="tfidf-svm", model_path=tfidf_svm_path,
             parameters=str(parameters), verbose=False)
+    return tfidf_svm_path
+
+@pytest.fixture
+def scibert_path(tmp_path):
+    data_path = os.path.join(tmp_path, "data.jsonl")
+    create_data(X, Y, data_path)
+
+    label_binarizer_path = os.path.join(tmp_path, "label_binarizer.pkl")
+    label_binarizer = create_label_binarizer(data_path, label_binarizer_path)
 
     scibert_path = os.path.join(tmp_path, "scibert")
     parameters = {"epochs": 1}
@@ -65,6 +75,10 @@ def science_ensemble_path(tmp_path):
             approach="scibert", model_path=scibert_path,
             parameters=str(parameters), verbose=False)
     
+    return scibert_path
+
+@pytest.fixture
+def science_ensemble_path(tfidf_svm_path, scibert_path):
     science_ensemble_path = f"{tfidf_svm_path},{scibert_path}"
     return science_ensemble_path
 
@@ -117,6 +131,60 @@ def mesh_label_binarizer_path(tmp_path):
     mesh_label_binarizer_path = os.path.join(tmp_path, "mesh_label_binarizer.pkl")
     create_label_binarizer(mesh_data_path, mesh_label_binarizer_path)
     return mesh_label_binarizer_path
+
+
+def test_predict_tags_tfidf_svm(tfidf_svm_path, label_binarizer_path):
+    tags = predict_tags(
+        X, model_path=tfidf_svm_path,
+        label_binarizer_path=label_binarizer_path,
+        approach="tfidf-svm")
+    assert len(tags) == 5
+    tags = predict_tags(
+        X, model_path=tfidf_svm_path,
+        label_binarizer_path=label_binarizer_path,
+        approach="tfidf-svm", probabilities=True)
+    for tags_ in tags:
+        for tag, prob in tags_.items():
+            assert 0 <= prob <= 1.0
+    tags = predict_tags(
+        X, model_path=tfidf_svm_path,
+        label_binarizer_path=label_binarizer_path,
+        approach="tfidf-svm", threshold=0)
+    for tags_ in tags:
+        assert len(tags_) == 24
+    tags = predict_tags(
+        X, model_path=tfidf_svm_path,
+        label_binarizer_path=label_binarizer_path,
+        approach="tfidf-svm", threshold=1)
+    for tags_ in tags:
+        assert len(tags_) == 0
+
+
+def test_predict_tags_scibert(scibert_path, label_binarizer_path):
+    tags = predict_tags(
+        X, model_path=scibert_path,
+        label_binarizer_path=label_binarizer_path,
+        approach="scibert")
+    assert len(tags) == 5
+    tags = predict_tags(
+        X, model_path=scibert_path,
+        label_binarizer_path=label_binarizer_path,
+        approach="scibert", probabilities=True)
+    for tags_ in tags:
+        for tag, prob in tags_.items():
+            assert 0 <= prob <= 1.0
+    tags = predict_tags(
+        X, model_path=scibert_path,
+        label_binarizer_path=label_binarizer_path,
+        approach="scibert", threshold=0)
+    for tags_ in tags:
+        assert len(tags_) == 24
+    tags = predict_tags(
+        X, model_path=scibert_path,
+        label_binarizer_path=label_binarizer_path,
+        approach="scibert", threshold=1)
+    for tags_ in tags:
+        assert len(tags_) == 0
 
 
 def test_predict_tags_science_ensemble(science_ensemble_path, label_binarizer_path):

@@ -12,14 +12,6 @@ train:
     validation_split: 0.10
     learning_rate: 0.00002
     epochs: 10
-  mesh-tfidf-svm:
-    model_path: models/disease_mesh_tfidf-svm-2020.07.0
-    tfidf:
-      ngram_range: [1,2]
-      max_features: 2_000_000
-    svm__estimator:
-      loss: "log"
-      alpha: 1e-9
   mesh-cnn:
     vec:
       tokenizer_library: "transformers"

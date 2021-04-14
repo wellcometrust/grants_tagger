@@ -50,13 +50,24 @@ def data_path(tmp_path):
             f.write(item+"\n")
     return data_path
 
-def test_evaluate_model(data_path, label_binarizer_path):
+@pytest.fixture
+def results_path(tmp_path):
+    results_path = os.path.join(tmp_path, "results.json")
+    return results_path
+
+def test_evaluate_model(results_path, data_path, label_binarizer_path):
     with patch('grants_tagger.evaluate_model.predict') as mock_predict:
         Y_test = [["1"], ["2"]]
         mock_predict.return_value = binarize_Y(Y_test, label_binarizer_path)
 
-        evaluate_model("mesh-cnn", "model_path", data_path, label_binarizer_path, 0.5)
+        evaluate_model("mesh-cnn", "model_path", data_path, label_binarizer_path, 0.5, results_path=results_path)
         mock_predict.assert_called()
+        
+        with open(results_path) as f:
+            results = json.loads(f.read())
+        assert "f1" in results
+        assert "precision" in results
+        assert "recall" in results
 
 def test_evaluate_model_multiple_thresholds(data_path, label_binarizer_path):
     with patch('grants_tagger.evaluate_model.predict') as mock_predict:

@@ -130,17 +130,20 @@ def bioasq_mesh(
 
     # TODO: Refactor with preprocess_mesh
     if test_split:
-        data_dir, data_name = os.path.split(output_data_path)
+        data_dir, data_name = os.path.split(output_path)
         train_output_path = os.path.join(data_dir, "train_" + data_name) 
         test_output_path = os.path.join(data_dir, "test_" + data_name)
         
         if os.path.exists(train_output_path) and os.path.exists(test_output_path):
             print(f"{train_output_path} and {test_output_path} exists. Remove them if you want to rerun.")
-    elif os.path.exists(output_path):
-        print(f"{output_path} exists. Remove if you want to rerun.")
+            return
     else:
-        preprocess_mesh(input_path, output_path, mesh_metadata_path=mesh_metadata_path,
-            filter_tags=filter_tags, test_split=test_split)
+        if os.path.exists(output_path):
+            print(f"{output_path} exists. Remove if you want to rerun.")
+            return
+
+    preprocess_mesh(input_path, output_path, mesh_metadata_path=mesh_metadata_path,
+        filter_tags=filter_tags, test_split=test_split)
 
 
 @preprocess_app.command()

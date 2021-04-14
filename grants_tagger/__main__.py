@@ -126,7 +126,7 @@ def bioasq_mesh(
         output_path = cfg["preprocess"]["output"]
         mesh_metadata_path = cfg["filter_disease_codes"]["mesh_descriptions_file"]
         filter_tags = cfg["filter_disease_codes"].get("filter_tags")
-        test_split = cfg["preprocess"].get("test_split")
+        test_split = cfg["preprocess"].getfloat("test_split")
 
 #    if os.path.exists(output_path):
 #        print(f"{output_path} exists. Remove if you want to rerun.")

@@ -37,7 +37,9 @@ setup(
         'scipy==1.4.1',
         'wasabi',
         'typer',
-        'scispacy'
+        'scispacy',
+        'dvc',
+        'tqdm'
     ],
     tests_require=[
         'pytest',

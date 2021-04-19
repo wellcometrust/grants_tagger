@@ -12,7 +12,7 @@ from sklearn.svm import SVC
 from typer.testing import CliRunner
 import pytest
 
-from grants_tagger.__main__ import app
+from grants_tagger.__main__ import app, convert_dvc_to_sklearn_params
 from grants_tagger.models import MeshCNN
 
 runner = CliRunner()
@@ -151,6 +151,28 @@ def test_preprocess_bioasq_mesh_command():
 def test_preprocess_wellcome_science_command():
     # Needs raw science data as input
     pass
+
+
+def test_convert_dvc_to_sklearn_params():
+    params = None
+    sklearn_params = convert_dvc_to_sklearn_params(params)
+    assert sklearn_params == {}
+
+    # no conversion needed
+    params = {"learning_rate": 1e-5}
+    sklearn_params = convert_dvc_to_sklearn_params(params)
+    assert params == sklearn_params
+
+    params = {
+        "tfidf": {"ngrams": [1, 2]},
+        "svm": {"estimator__class_weight": "balanced"}
+    }
+    expected_params = {
+        "tfidf__ngrams": [1,2],
+        "svm__estimator__class_weight": "balanced"
+    }
+    sklearn_params = convert_dvc_to_sklearn_params(params)
+    assert sklearn_params == expected_params
 
 
 def test_pretrain_command():

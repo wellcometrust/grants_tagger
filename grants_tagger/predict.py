@@ -11,6 +11,7 @@ import os
 
 import numpy as np
 
+from wellcomeml.ml import BertClassifier
 from grants_tagger.models import MeshCNN, MeshTfidfSVM, ScienceEnsemble 
 
 FILEPATH = os.path.dirname(__file__)
@@ -24,16 +25,25 @@ def predict(X_test, model_path, approach, threshold=0.5, return_probabilities=Fa
         model = MeshCNN(
             threshold=threshold
         )
+        model.load(model_path)
     elif approach == 'mesh-tfidf-svm':
         model = MeshTfidfSVM(
             threshold=threshold,
         )
+        model.load(model_path)
     elif approach == 'science-ensemble':
         model = ScienceEnsemble()
+        model.load(model_path)
+    # part of science-ensemble
+    elif approach == 'tfidf-svm':
+        with open(model_path, "rb") as f:
+            model = pickle.loads(f.read())
+    # part of science-ensemble
+    elif approach == 'scibert':
+        model = BertClassifier(pretrained="scibert")
+        model.load(model_path)
     else:
         raise NotImplementedError
-
-    model.load(model_path)
 
     if return_probabilities:
         return model.predict_proba(X_test)

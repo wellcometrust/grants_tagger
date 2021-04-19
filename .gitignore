@@ -1,12 +1,23 @@
-venv/**
-*egg-info/**
+# Models
 models/**
-dist/**
-build/**
-data/**
-!**.gitkeep
-*.pyc
-*~
+
+# Data
+**/*.jsonl
+**/*.xlsx
+**/*.xls
+**/*.xml
+**/*.csv
+**/*.json
+!results/*.json
+
+# Hidden files
 .DS_Store
 .coverage
+*.pyc
+*~
+
+# Build, venv and dist
 build/**
+dist/**
+venv/**
+*egg-info/**

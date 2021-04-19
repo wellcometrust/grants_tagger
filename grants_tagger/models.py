@@ -75,7 +75,7 @@ class ScienceEnsemble():
 
     def _load(self, model_path):
         # TODO: Retrieve from predefined locations that save will use
-        if "tfidf_svm" in model_path:
+        if "tfidf-svm" in model_path:
             with open(model_path, "rb") as f:
                 model = pickle.loads(f.read())
             return model
@@ -631,6 +631,23 @@ def create_model(approach, parameters=None):
         model = MeshTfidfSVM()
     elif approach == 'mesh-cnn':
         model = MeshCNN()
+    elif approach == 'science-ensemble':
+        tfidf_svm = Pipeline([
+            ('tfidf', TfidfVectorizer(
+                stop_words='english', max_df=0.95,
+                min_df=0.0, ngram_range=(1,1)
+            )),
+            ('svm', OneVsRestClassifier(SVC(kernel='linear', probability=True)))
+        ])
+        scibert = BertClassifier(pretrained="scibert") 
+        model = WellcomeVotingClassifier(
+            estimators=[
+                ("tfidf-svm", tfidf_svm),
+                ("scibert", scibert)
+            ],
+            voting="soft",
+            multilabel=True
+        )
     else:
         raise ApproachNotImplemented
     if parameters:

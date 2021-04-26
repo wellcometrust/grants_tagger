@@ -2,7 +2,7 @@
 [![codecov](https://codecov.io/gh/wellcometrust/grants_tagger/branch/master/graph/badge.svg)](https://codecov.io/gh/wellcometrust/grants_tagger)
 ![GitHub](https://img.shields.io/github/license/wellcometrust/grants_tagger)
 
-# Grants tagger
+# Grants tagger 🔖
 
 Grants tagger is a machine learning powered tool that
 assigns biomedically related tags to grants proposals.
@@ -44,19 +44,19 @@ Grants tagger comes with a nice CLI with the following commands
 
 | Commands     |                                                              |
 | ------------ | ------------------------------------------------------------ |
-| preprocess   | preprocess data to use for training                          |
-| train        | trains a new model                                           |
-| evaluate     | evaluate performance of pretrained model                     |
-| predict      | predict tags given a grant abstract using a pretrained model |
-| tag          | tag grants using a pretrained model                          |
-| tune         | tune params and threshold                                    |
-| pretrain     | pretrains embeddings or language model using unlabeled data  |
-| [download]   | download trained models and data from EPMC                   |
-| [explain]    | importance of feature be it words or tfidf numbers           |
+| ⚙️  preprocess   | preprocess data to use for training                          |
+| 🔥 train        | trains a new model                                           |
+| 📈 evaluate     | evaluate performance of pretrained model                     |
+| 🔮 predict      | predict tags given a grant abstract using a pretrained model |
+| 🔖 tag          | tag grants using a pretrained model                          |
+| 🎛 tune         | tune params and threshold                                    |
+| 📚 pretrain     | pretrains embeddings or language model using unlabeled data  |
+| ⬇️ [download]   | download trained models and data from EPMC                   |
+| 🔍 [explain]    | importance of feature be it words or tfidf numbers           |
 
 in square brackets the commands that are not implemented yet
 
-### Preprocess
+### ⚙️  Preprocess
 
 Preprocess creates a JSONL datafile with `text`, `tags` and `meta` as keys.
 Text and tags are used for training whereas meta can be used either for annotation
@@ -99,7 +99,7 @@ Options:
   --help                     Show this message and exit.
 ```
 
-### Train
+### 🔥 Train
 
 Train acts as the entry point command for training all models. You can control
 which model you want to use with an `--approach` flag. This is convenient but 
@@ -148,7 +148,7 @@ one grant.
 Parameters is a JSON like dump (essentially a stringified dict) with all params
 that the model expects in an sklearn fashion.
 
-### Evaluate
+### 📈 Evaluate
 
 Evaluate enables evaluation of the performance of various approaches including
 human performance and other systems like MTI, SciSpacy and soon Dimensions. As
@@ -247,7 +247,7 @@ Options:
   --help  Show this message and exit.
 ```
 
-### Predict
+### 🔮 Predict
 
 Predict assigns tags on a given abstract text that you can pass as argument.
 It is not meant to be used for tagging multiple grants, tag command is reserved
@@ -271,7 +271,7 @@ Options:
   --help                          Show this message and exit.
 ```
 
-### Tag
+### 🔖 Tag
 
 Tag is the main command of the tool as it allows you to tag with a pretrained
 model. This command currently works on a CSV with "Grant ID, Reference, Grant No."
@@ -293,7 +293,7 @@ Options:
   --help             Show this message and exit.
 ```
 
-### Tune
+### 🎛 Tune
 
 Tune optimises params of choice or the threshold that is used to
 assign tags. Parameter optimisation makes use of sklearn GridSearch
@@ -344,7 +344,7 @@ Options:
   --help                   Show this message and exit.
 ```
 
-### Pretrain
+### 📚 Pretrain
 
 Pretrain pretrains an embedding based model like Doc2Vec and in the
 future a language model like BERT from unlabeled training examples.
@@ -367,12 +367,12 @@ Options:
   --help             Show this message and exit.
 ```
 
-### Download
+### ⬇️  Download
 
 This command is under development. The goal is to be able to download
 pretrained models and data from sources like EPMC.
 
-### Explain 
+### 🔍 Explain 
 
 This command is under development. The goals is to be able to get
 feature importance scores on either words or features such as tfidf
@@ -400,7 +400,7 @@ make virtualenv
 This will create a new virtualenv and install requirements for tests
 and development. It will also install grants tagger in editable mode.
 
-## Reproduce
+##  Reproduce
 
 To reproduce production models for mesh and wellcome science you can
 run `dvc repro`. Note that mesh models require a GPU to train and 
@@ -450,18 +450,18 @@ elif approach == 'bilstm-attention':
 ...
 ```
 
-## Experiment
+## 🔬 Experiment
 
 To make our experiments reproducible we use a config system (not DVC).
 As such you need to create a new config that describes all parameters
 for the various steps and run each step with the config or use 
 `./scripts/run_config.sh`
 
-## Package
+## 📦 Package
 
 To package a model run `make build`. This will create a wheel in
 dist that you can distribute and `pip install`
 
-## Test
+## 🚦 Test
 
 `make test`

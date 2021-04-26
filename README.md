@@ -380,7 +380,7 @@ values.
 
 # 🧑🏻‍💻  Develop
 
-## Data
+## 📖 Data
 
 If you work for Wellcome and have access to our AWS account,
 you easily download the raw data by typing `make sync_data`.
@@ -391,7 +391,7 @@ The MeSH data can be downloaded from various places like EPMC.
 Grants tagger currently uses a sample provided from the [BioASQ](http://www.bioasq.org)
 competition that contains tags for approx 14M publications from PubMed.
 
-## Venv
+## 🐍 Venv
 
 To create and setup the development environment
 ```
@@ -400,7 +400,7 @@ make virtualenv
 This will create a new virtualenv and install requirements for tests
 and development. It will also install grants tagger in editable mode.
 
-##  Reproduce
+## ✔️  Reproduce
 
 To reproduce production models for mesh and wellcome science you can
 run `dvc repro`. Note that mesh models require a GPU to train and 
@@ -412,7 +412,7 @@ using `./scripts/run_config.sh VERSION`. You can also run individual steps
 with the CLI commands e.g. `grants_tagger preprocess wellcome-science --config path_to_config`
 and `grants_tagger train --config path_to_config`.
 
-## Bring your own data
+## 💾 Bring your own data
 
 To use grants_tagger with your own data the main thing you need to
 implement is a new preprocess function that creates a JSONL with the
@@ -427,7 +427,7 @@ def epmc_mesh(...)
 ```
 and you would be able to run `grants_tagger preprocess epmc_mesh ...`
 
-## Bring your own models
+## 📦 Bring your own models
 
 To use grants_tagger with your own model you need to define a class
 for your model that adheres to the sklearn api so implements a

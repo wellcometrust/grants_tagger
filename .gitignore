@@ -15,6 +15,7 @@ models/**
 .coverage
 *.pyc
 *~
+*.swp
 
 # Build, venv and dist
 build/**

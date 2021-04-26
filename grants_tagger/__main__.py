@@ -325,7 +325,7 @@ def tag(
         tagged_grants_path: Path = typer.Argument(..., help="path to output csv"),
         model_path: Path = typer.Argument(..., help="path to model"),
         label_binarizer_path: Path = typer.Argument(..., help="label binarizer for Y"),
-        threshold: float = typer.Option(0.5, "threshold upon which to assign tag")):
+        threshold: float = typer.Option(0.5, help="threshold upon which to assign tag")):
 
     tag_grants(grants_path, tagged_grants_path, model_path,
                label_binarizer_path, threshold)

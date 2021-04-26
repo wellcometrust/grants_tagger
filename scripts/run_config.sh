@@ -18,3 +18,4 @@ venv/bin/python -m grants_tagger.pretrain --config ${CONFIG}
 venv/bin/python -m grants_tagger.train --config ${CONFIG}
 
 # evaluate
+# evaluate command is reserved for production models but train also evaluates

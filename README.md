@@ -30,7 +30,7 @@ Those tags are generic enough to be used by other biomedical funders
 but note that the selection of tags are highly specific to Wellcome
 at the moment.
 
-# Install and use
+# 💻 Install and use
 
 In the near future you will be able to find official releases
 in Github, PyPi and through AWS. Until then the easiest way
@@ -40,15 +40,21 @@ the code in your environment of choice.
 
 Grants tagger comes with a nice CLI with the following commands
 
-- preprocess     # preprocess data to use for training
-- train          # trains a new model
-- evaluate       # evaluate performance of pretrained model
-- predict        # predict tags given a grant abstract using a pretrained model
-- tag            # tag grants using a pretrained model
-- tune           # tune params and threshold
-- pretrain       # pretrains embeddings or language model using unlabeled data
-- [download]     # download trained models and data from EPMC
-- [explain]      # importance of feature be it words or tfidf numbers
+## ⌨️  Commands
+
+| Commands     |                                                              |
+| ------------ | ------------------------------------------------------------ |
+| preprocess   | preprocess data to use for training                          |
+| train        | trains a new model                                           |
+| evaluate     | evaluate performance of pretrained model                     |
+| predict      | predict tags given a grant abstract using a pretrained model |
+| tag          | tag grants using a pretrained model                          |
+| tune         | tune params and threshold                                    |
+| pretrain     | pretrains embeddings or language model using unlabeled data  |
+| [download]   | download trained models and data from EPMC                   |
+| [explain]    | importance of feature be it words or tfidf numbers           |
+
+in square brackets the commands that are not implemented yet
 
 ### Preprocess
 
@@ -60,7 +66,7 @@ the bioasq-mesh one. If you want to use a different dataset see section on bring
 your own data under development.
 
 
-*wellcome-science*
+#### wellcome-science
 ```
 Usage: grants_tagger preprocess wellcome-science [OPTIONS] [INPUT_PATH]
                                                  [OUTPUT_PATH]
@@ -76,7 +82,7 @@ Options:
   --help            Show this message and exit.
 ```
 
-*bioasq-mesh*
+#### bioasq-mesh
 ```
 Usage: grants_tagger preprocess bioasq-mesh [OPTIONS] [INPUT_PATH]
                                             [OUTPUT_PATH]
@@ -298,7 +304,7 @@ that assign tags. Each tag can have an individual threshold that together maximi
 f1 score.
 
 
-*params*
+#### params
 ```
 Usage: grants_tagger tune params [OPTIONS] DATA_PATH LABEL_BINARIZER_PATH
                                  APPROACH
@@ -313,7 +319,7 @@ Options:
   --help         Show this message and exit.
 ```
 
-*threshold*
+#### threshold
 ```
 Usage: grants_tagger tune threshold [OPTIONS] APPROACH DATA_PATH MODEL_PATH
                                     LABEL_BINARIZER_PATH THRESHOLDS_PATH
@@ -372,7 +378,7 @@ This command is under development. The goals is to be able to get
 feature importance scores on either words or features such as tfidf
 values.
 
-# Develop
+# 🧑🏻‍💻  Develop
 
 ## Data
 

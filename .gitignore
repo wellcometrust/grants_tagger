@@ -16,6 +16,7 @@ models/**
 *.pyc
 *~
 *.swp
+.python-version
 
 # Build, venv and dist
 build/**

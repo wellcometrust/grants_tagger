@@ -59,8 +59,8 @@ in square brackets the commands that are not implemented yet
 ### ⚙️  Preprocess
 
 Preprocess creates a JSONL datafile with `text`, `tags` and `meta` as keys.
-Text and tags are used for training whereas meta can be used either for annotation
-through prodigy or to analyse predictions. Each dataset needs to implement its own
+Text and tags are used for training whereas meta can be useful during annotation
+or to analyse predictions and performance. Each dataset needs its own
 preprocessing so the current preprocess works with the wellcome-science dataset and
 the bioasq-mesh one. If you want to use a different dataset see section on bringing
 your own data under development.
@@ -252,7 +252,8 @@ Options:
 Predict assigns tags on a given abstract text that you can pass as argument.
 It is not meant to be used for tagging multiple grants, tag command is reserved
 for that. Similar to evaluate and train an approach is needed to know which
-model will be used.
+model will be used. Similar to evaluate it also works on models that have
+made it to production, see list in evaluate.
 
 ```
 Usage: grants_tagger predict [OPTIONS] TEXT MODEL_PATH LABEL_BINARIZER_PATH
@@ -400,6 +401,12 @@ make virtualenv
 This will create a new virtualenv and install requirements for tests
 and development. It will also install grants tagger in editable mode.
 
+If you want to add additional dependencies, add the library to
+`unpinned_requirements.txt` and run `make update-requirements`. This
+will ensure that all requirements in the development enviroment are pinned
+to exact versions which ensures the code will continue running as 
+expected in the future when newer versions will have been published.
+
 ## ✔️  Reproduce
 
 To reproduce production models for mesh and wellcome science you can
@@ -455,13 +462,53 @@ elif approach == 'bilstm-attention':
 To make our experiments reproducible we use a config system (not DVC).
 As such you need to create a new config that describes all parameters
 for the various steps and run each step with the config or use 
-`./scripts/run_config.sh`
+`./scripts/run_science_config.sh` or `./scripts/run_mesh_config.sh`
+
+We record the results of experiments in `docs/results.md` for wellcome
+science and `docs/mesh_results.md` for bioasq mesh.
 
 ## 📦 Package
 
-To package a model run `make build`. This will create a wheel in
-dist that you can distribute and `pip install`
+To package the code run `make build`. This will create a wheel in
+dist that you can distribute and `pip install`. `make deploy` pushes
+that wheel in a public Wellcome bucket that you can use if you have
+access to write into it. We plan to migrate towards Github releases
+and PyPi soon.
+
+Packaged models are produced through dvc by running `dvc repro` and
+stored in s3 by running `make sync_artifacts`. This might soon change to
+a separate command that pushes models to a public bucket so others
+can download.
+
+Thus the recommended way for producing models that are released is
+through DVC repro and as such you need to define the params that 
+produce it in the params.yaml as well as the pipeline that produces
+it in `dvc.yaml`. The `params.yaml` is the equivalent of a config file and
+`dvc.yaml` is the equivalent of `run_config.sh`
 
 ## 🚦 Test
 
-`make test`
+`make test` and `make codecov` to get a coverage report. If you want
+to write some additional tests, they should go in the subfolde `tests/`
+
+## 🏗️ Makefile
+
+A Makefile is being used to automate various operations. You can
+get all make commands by running `make`. All the commands have been
+mentioned in previous sections.
+
+```
+Usage: make [task]
+
+task                 help
+------               ----
+sync_data            Sync data to and from s3
+sync_artifacts       Sync processed data and models to and from s3
+virtualenv           Creates virtualenv
+update-requirements  Updates requirement
+test                 Run tests
+build                Create wheel distribution
+deploy               Deploy wheel to public s3 bucket
+clean                Clean hidden and compiled files
+help                 Show help message
+```

@@ -22,3 +22,6 @@ build/**
 dist/**
 venv/**
 *egg-info/**
+
+# Logs
+logs/

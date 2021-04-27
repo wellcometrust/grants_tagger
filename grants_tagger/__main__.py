@@ -1,6 +1,7 @@
 from typing import List, Optional
 from pathlib import Path
 import configparser
+import logging
 import yaml
 import os
 
@@ -19,6 +20,8 @@ from grants_tagger.tune_threshold import tune_threshold
 from grants_tagger.optimise_params import optimise_params
 
 app = typer.Typer(add_completion=False)
+
+logger = logging.getLogger(__name__)
 
 
 def convert_dvc_to_sklearn_params(parameters):
@@ -62,7 +65,7 @@ def train(
         parameters = params["train"].get(approach)
         parameters = convert_dvc_to_sklearn_params(parameters)
         parameters = str(parameters)
-        print(parameters)
+        logger.debug(parameters)
 
     # Note that config overwrites parameters for backwards compatibility
     if config:
@@ -263,8 +266,8 @@ app.add_typer(evaluate_app, name="evaluate")
 
 @app.command()
 def pretrain(
-        data_path: Path = typer.Argument(..., help="data to pretrain model on"),
-        model_path: Path = typer.Argument(..., help="path to save mode"),
+        data_path: Optional[Path] = typer.Argument(None, help="data to pretrain model on"),
+        model_path: Optional[Path] = typer.Argument(None, help="path to save mode"),
         model_name: Optional[str] = typer.Option("doc2vec", help="name of model to pretrain"),
         config: Optional[Path] = typer.Option(None, help="config file with arguments for pretrain")):
 

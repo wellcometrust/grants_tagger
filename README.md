@@ -162,7 +162,9 @@ in this command controls which model will be evaluated. Since the data in train
 are sometimes split inside train, the same splitting is performed in evaluate.
 Evaluate only supports some models, in particular those that have made it to
 production. These are: `tfidf-svm`, `scibert`, `science-ensemble`, `mesh-tfidf-svm`
-and `mesh-cnn`. 
+and `mesh-cnn`. Note that train also outputs evaluation scores so for models
+not made into production this is the way to evaluate. The plan is to extend 
+evaluate to all models when train starts training explicit model approaches. 
 
 ```
 Usage: grants_tagger evaluate model [OPTIONS] APPROACH MODEL_PATH DATA_PATH
@@ -202,9 +204,11 @@ Options:
 
 #### MTI
 
-MTI is the automatic mesh indexer from NLM. To get MTI annotations you need to
-submit grants for tagging through an email service and get the results which
-you can use here for evaluation.
+MTI is the automatic mesh indexer from NLM. https://ii.nlm.nih.gov/MTI/
+To get MTI annotations you need to submit grants for tagging through an 
+email service and get the results which you can use here for evaluation.
+The service is called Batch MetaMap and to use it you need to have an
+account https://uts.nlm.nih.gov/uts/
 
 ```
 Usage: grants_tagger evaluate mti [OPTIONS] DATA_PATH LABEL_BINARIZER_PATH
@@ -409,13 +413,18 @@ expected in the future when newer versions will have been published.
 
 ## ✔️  Reproduce
 
-To reproduce production models for mesh and wellcome science you can
-run `dvc repro`. Note that mesh models require a GPU to train and 
-depending on the parameters it might take from 1 to several days.
+To reproduce production models we use DVC. DVC defines a directed
+acyclic graph (DAG) of steps that need to run to reproduce a model
+or result. You can see all steps with `dvc dag`. You can reproduce
+all steps with `dvc repro`. You can reproduce any step of the DAG
+with `dvc repro STEP_NAME` for example `dvc repro train_tfidf_svm`.
+Note that mesh models require a GPU to train and depending on the
+parameters it might take from 1 to several days.
 
 You can reproduce individual experiments using one of the configs in
 the dedicated `/configs` folder. You can run all steps of the pipeline
-using `./scripts/run_config.sh VERSION`. You can also run individual steps
+using `./scripts/run_DATASET_config.sh path_to_config` where DATASET
+can be one of science or mesh. You can also run individual steps
 with the CLI commands e.g. `grants_tagger preprocess wellcome-science --config path_to_config`
 and `grants_tagger train --config path_to_config`.
 
@@ -463,6 +472,8 @@ To make our experiments reproducible we use a config system (not DVC).
 As such you need to create a new config that describes all parameters
 for the various steps and run each step with the config or use 
 `./scripts/run_science_config.sh` or `./scripts/run_mesh_config.sh`
+depending on whether you want to reproduce a wellcome science or mesh
+model.
 
 We record the results of experiments in `docs/results.md` for wellcome
 science and `docs/mesh_results.md` for bioasq mesh.
@@ -488,8 +499,8 @@ it in `dvc.yaml`. The `params.yaml` is the equivalent of a config file and
 
 ## 🚦 Test
 
-`make test` and `make codecov` to get a coverage report. If you want
-to write some additional tests, they should go in the subfolde `tests/`
+Run tests with `make test`. If you want to write some additional tests,
+they should go in the subfolde `tests/`
 
 ## 🏗️ Makefile
 

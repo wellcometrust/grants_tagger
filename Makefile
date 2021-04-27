@@ -26,9 +26,10 @@ sync_artifacts: ## Sync processed data and models to and from s3
 virtualenv: ## Creates virtualenv
 	@if [ -d $(VIRTUALENV) ]; then rm -rf $(VIRTUALENV); fi
 	@mkdir -p $(VIRTUALENV)
-	virtualenv --python python3.7 $(VIRTUALENV)
+	virtualenv --python $(PYTHON) $(VIRTUALENV)
+	$(PIP) install --upgrade pip
 	$(PIP) install -r requirements.txt
-	$(PIP) install -e .
+	$(PIP) install --no-deps -e .
 	$(PIP) install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.4.0/en_core_sci_sm-0.4.0.tar.gz
 
 update-requirements: VIRTUALENV := /tmp/update-requirements-venv/
@@ -36,14 +37,15 @@ update-requirements: ## Updates requirement
 	@if [ -d $(VIRTUALENV) ]; then rm -rf $(VIRTUALENV); fi
 	@mkdir -p $(VIRTUALENV)
 	$(PYTHON) -m venv $(VIRTUALENV)
-	$(PIP) install --upgrade pip
-	$(PIP) install -r unpinned_requirements.txt
-	$(PIP) install -r unpinned_test_requirements.txt
+	$(VIRTUALENV)/bin/pip install --upgrade pip
+	$(VIRTUALENV)/bin/pip install -r unpinned_requirements.txt
+	$(VIRTUALENV)/bin/pip install -r unpinned_test_requirements.txt
 	echo "#Created by Makefile. Do not edit." > requirements.txt
-	$(PIP) freeze | grep -v pkg-resources==0.0.0 >> requirements.txt
+	$(VIRTUALENV)/bin/pip freeze | grep -v pkg-resources==0.0.0 | grep -v wellcomeml >> requirements.txt
+	echo "-e git://github.com/wellcometrust/WellcomeML.git@632fe3b89bd757a33df19c59d976f88f7833f3b4#egg=wellcomeml" >> requirements.txt
 
 .PHONY: test
-test: virtualenv ## Run tests
+test: ## Run tests
 	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov=grants_tagger
 
 

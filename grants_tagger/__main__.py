@@ -127,7 +127,7 @@ def train(
             model_path = f"s3://{BUCKET}/{PREFIX}/"
             data_path = f"s3://{BUCKET}/{PREFIX}/"
 
-        container_model_path = f"/opt/ml/model/{model_subpath}"
+        container_model_path = f"/opt/ml/model/{model_subpath}" if model_path else ""
         container_data_path = f"/opt/ml/input/data/training/{data_filename}"
         container_label_binarizer_path = f"/opt/ml/model/{label_binarizer_filename}"
 

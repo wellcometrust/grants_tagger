@@ -111,8 +111,12 @@ if __name__ == "__main__":
     argparser.add_argument("--label_binarizer_path")
     argparser.add_argument("--approach")
     argparser.add_argument("--parameters")
+    argparser.add_argument("--data_format")
+    argparser.add_argument("--test_size", type=float)
+    argparser.add_argument("--sparse_labels", type=bool)
     args = argparser.parse_args()
 
     train_and_evaluate(
         args.data_path, args.label_binarizer_path, args.approach,
-        args.parameters, model_path=args.model_path)
+        args.parameters, model_path=args.model_path, data_format=args.data_format,
+        test_size=args.test_size, sparse_labels=args.sparse_labels)

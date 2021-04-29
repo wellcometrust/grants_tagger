@@ -23,6 +23,7 @@ from tensorflow.random import set_seed
 # replace with param in configs then
 set_seed(41)
 
+
 def create_label_binarizer(data_path, label_binarizer_path, sparse=False):        
     """Creates, saves and returns a multilabel binarizer for targets Y"""
     label_binarizer = MultiLabelBinarizer(sparse_output=sparse)

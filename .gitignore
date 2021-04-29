@@ -15,9 +15,15 @@ models/**
 .coverage
 *.pyc
 *~
+*.swp
+.python-version
+.envrc
 
 # Build, venv and dist
 build/**
 dist/**
 venv/**
 *egg-info/**
+
+# Logs
+logs/

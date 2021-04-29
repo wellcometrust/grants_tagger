@@ -100,3 +100,19 @@ def train_and_evaluate(
             model.save(model_path)
     
     return f1
+
+
+if __name__ == "__main__":
+    import argparse
+
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument("--data_path")
+    argparser.add_argument("--model_path")
+    argparser.add_argument("--label_binarizer_path")
+    argparser.add_argument("--approach")
+    argparser.add_argument("--parameters")
+    args = argparser.parse_args()
+
+    train_and_evaluate(
+        args.data_path, args.label_binarizer_path, args.approach,
+        args.parameters, model_path=args.model_path)

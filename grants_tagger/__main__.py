@@ -2,9 +2,13 @@ from typing import List, Optional
 from pathlib import Path
 import configparser
 import logging
+import tarfile
 import yaml
+import json
 import os
 
+from sagemaker.estimator import Estimator
+import sagemaker
 import typer
 
 from grants_tagger.evaluate_mti import evaluate_mti
@@ -41,6 +45,7 @@ def convert_dvc_to_sklearn_params(parameters):
     else:
         return parameters
 
+# Move to train and import from there
 @app.command()
 def train(
         data_path: Optional[Path] = typer.Argument(None, help="path to processed JSON data to be used for training"),
@@ -54,7 +59,8 @@ def train(
         test_size: float = typer.Option(0.25, help="float or int indicating either percentage or absolute number of test examples"),
         sparse_labels: bool = typer.Option(False, help="flat about whether labels should be sparse when binarized"),
         cache_path: Optional[Path] = typer.Option(None, help="path to cache data transformartions"),
-        config: Path = None):
+        config: Path = None,
+        cloud: bool = False):
 
     params_path = os.path.join(os.path.dirname(__file__), "../params.yaml")
     with open(params_path) as f:
@@ -88,10 +94,80 @@ def train(
             sparse_labels = bool(sparse_labels)
         cache_path = cfg["data"].get("cache_path")
     
-    if model_path and os.path.exists(model_path):
+    if cloud:
+        def create_tar():
+            source_files = [
+                "grants_tagger/__init__.py",
+                "grants_tagger/utils.py",
+                "grants_tagger/train.py",
+                "grants_tagger/models.py"
+            ]
+            filename = "sourcedir.tar.gz"
+            with tarfile.open(filename, mode="w:gz") as t:
+                for sf in source_files:
+                    t.add(sf)
+            return filename
+
+        def json_encode_hyperparameters(hyperparameters):
+            return {str(k): json.dumps(v) for (k, v) in hyperparameters.items()}
+
+        # Need to replace with grants_tagger s3 path, s3 needs sagemaker permission
+        BUCKET = "sagemaker-eu-west-1-" + os.environ["AWS_ACCOUNT_ID"] 
+        PREFIX = "grants_tagger"
+        
+        model_subpath = model_path.split("/")[-1] if model_path else "" # can be dir or model_name
+        data_filename = data_path.split("/")[-1]
+        label_binarizer_filename = label_binarizer_path.split("/")[-1]
+
+        local = True # pass as arg
+        if local:
+            model_path = f"file://{model_path}"
+            data_path = f"file://{data_path}"
+        else:
+            model_path = f"s3://{BUCKET}/{PREFIX}/"
+            data_path = f"s3://{BUCKET}/{PREFIX}/"
+
+        container_model_path = f"/opt/ml/model/{model_subpath}"
+        container_data_path = f"/opt/ml/input/data/training/{data_filename}"
+        container_label_binarizer_path = f"/opt/ml/model/{label_binarizer_filename}"
+
+        session = sagemaker.Session()
+        
+        grants_tagger_tar_path = create_tar()
+        grants_tagger_s3_path = session.upload_data(grants_tagger_tar_path, BUCKET, PREFIX + '/code') 
+        
+        hyperparameters = {
+            "sagemaker_program": "grants_tagger/train.py",
+            "sagemaker_submit_directory": grants_tagger_s3_path,
+            "data_path": container_data_path,
+            "model_path": container_model_path,
+            "label_binarizer_path": container_label_binarizer_path,
+            "approach": approach,
+            "parameters": parameters,
+            "test_data_path": test_data_path,
+            "data_format": data_format,
+            "test_size": test_size,
+            "sparse_labels": sparse_labels,
+            "cache_path": cache_path
+        }
+        hyperparameters = {k:v for k,v in hyperparameters.items() if v}
+        hyperparameters = json_encode_hyperparameters(hyperparameters)
+        logger.debug(hyperparameters)
+        
+        es = Estimator(
+            image_uri=os.environ["ECR_IMAGE"],
+            role=os.environ["SAGEMAKER_ROLE"], # i think it can be read from AWS config
+            framework_version="0.20.0",
+            instance_count=1,
+            instance_type="local", #,"ml.m5.large",
+            output=model_path,
+            hyperparameters=hyperparameters,
+            base_job_name="sagemaker-grants-tagger"
+        )
+        es.fit({"training": data_path})
+    elif model_path and os.path.exists(model_path):
         print(f"{model_path} exists. Remove if you want to rerun.")
     else:
-
         train_and_evaluate(
             data_path, label_binarizer_path, approach,
             parameters, model_path=model_path,

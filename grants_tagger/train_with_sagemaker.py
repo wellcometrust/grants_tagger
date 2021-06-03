@@ -15,13 +15,12 @@ DEPENDENCIES = [
     "grants_tagger/utils.py",
     "grants_tagger/models.py"
 ]
-# TODO: Use project bucket and prefix
-SAGEMAKER_BUCKET = os.environ["SAGEMAKER_BUCKET"]
-SAGEMAKER_PREFIX = os.environ["SAGEMAKER_PREFIX"]
+PROJECTS_BUCKET = os.environ["PROJECTS_BUCKET"]
+PROJECT_NAME = os.environ["PROJECT_NAME"]
 SAGEMAKER_ROLE = os.environ["SAGEMAKER_ROLE"]
 
-def upload_code(entrypoint, dependencies, bucket=SAGEMAKER_BUCKET,
-        prefix=SAGEMAKER_PREFIX):
+def upload_code(entrypoint, dependencies, bucket=PROJECTS_BUCKET,
+        prefix=PROJECT_NAME):
     """
     Upload code for train
 
@@ -109,8 +108,8 @@ def train_with_sagemaker(instance_type="local", **kwargs):
         model_path = f"file://"
         data_path = f"file://{data_path}"
     else:
-        model_path = f"s3://{SAGEMAKER_BUCKET}/{SAGEMAKER_PREFIX}/output/"
-        data_path = f"s3://{SAGEMAKER_BUCKET}/{SAGEMAKER_PREFIX}/{data_path}"
+        model_path = f"s3://{PROJECTS_BUCKET}/{PROJECT_NAME}/output/"
+        data_path = f"s3://{PROJECTS_BUCKET}/{PROJECT_NAME}/{data_path}"
     logger.info(f"model_path: {model_path}")
     logger.info(f"data_path: {data_path}")
 

@@ -60,8 +60,8 @@ def train(
         sparse_labels: bool = typer.Option(False, help="flat about whether labels should be sparse when binarized"),
         cache_path: Optional[Path] = typer.Option(None, help="path to cache data transformartions"),
         config: Path = None,
-        cloud: bool = False,
-        instance_type: str = "local"):
+        cloud: bool = typer.Option(False, help="flag to train using Sagemaker"),
+        instance_type: str = typer.Option("local", help="instance type to use when training with Sagemaker")):
 
     params_path = os.path.join(os.path.dirname(__file__), "../params.yaml")
     with open(params_path) as f:

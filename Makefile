@@ -110,9 +110,9 @@ aws-docker-login:
 	aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin $(AWS_ACCOUNT_ID).dkr.ecr.eu-west-1.amazonaws.com
 
 .PHONY: build-docker
-build-docker:
+build-docker: ## Builds Docker container with grants_tagger
 	docker build -t $(ECR_IMAGE):latest -f Dockerfile .
 
 .PHONY: push-docker
-push-docker: aws-docker-login
+push-docker: aws-docker-login ## Pushes Docker container to ECR
 	docker push $(ECR_IMAGE):latest

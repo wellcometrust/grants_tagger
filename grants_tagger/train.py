@@ -98,7 +98,7 @@ def train_and_evaluate(
                 f.write(pickle.dumps(model))
         else:
             model.save(model_path)
-    
+
     return f1
 
 

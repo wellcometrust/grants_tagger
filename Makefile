@@ -9,10 +9,15 @@ PYTHON := python3.8
 VIRTUALENV := venv
 PIP := $(VIRTUALENV)/bin/pip
 
-.PHONY:sync_data
-sync_data: ## Sync data to and from s3
-	aws s3 sync data/raw/ s3://$(PRIVATE_PROJECT_BUCKET)/data/raw/
-	aws s3 sync s3://$(PRIVATE_PROJECT_BUCKET)/data/raw data/raw --exclude "*allMeSH*"
+.PHONY:sync_science_data
+sync_science_data: ## Sync science data to and from s3
+	aws s3 sync data/raw/ s3://$(PRIVATE_PROJECT_BUCKET)/data/raw/ --exclude "*allMeSH*" --exclude "*desc*" --exclude "*disease_tags*"
+	aws s3 sync s3://$(PRIVATE_PROJECT_BUCKET)/data/raw data/raw --exclude "*allMeSH*" --exclude "*desc*" --exclude "*disease_tags*"
+
+.PHONY: sync_mesh_data
+sync_mesh_data: ## Sync mesh data to and from s3
+	aws s3 sync data/raw/ s3://$(PRIVATE_PROJECT_BUCKET)/data/raw/ --exclude "*" --include "*allMeSH*" --include "*desc*" --include "*disease_tags*"
+	aws s3 sync s3://$(PRIVATE_PROJECT_BUCKET)/data/raw data/raw/ --exclude "*" --include "*allMeSH*" --include "*desc*" --include "*disease_tags*"
 
 .PHONY: sync_artifacts
 sync_artifacts: ## Sync processed data and models to and from s3

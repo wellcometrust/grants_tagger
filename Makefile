@@ -9,6 +9,10 @@ PYTHON := python3.8
 VIRTUALENV := venv
 PIP := $(VIRTUALENV)/bin/pip
 
+
+.PHONY: sync_data
+sync_data: sync_science_data sync_mesh_data ## Sync data to and from s3
+
 .PHONY:sync_science_data
 sync_science_data: ## Sync science data to and from s3
 	aws s3 sync data/raw/ s3://$(PRIVATE_PROJECT_BUCKET)/data/raw/ --exclude "*allMeSH*" --exclude "*desc*" --exclude "*disease_tags*"

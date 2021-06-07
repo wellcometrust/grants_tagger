@@ -390,7 +390,10 @@ values.
 If you work for Wellcome and have access to our AWS account,
 you easily download the raw data by typing `make sync_data`.
 This will give you access to both the custom science tags
-dataset and the MeSH data.
+dataset and the MeSH data. Note that the mesh data is 50+GB.
+If you want to download only the science or mesh data, you
+can do so with `make sync_science_data` and `make sync_mesh_data`
+respectively.
 
 The MeSH data can be downloaded from various places like EPMC.
 Grants tagger currently uses a sample provided from the [BioASQ](http://www.bioasq.org)

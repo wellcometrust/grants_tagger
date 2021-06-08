@@ -94,7 +94,7 @@ def create_hyperparameters(entrypoint, code_path, model_path, data_path, label_b
     hyperparameters = {str(k): json.dumps(v) for (k, v) in hyperparameters.items() if v}
     return hyperparameters
     
-def train_with_sagemaker(instance_type="local", **kwargs):
+def train_with_sagemaker(instance_type="local", config_version=None, **kwargs):
     """Invokes train with kwargs using Sagemaker using instance type"""
     code_path = upload_code(ENTRYPOINT, DEPENDENCIES)
     logger.info(code_path)
@@ -112,6 +112,10 @@ def train_with_sagemaker(instance_type="local", **kwargs):
     logger.info(f"model_path: {model_path}")
     logger.info(f"data_path: {data_path}")
 
+    base_job_name = kwargs["approach"]
+    if config_version:
+        config_version = config_version.replace(".","-")
+        base_job_name = f"{base_job_name}-{config_version}"
     es = Estimator(
         image_uri=os.environ["ECR_IMAGE"],
         role=SAGEMAKER_ROLE,
@@ -120,6 +124,6 @@ def train_with_sagemaker(instance_type="local", **kwargs):
         instance_type=instance_type,  #"local", #,"ml.m5.large",
         output_path=model_path,
         hyperparameters=hyperparameters,
-        base_job_name="sagemaker-grants-tagger"
+        base_job_name=base_job_name
     )
     es.fit({"training": data_path})

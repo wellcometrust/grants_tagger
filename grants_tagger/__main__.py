@@ -78,7 +78,8 @@ def train(
     if config:
         cfg = configparser.ConfigParser(allow_no_value=True)
         cfg.read(config)
-
+        
+        config_version = cfg["DEFAULT"]["version"]
         data_path = cfg["data"]["train_data_path"]
         label_binarizer_path = cfg["model"]["label_binarizer_path"]
         approach = cfg["model"]["approach"]
@@ -96,13 +97,15 @@ def train(
         cache_path = cfg["data"].get("cache_path")
     
     if cloud:
+        if not config:
+            config_version = None 
         train_with_sagemaker(
             data_path=data_path, label_binarizer_path=label_binarizer_path,
             approach=approach, parameters=parameters, model_path=model_path,
             test_data_path=test_data_path, threshold=threshold,
             data_format=data_format, test_size=test_size,
             sparse_labels=sparse_labels, cache_path=cache_path,
-            instance_type=instance_type)
+            instance_type=instance_type, config_version=config_version)
     elif model_path and os.path.exists(model_path):
         print(f"{model_path} exists. Remove if you want to rerun.")
     else:

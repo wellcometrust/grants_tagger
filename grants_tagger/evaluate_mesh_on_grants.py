@@ -53,9 +53,11 @@ def evaluate_mesh_on_grants(approach, data_path, model_path, label_binarizer_pat
 
 if __name__ == '__main__':
     argparser = ArgumentParser()
+    argparser.add_argument('--approach', type=str, help="approach used to train model e.g. mesh-cnn")
     argparser.add_argument('--data_path', type=Path, help="path to validation data")
     argparser.add_argument('--model_path', type=Path, help="path to model")
     argparser.add_argument('--label_binarizer_path', type=Path, help="path to disease label binarizer")
     args = argparser.parse_args()
 
-    evaluate_mesh_on_grants(args.data_path, args.model_path, args.label_binarizer_path)
+    evaluate_mesh_on_grants(args.approach, args.data_path,
+            args.model_path, args.label_binarizer_path)

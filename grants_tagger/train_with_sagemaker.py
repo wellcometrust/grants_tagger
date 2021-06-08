@@ -67,12 +67,11 @@ def create_hyperparameters(entrypoint, code_path, model_path, data_path, label_b
     Returns:
     hyperaparameters
     """
-
     # Step 1 - Convert data, model paths
-    _, model_subpath = os.path.split(model_path) if model_path else "","" # can be dir or model_name
+    _, model_subpath = os.path.split(model_path) if model_path else ("","")# can be dir or model_name
     _, data_filename = os.path.split(data_path)
     _, label_binarizer_filename = os.path.split(label_binarizer_path)
-    
+
     container_model_path = f"/opt/ml/model/{model_subpath}" if model_subpath else ""
     container_data_path = f"/opt/ml/input/data/training/{data_filename}"
     container_label_binarizer_path = f"/opt/ml/model/{label_binarizer_filename}"

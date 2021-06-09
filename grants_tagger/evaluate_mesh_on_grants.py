@@ -8,6 +8,7 @@ Disease MeSH#TAG_INDEX (ANNOTATOR)
 from argparse import ArgumentParser
 from pathlib import Path
 import pickle
+import json
 
 from sklearn.metrics import f1_score
 import pandas as pd

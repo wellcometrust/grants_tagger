@@ -32,7 +32,8 @@ def get_texts(data):
     return texts
 
 
-def evaluate_mesh_on_grants(approach, data_path, model_path, label_binarizer_path):
+def evaluate_mesh_on_grants(approach, data_path, model_path, label_binarizer_path,
+        results_path="mesh_on_grants_results.json"):
     data = pd.read_excel(data_path, engine="openpyxl")
 
     with open(label_binarizer_path, "rb") as f:
@@ -46,6 +47,11 @@ def evaluate_mesh_on_grants(approach, data_path, model_path, label_binarizer_pat
     f1 = f1_score(Y, Y_pred, average='micro')
     print(f"F1 micro is {f1}")
 
+    with open(results_path, "w") as f:
+        results = {
+            "f1": f1
+        }
+        f.write(json.dumps(results))
     unique_tags = len(set([t for tags in gold_tags for t in tags]))
     all_tags = len(label_binarizer.classes_)
     print(f"Gold dataset contains examples from {unique_tags} tags out of {all_tags}")

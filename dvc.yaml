@@ -130,3 +130,15 @@ stages:
     metrics:
     - results/mesh_cnn.json:
         cache: false
+  evaluate_mesh_cnn_on_grants:
+    cmd: grants_tagger evaluate model mesh-cnn models/disease_mesh_cnn-2021.03.0
+      data/processed/disease_tags_validation_grants.xlsx models/disease_mesh_label_binarizer-2021.03.0.pkli \
+      --results_path results/mesh_cnn_on_grants.json --grants
+    deps:
+    - data/raw/disease_tags_validation_grants.xlsx
+    - grants_tagger/evaluate_mesh_on_grants.py
+    - models/disease_mesh_cnn-2021.03.0
+    - models/disease_mesh_label_binarizer-2021.03.0.pkl
+    metrics:
+    - results/mesh_cnn_on_grants.json:
+        cache: false

@@ -1,6 +1,8 @@
 from setuptools import setup, find_packages
 import os
 
+from grants_tagger import __version__
+
 def package_files(directory):
     paths = []
     for (path, directories, filenames) in os.walk(directory):
@@ -21,7 +23,7 @@ setup(
     description='A machine learning model to tag grants',
     packages=find_packages(),
     include_package_data=True,
-    version='2020.11.0',
+    version=__version__,
     package_data={'': extra_files},
     entry_points = {
         'console_scripts': 'grants_tagger=grants_tagger.__main__:app'

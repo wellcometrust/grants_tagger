@@ -3,18 +3,6 @@ import os
 
 from grants_tagger import __version__
 
-def package_files(directory):
-    paths = []
-    for (path, directories, filenames) in os.walk(directory):
-        for filename in filenames:
-            paths.append(os.path.join("..", path, filename))
-
-    return paths
-
-extra_files = package_files("models/scibert-2020.05.5") + [
-    "../models/tfidf-svm-2020.05.2.pkl",
-    "../models/label_binarizer.pkl"
-]
 
 setup(
     name='grants-tagger',
@@ -22,9 +10,7 @@ setup(
     author_email='n.sorros@wellcome.ac.uk',
     description='A machine learning model to tag grants',
     packages=find_packages(),
-    include_package_data=True,
     version=__version__,
-    package_data={'': extra_files},
     entry_points = {
         'console_scripts': 'grants_tagger=grants_tagger.__main__:app'
     },

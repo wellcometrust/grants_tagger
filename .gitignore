@@ -8,6 +8,7 @@ models/**
 **/*.xml
 **/*.csv
 **/*.json
+**/*.txt
 !results/*.json
 
 # Hidden files

@@ -24,13 +24,25 @@ sync_mesh_data: ## Sync mesh data to and from s3
 	aws s3 sync s3://$(PRIVATE_PROJECT_BUCKET)/data/raw data/raw/ --exclude "*" --include "*allMeSH*" --include "*desc*" --include "*disease_tags*"
 
 .PHONY: sync_artifacts
-sync_artifacts: ## Sync processed data and models to and from s3
+sync_artifacts: sync_science_artifacts sync_mesh_artifacts ## Sync processed data and models to and from s3
+
+.PHONY: sync_science_artifacts
+sync_science_artifacts: ## Sync science processed data and models
 	echo "Sync processed data"
-	aws s3 sync data/processed s3://$(PRIVATE_PROJECT_BUCKET)/data/processed 
-	aws s3 sync s3://$(PRIVATE_PROJECT_BUCKET)/data/processed data/processed
+	aws s3 sync data/processed s3://$(PRIVATE_PROJECT_BUCKET)/data/processed --exclude "*" --include "*science*" 
+	aws s3 sync s3://$(PRIVATE_PROJECT_BUCKET)/data/processed data/processed --exclude "*" --include "*science*"
 	echo "Sync models"
-	aws s3 sync models/ s3://$(PRIVATE_PROJECT_BUCKET)/models/
-	aws s3 sync s3://$(PRIVATE_PROJECT_BUCKET)/models/ models/
+	aws s3 sync models/ s3://$(PRIVATE_PROJECT_BUCKET)/models/ --exclude "*" --include "*science*"
+	aws s3 sync s3://$(PRIVATE_PROJECT_BUCKET)/models/ models/ --exclude "*" --include "*science*"
+
+.PHONY: sync_mesh_artifacts
+sync_mesh_artifacts: ## Sync mesh processed data and models
+	echo "Sync processed data"
+	aws s3 sync data/processed s3://$(PRIVATE_PROJECT_BUCKET)/data/processed --exclude "*" --include "*mesh*"
+	aws s3 sync s3://$(PRIVATE_PROJECT_BUCKET)/data/processed data/processed --exclude "*" --include "*mesh*"
+	echo "Sync models"
+	aws s3 sync models/ s3://$(PRIVATE_PROJECT_BUCKET)/models/ --exclude "*" --include "*mesh*"
+	aws s3 sync s3://$(PRIVATE_PROJECT_BUCKET)/models/ models/ --exclude "*" --include "*mesh*" --exclude "*tfidf*"
 
 virtualenv: ## Creates virtualenv
 	@if [ -d $(VIRTUALENV) ]; then rm -rf $(VIRTUALENV); fi

@@ -124,6 +124,7 @@ def train_with_sagemaker(instance_type="local", config_version=None, **kwargs):
         instance_type=instance_type,  #"local", #,"ml.m5.large",
         output_path=model_path,
         hyperparameters=hyperparameters,
-        base_job_name=base_job_name
+        base_job_name=base_job_name,
+        max_run=5*24*60*60 # 5 days
     )
     es.fit({"training": data_path})

@@ -15,9 +15,18 @@ DEPENDENCIES = [
     "grants_tagger/utils.py",
     "grants_tagger/models.py"
 ]
-PROJECTS_BUCKET = os.environ["PROJECTS_BUCKET"]
-PROJECT_NAME = os.environ["PROJECT_NAME"]
-SAGEMAKER_ROLE = os.environ["SAGEMAKER_ROLE"]
+if 'PROJECTS_BUCKET' not in os.environ:
+    logger.warning("PROJECTS_BUCKET not in environment syncing data and SageMaker will not work.")
+else:
+    PROJECTS_BUCKET = os.environ["PROJECTS_BUCKET"]
+if 'PROJECT_NAME' not in os.environ:
+    logger.warning("PROJECTS_NAME not in environment. Syncing data and SageMaker will not work")
+else:
+    PROJECT_NAME = os.environ["PROJECT_NAME"]
+if 'SAGEMAKER_ROLE' not in os.environ:
+    logger.warning("SAGEMAKER_ROLE not in environment. SageMAker will not work")
+else:
+    SAGEMAKER_ROLE = os.environ["SAGEMAKER_ROLE"]
 
 def upload_code(entrypoint, dependencies, bucket=PROJECTS_BUCKET,
         prefix=PROJECT_NAME):

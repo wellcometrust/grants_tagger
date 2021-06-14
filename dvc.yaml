@@ -117,7 +117,7 @@ stages:
     - train.mesh-cnn.cnn.nb_epochs
     - train.mesh-cnn.cnn.dropout
     outs:
-    - models/disease_mesh_label_binarizer-2021.03.0
+    - models/disease_mesh_label_binarizer-2021.03.0.pkl
     - models/disease_mesh_cnn-2021.03.0
   evaluate_mesh_cnn:
     cmd: grants_tagger evaluate model mesh-cnn models/disease_mesh_cnn-2021.03.0

@@ -86,6 +86,18 @@ clean: ## Clean hidden and compiled files
 	find . -type f -name "*flymake*" -delete
 	find . -type f -name "#*#" -delete
 
+.PHONY: aws-docker-login
+aws-docker-login:
+	aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin $(AWS_ACCOUNT_ID).dkr.ecr.eu-west-1.amazonaws.com
+
+.PHONY: build-docker
+build-docker: ## Builds Docker container with grants_tagger
+	docker build -t $(ECR_IMAGE):latest -f Dockerfile .
+
+.PHONY: push-docker
+push-docker: aws-docker-login ## Pushes Docker container to ECR
+	docker push $(ECR_IMAGE):latest
+
 help: ## Show help message
 	@IFS=$$'\n' ; \
 	help_lines=(`fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##/:/'`); \
@@ -102,15 +114,3 @@ help: ## Show help message
 		printf '\033[0m'; \
 		printf "%s\n" $$help_info; \
 	done
-
-.PHONY: aws-docker-login
-aws-docker-login:
-	aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin $(AWS_ACCOUNT_ID).dkr.ecr.eu-west-1.amazonaws.com
-
-.PHONY: build-docker
-build-docker: ## Builds Docker container with grants_tagger
-	docker build -t $(ECR_IMAGE):latest -f Dockerfile .
-
-.PHONY: push-docker
-push-docker: aws-docker-login ## Pushes Docker container to ECR
-	docker push $(ECR_IMAGE):latest

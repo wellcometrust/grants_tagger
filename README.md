@@ -421,13 +421,12 @@ expected in the future when newer versions will have been published.
 
 ## 📋 Env variables
 
-You need to set the following variables for either syncing data and models
-to s3 or using sagemaker.
+You need to set the following variables for sagemaker to wor.
 
 Variable         | Required for       | Description
 ---------------- | ------------------ | ----------
-PROJECTS_BUCKET  | s3 sync, sagemaker | s3 bucket for data and models e.g. datalabs-data
-PROJECT_NAME     | s3 sync, sagemaker | s3 prefix for specific project e.g.grants_tagger
+PROJECTS_BUCKET  | sagemaker          | s3 bucket for data and models e.g. datalabs-data
+PROJECT_NAME     | sagemaker          | s3 prefix for specific project e.g.grants_tagger
 AWS_ACCOUNT_ID   | sagemaker          | aws account id, ask aws adminstrator
 ECR_IMAGE        | sagemaker          | ecr image with dependencies to run grants tagger
 SAGEMAKER_ROLE   | sagemaker          | aws sagemaker role, ask aws administrator

@@ -15,21 +15,14 @@ DEPENDENCIES = [
     "grants_tagger/utils.py",
     "grants_tagger/models.py"
 ]
-if 'PROJECTS_BUCKET' not in os.environ:
-    logger.warning("PROJECTS_BUCKET not in environment syncing data and SageMaker will not work.")
-else:
+try:
     PROJECTS_BUCKET = os.environ["PROJECTS_BUCKET"]
-if 'PROJECT_NAME' not in os.environ:
-    logger.warning("PROJECTS_NAME not in environment. Syncing data and SageMaker will not work")
-else:
     PROJECT_NAME = os.environ["PROJECT_NAME"]
-if 'SAGEMAKER_ROLE' not in os.environ:
-    logger.warning("SAGEMAKER_ROLE not in environment. SageMAker will not work")
-else:
     SAGEMAKER_ROLE = os.environ["SAGEMAKER_ROLE"]
+except KeyError:
+    logger.warning("One or more of PROJECTS_BUCKET, PROJECT_NAME, SAGEMAKER_ROLE is not set. SageMaker will not work.")
 
-def upload_code(entrypoint, dependencies, bucket=PROJECTS_BUCKET,
-        prefix=PROJECT_NAME):
+def upload_code(entrypoint, dependencies, bucket, prefix):
     """
     Upload code for train
 
@@ -105,7 +98,7 @@ def create_hyperparameters(entrypoint, code_path, model_path, data_path, label_b
     
 def train_with_sagemaker(instance_type="local", config_version=None, **kwargs):
     """Invokes train with kwargs using Sagemaker using instance type"""
-    code_path = upload_code(ENTRYPOINT, DEPENDENCIES)
+    code_path = upload_code(ENTRYPOINT, DEPENDENCIES, bucket=PROJECTS_BUCKET, prefix=PROJECT_NAME)
     logger.info(code_path)
 
     hyperparameters = create_hyperparameters(ENTRYPOINT, code_path, **kwargs)

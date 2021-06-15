@@ -77,6 +77,9 @@ build: ## Create wheel distribution
 .PHONY: deploy
 deploy: ## Deploy wheel to public s3 bucket
 	aws s3 cp --recursive --exclude "*" --include "*.whl" --acl public-read dist/ s3://$(PUBLIC_PROJECT_BUCKET)
+	git tag v$(shell python setup.py --version)
+	git push --tags
+	$(VIRTUALENV)/bin/python -m twine upload --repository pypi dist/*
 
 .PHONY: clean
 clean: ## Clean hidden and compiled files

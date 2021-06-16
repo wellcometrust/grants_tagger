@@ -1,8 +1,7 @@
 .DEFAULT_GOAL := help
 
-PROJECT_NAME := grants_tagger
 
-PRIVATE_PROJECT_BUCKET := datalabs-data/$(PROJECT_NAME)
+PRIVATE_PROJECT_BUCKET := $(PROJECTS_BUCKET)/$(PROJECT_NAME)
 PUBLIC_PROJECT_BUCKET := datalabs-public/$(PROJECT_NAME)
 
 PYTHON := python3.8
@@ -63,7 +62,7 @@ update-requirements: ## Updates requirement
 	$(VIRTUALENV)/bin/pip install -r unpinned_test_requirements.txt
 	echo "#Created by Makefile. Do not edit." > requirements.txt
 	$(VIRTUALENV)/bin/pip freeze | grep -v pkg-resources==0.0.0 | grep -v wellcomeml >> requirements.txt
-	echo "-e git://github.com/wellcometrust/WellcomeML.git@632fe3b89bd757a33df19c59d976f88f7833f3b4#egg=wellcomeml" >> requirements.txt
+	echo "-e git://github.com/wellcometrust/WellcomeML.git@4e96150ff98ccbb3a12e137771fab362c02fa7f1#egg=wellcomeml" >> requirements.txt
 
 .PHONY: test
 test: ## Run tests
@@ -87,6 +86,18 @@ clean: ## Clean hidden and compiled files
 	find . -type d -name "__pycache__" -delete
 	find . -type f -name "*flymake*" -delete
 	find . -type f -name "#*#" -delete
+
+.PHONY: aws-docker-login
+aws-docker-login:
+	aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin $(AWS_ACCOUNT_ID).dkr.ecr.eu-west-1.amazonaws.com
+
+.PHONY: build-docker
+build-docker: ## Builds Docker container with grants_tagger
+	docker build -t $(ECR_IMAGE):latest -f Dockerfile .
+
+.PHONY: push-docker
+push-docker: aws-docker-login ## Pushes Docker container to ECR
+	docker push $(ECR_IMAGE):latest
 
 help: ## Show help message
 	@IFS=$$'\n' ; \

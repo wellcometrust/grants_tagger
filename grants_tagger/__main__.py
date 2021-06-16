@@ -2,7 +2,10 @@ from typing import List, Optional
 from pathlib import Path
 import configparser
 import logging
+import tarfile
+import tempfile
 import yaml
+import json
 import os
 
 import typer
@@ -18,6 +21,7 @@ from grants_tagger.preprocess_mesh import preprocess_mesh
 from grants_tagger.train import train_and_evaluate
 from grants_tagger.tune_threshold import tune_threshold
 from grants_tagger.optimise_params import optimise_params
+from grants_tagger.train_with_sagemaker import train_with_sagemaker
 
 app = typer.Typer(add_completion=False)
 
@@ -41,6 +45,7 @@ def convert_dvc_to_sklearn_params(parameters):
     else:
         return parameters
 
+# Move to train and import from there
 @app.command()
 def train(
         data_path: Optional[Path] = typer.Argument(None, help="path to processed JSON data to be used for training"),
@@ -54,7 +59,9 @@ def train(
         test_size: float = typer.Option(0.25, help="float or int indicating either percentage or absolute number of test examples"),
         sparse_labels: bool = typer.Option(False, help="flat about whether labels should be sparse when binarized"),
         cache_path: Optional[Path] = typer.Option(None, help="path to cache data transformartions"),
-        config: Path = None):
+        config: Path = None,
+        cloud: bool = typer.Option(False, help="flag to train using Sagemaker"),
+        instance_type: str = typer.Option("local", help="instance type to use when training with Sagemaker")):
 
     params_path = os.path.join(os.path.dirname(__file__), "../params.yaml")
     with open(params_path) as f:
@@ -65,13 +72,14 @@ def train(
         parameters = params["train"].get(approach)
         parameters = convert_dvc_to_sklearn_params(parameters)
         parameters = str(parameters)
-        logger.debug(parameters)
+        logger.info(parameters)
 
     # Note that config overwrites parameters for backwards compatibility
     if config:
         cfg = configparser.ConfigParser(allow_no_value=True)
         cfg.read(config)
-
+        
+        config_version = cfg["DEFAULT"]["version"]
         data_path = cfg["data"]["train_data_path"]
         label_binarizer_path = cfg["model"]["label_binarizer_path"]
         approach = cfg["model"]["approach"]
@@ -88,10 +96,19 @@ def train(
             sparse_labels = bool(sparse_labels)
         cache_path = cfg["data"].get("cache_path")
     
-    if model_path and os.path.exists(model_path):
+    if cloud:
+        if not config:
+            config_version = None 
+        train_with_sagemaker(
+            data_path=data_path, label_binarizer_path=label_binarizer_path,
+            approach=approach, parameters=parameters, model_path=model_path,
+            test_data_path=test_data_path, threshold=threshold,
+            data_format=data_format, test_size=test_size,
+            sparse_labels=sparse_labels, cache_path=cache_path,
+            instance_type=instance_type, config_version=config_version)
+    elif model_path and os.path.exists(model_path):
         print(f"{model_path} exists. Remove if you want to rerun.")
     else:
-
         train_and_evaluate(
             data_path, label_binarizer_path, approach,
             parameters, model_path=model_path,

@@ -138,6 +138,11 @@ Options:
 
   --cache-path PATH               path to cache data transformartions
   --config PATH
+  --cloud / --no-cloud            flag to train using Sagemaker  [default:
+                                  False]
+
+  --instance-type TEXT            instance type to use when training with
+                                  Sagemaker  [default: local]
   --help                          Show this message and exit.
 ```
 
@@ -413,6 +418,29 @@ If you want to add additional dependencies, add the library to
 will ensure that all requirements in the development enviroment are pinned
 to exact versions which ensures the code will continue running as 
 expected in the future when newer versions will have been published.
+
+## 📋 Env variables
+
+You need to set the following variables for sagemaker or sync to work.
+
+Variable              | Required for       | Description
+--------------------- | ------------------ | ----------
+PROJECTS_BUCKET       | sagemaker, sync    | s3 bucket for data and models e.g. datalabs-data
+PROJECT_NAME          | sagemaker, sync    | s3 prefix for specific project e.g.grants_tagger
+AWS_ACCOUNT_ID        | sagemaker          | aws organisational account id, ask aws adminstrator
+ECR_IMAGE             | sagemaker          | ecr image with dependencies to run grants tagger
+SAGEMAKER_ROLE        | sagemaker          | aws sagemaker role, ask aws administrator
+AWS_ACCESS_KEY_ID     | sagemaker, sync    | aws access key, for aws cli to work
+AWS_SECRET_ACCESS_KEY | sagemaker, sync    | aws secret key, for aws cli to work
+
+There is a `.envrc.template` with the env variables needed. If you
+use [direnv](https://direnv.net) then you can use it to populate
+your `.envrc` which will export the variables automatically, otherwise
+ensure you export every time or include in your bash profile.
+
+Note that aws keys are not included as there are various ways to 
+setup aws, for example using `aws configure` or `AWS_PROFILE` and
+`.aws/credentials`
 
 ## ✔️  Reproduce
 

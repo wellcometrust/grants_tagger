@@ -98,5 +98,31 @@ def train_and_evaluate(
                 f.write(pickle.dumps(model))
         else:
             model.save(model_path)
-    
+
     return f1
+
+
+if __name__ == "__main__":
+    # Note that this CLI is purely for SageMaker so it is quite minimal
+    import argparse
+
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument("--data_path", type=Path)
+    argparser.add_argument("--model_path", type=Path)
+    argparser.add_argument("--label_binarizer_path", type=Path)
+    argparser.add_argument("--approach", type=str)
+    argparser.add_argument("--parameters", type=str)
+    argparser.add_argument("--test_data_path", type=Path)
+    argparser.add_argument("--threshold", type=float)
+    argparser.add_argument("--data_format", type=str)
+    argparser.add_argument("--test_size", type=float)
+    argparser.add_argument("--sparse_labels", type=bool)
+    argparser.add_argument("--cache_path", type=Path)
+    args = argparser.parse_args()
+
+    train_and_evaluate(
+        args.data_path, args.label_binarizer_path, args.approach,
+        args.parameters, test_data_path=args.test_data_path,
+        threshold=args.threshold, model_path=args.model_path,
+        data_format=args.data_format, test_size=args.test_size,
+        sparse_labels=args.sparse_labels)

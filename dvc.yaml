@@ -86,17 +86,17 @@ stages:
     - results/science_ensemble.json:
         cache: false
   preprocess_bioasq_mesh:
-    cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2020.json data/processed/disease_mesh.jsonl
-      --mesh-metadata-path data/raw/desc2020.xml
+    cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/disease_mesh.jsonl
+      --mesh-metadata-path data/raw/desc2021.xml
     deps:
-    - data/raw/allMeSH_2020.json
-    - data/raw/desc2020.xml
+    - data/raw/allMeSH_2021.json
+    - data/raw/desc2021.xml
     - grants_tagger/preprocess_mesh.py
     outs:
     - data/processed/disease_mesh.jsonl
   train_mesh_cnn:
     cmd: grants_tagger train data/processed/disease_mesh.jsonl
-      models/disease_mesh_label_binarizer-2021.03.0.pkl models/disease_mesh_cnn-2021.03.0
+      models/disease_mesh_label_binarizer-2021.06.0.pkl models/disease_mesh_cnn-2021.06.0
       --approach mesh-cnn --sparse-labels
     deps:
     - data/processed/disease_mesh.jsonl
@@ -117,28 +117,28 @@ stages:
     - train.mesh-cnn.cnn.nb_epochs
     - train.mesh-cnn.cnn.dropout
     outs:
-    - models/disease_mesh_label_binarizer-2021.03.0.pkl
-    - models/disease_mesh_cnn-2021.03.0
+    - models/disease_mesh_label_binarizer-2021.06.0.pkl
+    - models/disease_mesh_cnn-2021.06.0
   evaluate_mesh_cnn:
-    cmd: grants_tagger evaluate model mesh-cnn models/disease_mesh_cnn-2021.03.0
-      data/processed/disease_mesh.jsonl models/disease_mesh_label_binarizer-2021.03.0.pkl
-      --results_path results/mesh_cnn.json
+    cmd: grants_tagger evaluate model mesh-cnn models/disease_mesh_cnn-2021.06.0
+      data/processed/disease_mesh.jsonl models/disease_mesh_label_binarizer-2021.06.0.pkl
+      --results-path results/mesh_cnn.json
     deps:
-    - grants_tagger/evaluate_models.py
-    - models/disease_mesh_cnn-2021.03.0
-    - models/disease_mesh_label_binarizer-2021.03.0.pkl
+    - grants_tagger/evaluate_model.py
+    - models/disease_mesh_cnn-2021.06.0
+    - models/disease_mesh_label_binarizer-2021.06.0.pkl
     metrics:
     - results/mesh_cnn.json:
         cache: false
   evaluate_mesh_cnn_on_grants:
-    cmd: grants_tagger evaluate model mesh-cnn models/disease_mesh_cnn-2021.03.0
-      data/processed/disease_tags_validation_grants.xlsx models/disease_mesh_label_binarizer-2021.03.0.pkli \
-      --results_path results/mesh_cnn_on_grants.json --grants
+    cmd: grants_tagger evaluate model mesh-cnn models/disease_mesh_cnn-2021.06.0
+      data/raw/disease_tags_validation_grants.xlsx models/disease_mesh_label_binarizer-2021.06.0.pkl
+      --results-path results/mesh_cnn_on_grants.json --grants
     deps:
     - data/raw/disease_tags_validation_grants.xlsx
     - grants_tagger/evaluate_mesh_on_grants.py
-    - models/disease_mesh_cnn-2021.03.0
-    - models/disease_mesh_label_binarizer-2021.03.0.pkl
+    - models/disease_mesh_cnn-2021.06.0
+    - models/disease_mesh_label_binarizer-2021.06.0.pkl
     metrics:
     - results/mesh_cnn_on_grants.json:
         cache: false

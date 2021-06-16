@@ -143,22 +143,22 @@ stages:
       md5: e3ccf07bfd0e4a7ba8ed5215da1db9f0
       size: 88
   preprocess_bioasq_mesh:
-    cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2020.json data/processed/disease_mesh.jsonl
-      --mesh-metadata-path data/raw/desc2020.xml
+    cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/disease_mesh.jsonl
+      --mesh-metadata-path data/raw/desc2021.xml
     deps:
-    - path: data/raw/allMeSH_2020.json
-      md5: ab9c0fef793ca03c0a3984c3194925eb
-      size: 26219751317
-    - path: data/raw/desc2020.xml
-      md5: 0ded6315fca9d03a2712bd55c85f6e3c
-      size: 295102741
+    - path: data/raw/allMeSH_2021.json
+      md5: e827a6b8062d1312664dcf075c12d89f
+      size: 27547042745
+    - path: data/raw/desc2021.xml
+      md5: 8663a7dd8e1895dd22525d42b80cd2df
+      size: 300410104
     - path: grants_tagger/preprocess_mesh.py
       md5: 49b176f0a97416d3cddf5282a9968a48
       size: 3813
     outs:
     - path: data/processed/disease_mesh.jsonl
-      md5: de5f70c61a480ff2d0cdba2fe43cbc43
-      size: 11482247962
+      md5: f4463f861869e7516caef78ff75600ac
+      size: 12179582610
   evaluate_science_ensemble:
     cmd: grants_tagger evaluate model science-ensemble models/tfidf-svm-2020.05.2.pkl,models/scibert-2020.05.5
       data/processed/science_grants_tagged_title_synopsis.jsonl models/label_binarizer-2020.05.2.pkl
@@ -181,3 +181,39 @@ stages:
     - path: results/science_ensemble.json
       md5: 59d59d5d555c2b3414d0fb4ed1b6914a
       size: 89
+  train_mesh_cnn:
+    cmd: grants_tagger train data/processed/disease_mesh.jsonl models/disease_mesh_label_binarizer-2021.06.0.pkl
+      models/disease_mesh_cnn-2021.06.0 --approach mesh-cnn --sparse-labels
+    deps:
+    - path: data/processed/disease_mesh.jsonl
+      md5: f4463f861869e7516caef78ff75600ac
+      size: 12179582610
+    - path: grants_tagger/models.py
+      md5: 234124a679b6f761241c4ff7ba7b2fd7
+      size: 25324
+    - path: grants_tagger/train.py
+      md5: 78683e5785fe5f403b4d1f58211b5dc8
+      size: 3971
+    params:
+      params.yaml:
+        train.mesh-cnn.cnn.attention: true
+        train.mesh-cnn.cnn.batch_size: 256
+        train.mesh-cnn.cnn.dense_size: 10000
+        train.mesh-cnn.cnn.dropout: 0.1
+        train.mesh-cnn.cnn.hidden_size: 400
+        train.mesh-cnn.cnn.l2: 7e-07
+        train.mesh-cnn.cnn.learning_rate: 0.0001
+        train.mesh-cnn.cnn.learning_rate_decay: 0.8
+        train.mesh-cnn.cnn.multilabel: true
+        train.mesh-cnn.cnn.nb_epochs: 10
+        train.mesh-cnn.vec.sequence_length: 400
+        train.mesh-cnn.vec.tokenizer_library: transformers
+        train.mesh-cnn.vec.vocab_size: 30000
+    outs:
+    - path: models/disease_mesh_cnn-2021.06.0
+      md5: 08ec776180c1d45ff0f35024833f843d.dir
+      size: 808278043
+      nfiles: 5
+    - path: models/disease_mesh_label_binarizer-2021.06.0.pkl
+      md5: 85be50a39457aa83f1dd4fbb2b1f26b6
+      size: 147371

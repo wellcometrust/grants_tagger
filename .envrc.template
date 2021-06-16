@@ -1,0 +1,6 @@
+export PROJECTS_BUCKET=datalabs-data
+export PROJECT_NAME=grants_tagger
+
+export AWS_ACCOUNT_ID=xxx
+export ECR_IMAGE=xxx
+export SAGEMAKER_ROLE=xxx

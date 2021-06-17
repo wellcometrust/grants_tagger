@@ -285,23 +285,31 @@ Options:
 ### 🔖 Tag
 
 Tag is the main command of the tool as it allows you to tag with a pretrained
-model. This command currently works on a CSV with "Grant ID, Reference, Grant No."
-as fieldnames but will soon change to accomodate a more general format and
-to be used in production at Wellcome for tagging. 
+model. This command expects a csv file with grants that contain a grant_id
+field and some text fields which can be specified with the relevant params.
+The default values work for Wellcome grants.
 
 ```
 Usage: grants_tagger tag [OPTIONS] GRANTS_PATH TAGGED_GRANTS_PATH MODEL_PATH
-                         LABEL_BINARIZER_PATH
+                         LABEL_BINARIZER_PATH APPROACH
 
 Arguments:
   GRANTS_PATH           path to grants csv  [required]
   TAGGED_GRANTS_PATH    path to output csv  [required]
   MODEL_PATH            path to model  [required]
   LABEL_BINARIZER_PATH  label binarizer for Y  [required]
+  APPROACH              approach used to train the model  [required]
 
 Options:
-  --threshold FLOAT  threshold upon which to assign tag  [default: 0.5]
-  --help             Show this message and exit.
+  --threshold FLOAT         threshold upon which to assign tag  [default: 0.5]
+  --grant-id-field TEXT     field name for grant id  [default: grant_id]
+  --grant-text-fields TEXT  comma separated text fields to be used for tagging
+                            [default: title,synopsis]
+
+  --text-null-value TEXT    value indicating null in text fields  [default: No
+                            Data Entered]
+
+  --help                    Show this message and exit.
 ```
 
 ### 🎛 Tune

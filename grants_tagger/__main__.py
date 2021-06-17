@@ -354,7 +354,7 @@ app.add_typer(tune_app, name="tune")
 def tag(
         grants_path: Path = typer.Argument(..., help="path to grants csv"),
         tagged_grants_path: Path = typer.Argument(..., help="path to output csv"),
-        model_path: Path = typer.Argument(..., help="path to model"),
+        model_path: str = typer.Argument(..., help="path to model"),
         label_binarizer_path: Path = typer.Argument(..., help="label binarizer for Y"),
         approach: str = typer.Argument(..., help="approach used to train the model"),
         threshold: float = typer.Option(0.5, help="threshold upon which to assign tag"),

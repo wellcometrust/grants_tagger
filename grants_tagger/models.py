@@ -193,7 +193,7 @@ class MeshCNN():
         
     def _init_classifier(self):
         self.classifier = CNNClassifier(
-            learning_rate=0.01, dropout=0.1, 
+            learning_rate=0.01, dropout=0.1, sparse_y=True, 
             nb_epochs=20, nb_layers=4, multilabel=True,
             threshold=self.threshold, batch_size=self.batch_size)
     

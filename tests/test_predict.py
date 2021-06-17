@@ -111,7 +111,7 @@ def mesh_cnn_path(tmp_path):
     model_path = os.path.join(tmp_path, "mesh_cnn")
     train_and_evaluate(mesh_data_path, label_binarizer_path,
         approach="mesh-cnn", model_path=model_path,
-        verbose=False)
+        sparse_labels=True, verbose=False)
     return model_path
 
 @pytest.fixture

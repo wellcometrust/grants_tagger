@@ -29,7 +29,7 @@ def test_evaluate_mesh_on_grants():
         texts = [example["text"] for example in TRAIN_DATA]
         tags = [example["tags"] for example in TRAIN_DATA]
 
-        label_binarizer = MultiLabelBinarizer()
+        label_binarizer = MultiLabelBinarizer(sparse_output=True)
         label_binarizer.fit(tags)
         with open(label_binarizer_path, "wb") as f:
             f.write(pickle.dumps(label_binarizer))

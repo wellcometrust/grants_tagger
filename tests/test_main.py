@@ -320,3 +320,15 @@ def test_tune_threshold_command():
 def test_tune_params_command():
     # no test for optimise params yet
     pass
+
+
+def test_tag_science_ensemble():
+    pass
+
+
+def test_tag_mesh_cnn():
+    pass
+
+
+def test_tag_zero_threshold():
+    pass

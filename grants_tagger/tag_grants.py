@@ -8,63 +8,51 @@ import csv
 from grants_tagger.predict import predict_tags
 
 
-def yield_grants(grants_path, batch_size=32):
-    """yields grants in batches from file"""
-    with open(grants_path) as f:
-        csv_reader = csv.DictReader(f)
-
-        grants = []
-        for grant in csv_reader:
-            grants.append(grant)
-
-            if len(grants) >= batch_size:
-                yield grants
-                grants = []
-
-        if grants:
-            yield grants
+def yield_batched_grants(input_file, batch_size=256):
+    """yield grants in batches from input file line by line"""
+    with open(input_file, "r") as tf:
+        csv_reader = csv.DictReader(tf, delimiter=",", quotechar='"')
+        lines = []
+        for line in csv_reader:
+            lines.append(line)
+            if len(lines) >= batch_size:
+                yield lines
+                lines = []
+        if lines:
+            yield lines
 
 
-def yield_tagged_grants(grants, model_path, label_binarizer_path, approach, threshold):
-    """
-    Tags grants and outputs tagged grant data structure
+def tag_grants(grants_path, tagged_grants_path, model_path, label_binarizer_path, approach, threshold=0.5,
+        grant_id_field = "grant_id", grant_text_fields=["title", "synopsis"], text_null_value="No Data Entered"):
 
-    Args:
-        grant: dict with keys grant_id, reference, grant_no, title, synopsis
-    Returns
-        tagged_grant: dict with keys
-            Grant ID, Reference, Grant No
-            Tag #{1..10}
-    """
-    grants_texts = [g["title"]+g["synopsis"] for g in grants]
-    grants_tags = predict_tags(
-        grants_texts,
-        threshold=threshold,
-        approach=approach,
-        model_path=model_path,
-        label_binarizer_path=label_binarizer_path
-    )
-    for grant, tags in zip(grants, grants_tags):
-        tagged_grant = {
-            'Grant ID': grant['grant_id'],
-            'Reference': grant['reference'],
-            'Grant No.': grant['grant_no']
-        }
-        tagged_grant.update({
-            f"Tag #{i+1}": tag
-            for i, tag in enumerate(tags)
-            if i < 10 
-        })
-        yield tagged_grant
-
-
-def tag_grants(grants_path, tagged_grants_path, model_path, label_binarizer_path, approach, threshold=0.5):
-    with open(tagged_grants_path, 'w') as f_o:
-        fieldnames = ["Grant ID", "Reference", "Grant No."]
-        fieldnames += [f"Tag #{i}" for i in range(1,11)]
-        csv_writer = csv.DictWriter(f_o, fieldnames=fieldnames)
+    with open(tagged_grants_path, "w") as tagged_grants_tf:
+        fieldnames = ["Grant id", "Tag", "Prob"]
+        csv_writer = csv.DictWriter(
+            tagged_grants_tf, fieldnames=fieldnames, delimiter=",",
+            quotechar='"', quoting=csv.QUOTE_MINIMAL
+        )
         csv_writer.writeheader()
 
-        for grants in yield_grants(grants_path, batch_size=512):
-            for tagged_grant in yield_tagged_grants(grants, model_path, label_binarizer_path, approach, threshold):
-                csv_writer.writerow(tagged_grant)
+        for grants in yield_batched_grants(grants_path, 128):
+            grants_text = [
+                " ".join([
+                    grant[field].replace(text_null_value, "")
+                    for field in grant_text_fields
+                ])
+                for grant in grants
+            ]
+
+            # Removes consecutive white spaces which are uninformative and may cause error #30
+            grants_text = [" ".join(text.split()) for text in grants_text if text.strip()] # Removes empty text
+            grants_tags = predict_tags(grants_text, model_path, label_binarizer_path, approach,
+                    probabilities=True, threshold=threshold)
+
+            for grant, tags in zip(grants, grants_tags):
+                for tag, prob in tags.items():
+                    csv_writer.writerow({
+                        'Grant id': grant[grant_id_field],
+                        'Tag': tag,
+                        'Prob': prob
+                    })
+
+            tagged_grants_tf.flush()

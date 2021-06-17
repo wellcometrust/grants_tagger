@@ -72,7 +72,7 @@ def predict_tags(
     tags = []
     for y_pred_proba in Y_pred_proba:
         if probabilities:
-            tags_i = {tag: prob for tag, prob in zip(label_binarizer.classes_, y_pred_proba)}
+            tags_i = {tag: prob for tag, prob in zip(label_binarizer.classes_, y_pred_proba) if prob > threshold}
         else:
             tags_i = [tag for tag, prob in zip(label_binarizer.classes_, y_pred_proba) if prob > threshold]
         tags.append(tags_i)

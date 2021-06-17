@@ -34,7 +34,7 @@ def tagged_grants_path(tmp_path):
 
 def test_tag_grants(grants_path, tagged_grants_path):
     with patch('grants_tagger.tag_grants.predict_tags') as mock_predict:
-        mock_predict.return_value = [[f"tag #{i}"] for i in range(5)]
+        mock_predict.return_value = [{f"tag #{i}": 0.8} for i in range(5)]
         tag_grants(
             grants_path,
             tagged_grants_path,

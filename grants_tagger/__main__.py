@@ -356,10 +356,16 @@ def tag(
         tagged_grants_path: Path = typer.Argument(..., help="path to output csv"),
         model_path: Path = typer.Argument(..., help="path to model"),
         label_binarizer_path: Path = typer.Argument(..., help="label binarizer for Y"),
-        threshold: float = typer.Option(0.5, help="threshold upon which to assign tag")):
+        approach: str = typer.Argument(..., help="approach used to train the model"),
+        threshold: float = typer.Option(0.5, help="threshold upon which to assign tag"),
+        grant_id_field: str = typer.Option("grant_id", help="field name for grant id"),
+        grant_text_fields: str = typer.Option("title,synopsis", help="comma separated text fields to be used for tagging"),
+        text_null_value: str = typer.Option("No Data Entered", help="value indicating null in text fields")):
 
+    grant_text_fields = grant_text_fields.split(",")
     tag_grants(grants_path, tagged_grants_path, model_path,
-               label_binarizer_path, threshold)
+               label_binarizer_path, approach, threshold,
+               grant_id_field, grant_text_fields, text_null_value)
 
 
 download_app = typer.Typer()

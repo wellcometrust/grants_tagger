@@ -22,6 +22,7 @@ from grants_tagger.train import train_and_evaluate
 from grants_tagger.tune_threshold import tune_threshold
 from grants_tagger.optimise_params import optimise_params
 from grants_tagger.train_with_sagemaker import train_with_sagemaker
+from grants_tagger.evaluate_mesh_on_grants import evaluate_mesh_on_grants
 
 app = typer.Typer(add_completion=False)
 
@@ -230,6 +231,7 @@ def model(
         label_binarizer_path: Path = typer.Argument(..., help="path to label binarize"),
         threshold: Optional[str] = typer.Option("0.5", help="threshold or comma separated thresholds used to assign tags"),
         results_path: str = typer.Option("results.json", help="path to save results"),
+        grants: bool = typer.Option(False, help="flag on whether the data is grants data instead of publications to evaluate MeSH"),
         config: Optional[Path] = typer.Option(None, help="path to config file that defines arguments")):
 
     if config:
@@ -247,8 +249,13 @@ def model(
         threshold = [float(t) for t in threshold.split(",")]
     else:
         threshold = float(threshold)
-    evaluate_model(approach, model_path, data_path, label_binarizer_path, threshold, results_path=results_path)
-
+    
+    if grants:
+        evaluate_mesh_on_grants(approach, data_path,
+            model_path, label_binarizer_path)
+    else:
+        evaluate_model(approach, model_path, data_path,
+            label_binarizer_path, threshold, results_path=results_path)
 
 @evaluate_app.command()
 def human(data_path: Path, label_binarizer_path: Path):

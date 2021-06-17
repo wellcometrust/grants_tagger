@@ -113,9 +113,9 @@ def create_model(model_path, label_binarizer_path, data):
     model.save(model_path)
 
 
-def create_label_binarizer(label_binarizer_path, data):
+def create_label_binarizer(label_binarizer_path, data, sparse_labels=False):
     tags = [example["tags"] for example in data]
-    label_binarizer = MultiLabelBinarizer()
+    label_binarizer = MultiLabelBinarizer(sparse_output=sparse_labels)
     label_binarizer.fit(tags)
     write_pickle(label_binarizer_path, label_binarizer)
 
@@ -196,7 +196,7 @@ def test_predict_command():
         model_path = os.path.join(tmp_dir)
         label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
 
-        create_label_binarizer(label_binarizer_path, DATA)
+        create_label_binarizer(label_binarizer_path, DATA, sparse_labels=True)
         create_model(model_path, label_binarizer_path, DATA)
 
         text = "malaria"
@@ -217,7 +217,7 @@ def test_evaluate_model_command():
         data_path = os.path.join(tmp_dir, "data.jsonl")
         label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
 
-        create_label_binarizer(label_binarizer_path, MESH_DATA)
+        create_label_binarizer(label_binarizer_path, MESH_DATA, sparse_labels=True)
         create_model(model_path, label_binarizer_path, MESH_DATA)
         write_jsonl(data_path, MESH_DATA)
 
@@ -301,7 +301,7 @@ def test_tune_threshold_command():
         thresholds_path = os.path.join(tmp_dir, "thresholds.pkl")
 
         write_jsonl(data_path, MESH_DATA)
-        create_label_binarizer(label_binarizer_path, MESH_DATA)
+        create_label_binarizer(label_binarizer_path, MESH_DATA, sparse_labels=True)
         create_model(model_path, label_binarizer_path, MESH_DATA)
 
         result = runner.invoke(app, [

@@ -17,7 +17,8 @@ Version   | Approach    | Micro f1 in Pubs | Micro f1 in Grants | Description
 2020.9.4  | cnn         | 0.62             |                    | 1e-3 lr, **0 dr**, 1e-7 l2, 4 layers, attention
 2020.9.5  | cnn         | 0.63             |                    | 1e-3 lr, 0.1 dr, **1e-9 l2**, 4 layers, attention
 2020.9.6  | cnn         | 0.64             |                    | 1e-3 lr, 0.1 dr, 1e-7 l2, 8 layers, attention
-2021.3.0  | cnn         | 0.63             |                    | same as 2020.09.0 but with transformers as tokenizers_library, model size reduced from 2.6GB to 760MB
+2021.3.0  | cnn         | 0.63             | 0.68               | same as 2020.09.0 but with transformers as tokenizers_library, model size reduced from 2.6GB to 760MB
+2021.6.0  | mesh-cnn    | 0.62             | 0.66               | same as 2021.3.0 but with mesh 2021 data that contains COVID
 
 ## 2020.07.0
 
@@ -96,4 +97,12 @@ weighted avg       0.73      0.56      0.62   4153163
    macro avg       0.64      0.40      0.47   4153163
 weighted avg       0.74      0.54      0.61   4153163
  samples avg       0.72      0.62      0.63   4153163
+```
+
+## 2021.06.0
+```
+   micro avg       0.78      0.52      0.62   4357732
+   macro avg       0.61      0.36      0.43   4357732
+weighted avg       0.75      0.52      0.59   4357732
+ samples avg       0.72      0.60      0.62   4357732
 ```

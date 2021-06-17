@@ -8,6 +8,7 @@ Disease MeSH#TAG_INDEX (ANNOTATOR)
 from argparse import ArgumentParser
 from pathlib import Path
 import pickle
+import json
 
 from sklearn.metrics import f1_score
 import pandas as pd
@@ -32,7 +33,8 @@ def get_texts(data):
     return texts
 
 
-def evaluate_mesh_on_grants(approach, data_path, model_path, label_binarizer_path):
+def evaluate_mesh_on_grants(approach, data_path, model_path, label_binarizer_path,
+        results_path="mesh_on_grants_results.json"):
     data = pd.read_excel(data_path, engine="openpyxl")
 
     with open(label_binarizer_path, "rb") as f:
@@ -46,6 +48,11 @@ def evaluate_mesh_on_grants(approach, data_path, model_path, label_binarizer_pat
     f1 = f1_score(Y, Y_pred, average='micro')
     print(f"F1 micro is {f1}")
 
+    with open(results_path, "w") as f:
+        results = {
+            "f1": f1
+        }
+        f.write(json.dumps(results))
     unique_tags = len(set([t for tags in gold_tags for t in tags]))
     all_tags = len(label_binarizer.classes_)
     print(f"Gold dataset contains examples from {unique_tags} tags out of {all_tags}")
@@ -53,9 +60,11 @@ def evaluate_mesh_on_grants(approach, data_path, model_path, label_binarizer_pat
 
 if __name__ == '__main__':
     argparser = ArgumentParser()
+    argparser.add_argument('--approach', type=str, help="approach used to train model e.g. mesh-cnn")
     argparser.add_argument('--data_path', type=Path, help="path to validation data")
     argparser.add_argument('--model_path', type=Path, help="path to model")
     argparser.add_argument('--label_binarizer_path', type=Path, help="path to disease label binarizer")
     args = argparser.parse_args()
 
-    evaluate_mesh_on_grants(args.data_path, args.model_path, args.label_binarizer_path)
+    evaluate_mesh_on_grants(args.approach, args.data_path,
+            args.model_path, args.label_binarizer_path)

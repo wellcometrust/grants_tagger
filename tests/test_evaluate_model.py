@@ -35,7 +35,7 @@ def binarize_Y(Y, label_binarizer_path):
 def label_binarizer_path(tmp_path):
     label_binarizer_path = os.path.join(tmp_path, "label_binarizer.pkl")
 
-    label_binarizer = MultiLabelBinarizer()
+    label_binarizer = MultiLabelBinarizer(sparse_output=True)
     label_binarizer.fit(Y)
     with open(label_binarizer_path, "wb") as f:
         f.write(pickle.dumps(label_binarizer))

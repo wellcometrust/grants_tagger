@@ -32,7 +32,7 @@ Y_mesh = [
 ]
 
 def test_mesh_cnn(tmp_path):
-    label_binarizer = MultiLabelBinarizer()
+    label_binarizer = MultiLabelBinarizer(sparse_output=True)
     label_binarizer.fit(Y_mesh)
 
     Y_vec = label_binarizer.transform(Y_mesh)

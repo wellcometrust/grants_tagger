@@ -13,7 +13,7 @@ from grants_tagger.predict import predict
 
 
 def evaluate_model(approach, model_path, data_path, label_binarizer_path,
-        threshold, split_data=True, results_path="results.json"):
+        threshold, split_data=True, results_path="model_results.json"):
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
 

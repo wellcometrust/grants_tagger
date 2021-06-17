@@ -28,7 +28,6 @@ def data_path(tmp_path, train_data_path, test_data_path):
 @pytest.fixture
 def label_binarizer_path(tmp_path, data_path):
     label_binarizer_path = os.path.join(tmp_path, "label_binarizer.pkl") 
-    create_label_binarizer(data_path, label_binarizer_path)
     return label_binarizer_path
 
 
@@ -112,7 +111,7 @@ def test_train_model_save(tmp_path, data_path, label_binarizer_path):
     approach = "mesh-cnn"
 
     train_and_evaluate(data_path, label_binarizer_path,
-        approach, model_path=tmp_path)
+        approach, model_path=tmp_path, sparse_labels=True)
 
     expected_vectorizer_path = os.path.join(tmp_path, "vectorizer.pkl")
     expected_model_variables_path = os.path.join(tmp_path, "variables")

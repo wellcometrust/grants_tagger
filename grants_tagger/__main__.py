@@ -231,7 +231,7 @@ def model(
         label_binarizer_path: Path = typer.Argument(..., help="path to label binarize"),
         threshold: Optional[str] = typer.Option("0.5", help="threshold or comma separated thresholds used to assign tags"),
         results_path: str = typer.Option("results.json", help="path to save results"),
-        grants: bool =typer.Option(False, help="flag on whether the data is grants data instead of publications to evaluate MeSH"),
+        grants: bool = typer.Option(False, help="flag on whether the data is grants data instead of publications to evaluate MeSH"),
         config: Optional[Path] = typer.Option(None, help="path to config file that defines arguments")):
 
     if config:

@@ -48,6 +48,8 @@ def predict(X_test, model_path, approach, threshold=0.5, return_probabilities=Fa
     if return_probabilities:
         return model.predict_proba(X_test)
     else:
+        if approach in ['tfidf-svm', 'scibert']:
+            return model.predict_proba(X_test) > threshold
         return model.predict(X_test)
 
 def predict_tags(

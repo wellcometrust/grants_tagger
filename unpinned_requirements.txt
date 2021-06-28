@@ -16,3 +16,4 @@ arff
 python-dateutil<2.8.1,>=2.1
 twine
 sagemaker
+streamlit

@@ -28,7 +28,8 @@ setup(
         'scispacy',
         'dvc',
         'tqdm',
-        'sagemaker'
+        'sagemaker',
+        'streamlit'
     ],
     tests_require=[
         'pytest',

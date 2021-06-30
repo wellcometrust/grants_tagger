@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-from grants_tagger import predict_tags
+from grants_tagger.predict import predict_tags
 
 threshold = st.sidebar.slider("Threshold", min_value=0.0, max_value=1.0, value=0.5)
 text = st.text_area('Grant abstract', 'The cell is...', height=300)
@@ -9,11 +9,6 @@ text = st.text_area('Grant abstract', 'The cell is...', height=300)
 models = {
     "disease_mesh_cnn-2021.03.1": {
         "model_path": "models/disease_mesh_cnn-2021.03.1/",
-        "label_binarizer_path": "models/disease_mesh_label_binarizer.pkl",
-        "approach": "mesh-cnn"
-    },
-    "disease_mesh_cnn-2020.09.0": {
-        "model_path": "models/disease_mesh_cnn-2020.09.0/",
         "label_binarizer_path": "models/disease_mesh_label_binarizer.pkl",
         "approach": "mesh-cnn"
     },

@@ -1,0 +1,19 @@
+FROM python:3.8
+
+WORKDIR /code
+
+COPY grants_tagger/ /code/grants_tagger
+COPY setup.py /code
+COPY requirements.txt /code
+
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+RUN pip install . --no-dependencies
+
+COPY models/disease_mesh_cnn-2021.03.1/ models/disease_mesh_cnn-2021.03.1/
+COPY models/tfidf-svm-2020.05.2.pkl models/
+COPY models/scibert-2020.05.5/ models/scibert-2020.05.5/
+COPY models/label_binarizer.pkl models/
+COPY models/disease_mesh_label_binarizer.pkl models/
+
+CMD ["streamlit", "run", "grants_tagger/streamlit_visualize.py"]

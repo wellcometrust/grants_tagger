@@ -99,6 +99,15 @@ build-docker: ## Builds Docker container with grants_tagger
 push-docker: aws-docker-login ## Pushes Docker container to ECR
 	docker push $(ECR_IMAGE):latest
 
+.PHONY: build-streamlit-docker
+build-streamlit-docker: ## Builds Docker with streamlit and models
+	aws s3 cp --recursive s3://datalabs-data/grants_tagger/models/disease_mesh_cnn-2021.03.1/ models/disease_mesh_cnn-2021.03.1/
+	aws s3 cp s3://datalabs-data/grants_tagger/models/disease_mesh_label_binarizer.pkl models/
+	aws s3 cp s3://datalabs-data/grants_tagger/models/tfidf-svm-2020.05.2.pkl models/
+	aws s3 cp --recursive s3://datalabs-data/grants_tagger/models/scibert-2020.05.5/ models/
+	aws s3 cp s3://datalabs-data/grants_tagger/models/label_binarizer.pkl models/
+	docker build -t streamlitapp -f Dockerfile.streamlit .
+
 help: ## Show help message
 	@IFS=$$'\n' ; \
 	help_lines=(`fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##/:/'`); \

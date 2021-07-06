@@ -29,3 +29,6 @@ venv/**
 
 # Logs
 logs/
+
+# Notebooks
+notebooks/

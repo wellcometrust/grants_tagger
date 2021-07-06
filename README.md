@@ -42,8 +42,8 @@ Grants tagger comes with a nice CLI with the following commands
 
 ## ⌨️  Commands
 
-| Commands     |                                                              |
-| ------------ | ------------------------------------------------------------ |
+| Commands        |                                                              |
+| --------------- | ------------------------------------------------------------ |
 | ⚙️  preprocess   | preprocess data to use for training                          |
 | 🔥 train        | trains a new model                                           |
 | 📈 evaluate     | evaluate performance of pretrained model                     |
@@ -51,8 +51,9 @@ Grants tagger comes with a nice CLI with the following commands
 | 🔖 tag          | tag grants using a pretrained model                          |
 | 🎛 tune         | tune params and threshold                                    |
 | 📚 pretrain     | pretrains embeddings or language model using unlabeled data  |
-| ⬇️ [download]   | download trained models and data from EPMC                   |
+| ⬇️ [download]    | download trained models and data from EPMC                   |
 | 🔍 [explain]    | importance of feature be it words or tfidf numbers           |
+| 🌐 visualize    | creates a streamlit app to interactively tag grants          |
 
 in square brackets the commands that are not implemented yet
 
@@ -387,6 +388,13 @@ pretrained models and data from sources like EPMC.
 This command is under development. The goals is to be able to get
 feature importance scores on either words or features such as tfidf
 values.
+
+### 🌐 Visualize
+
+This command uses streamlit to create a web app in which you
+can interactively tag grants while choosing the threshold
+and the model to use. It currently works only with Wellcome
+trained models.
 
 # 🧑🏻‍💻  Develop
 

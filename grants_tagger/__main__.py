@@ -1,6 +1,7 @@
 from typing import List, Optional
 from pathlib import Path
 import configparser
+import subprocess
 import logging
 import tarfile
 import tempfile
@@ -369,6 +370,10 @@ def explain():
     # feature importance for models
     pass
 
+@app.command()
+def visualize():
+    st_app_path = os.path.join(os.path.dirname(__file__), "streamlit_visualize.py")
+    subprocess.Popen(["streamlit", "run", st_app_path])
 
 if __name__ == "__main__":
     app(prog_name="grants_tagger")

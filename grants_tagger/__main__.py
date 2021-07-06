@@ -24,6 +24,7 @@ from grants_tagger.tune_threshold import tune_threshold
 from grants_tagger.optimise_params import optimise_params
 from grants_tagger.train_with_sagemaker import train_with_sagemaker
 from grants_tagger.evaluate_mesh_on_grants import evaluate_mesh_on_grants
+from grants_tagger.download_epmc import download_epmc
 
 app = typer.Typer(add_completion=False)
 
@@ -359,10 +360,21 @@ def tag(
                label_binarizer_path, threshold)
 
 
-@app.command()
-def download():
-    # download models and data from public s3
+download_app = typer.Typer()
+
+@download_app.command()
+def epmc_mesh(
+        download_path: str = typer.Argument(..., help="path to directory where to download EPMC data"),
+        year: int = typer.Option(2020, help="year to download epmc publications")):
+    
+    download_epmc(download_path, year)
+
+@download_app.command()
+def models():
+    # downloads public trained models
     pass
+
+app.add_typer(download_app, name="download")
 
 
 @app.command()

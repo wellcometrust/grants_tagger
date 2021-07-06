@@ -26,7 +26,7 @@ def _get_response(session, params):
 def yield_results(session, params):
     response_json = _get_response(session, params) 
 
-    results = response_json["resultList"]["result"] 
+    results = response_json["resultList"]["result"]
     while results:
         for result in results:
             yield result
@@ -49,14 +49,13 @@ def download_epmc(download_path, year=2020):
     year_path = os.path.join(download_path, str(year))
     os.makedirs(year_path, exist_ok=True)
     for month in range(12):
-        month = f"{month+1:02}"
-            
-        month_path = os.path.join(year_path, f"{month}.jsonl")
+        month_path = os.path.join(year_path, f"{month+1:02}.jsonl")
         if os.path.exists(month_path):
             print(f"Skipping because {month_path} exists. Delete if you want to redownload")
             continue
 
-        with open(month_path, "w") as f:
+        tmp_month_path = f"{month_path}.tmp"
+        with open(tmp_month_path, "w") as f:
             params = {
                 "query": f"(FIRST_PDATE:[{year}-{month}-01 TO {year}-{month}-31])",
                 "format": "json",
@@ -67,6 +66,5 @@ def download_epmc(download_path, year=2020):
             for result in tqdm(yield_results(session, params), total=hit_count, desc=f"Year {year} Month {month}"):
                 f.write(json.dumps(result))
                 f.write("\n")
+        os.rename(tmp_month_path, month_path)
 
-if __name__ == "__main__":
-    download_epmc("data/epmc/")

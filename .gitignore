@@ -9,6 +9,7 @@ models/**
 **/*.csv
 **/*.json
 **/*.txt
+**/*.tmp
 !results/*.json
 
 # Hidden files

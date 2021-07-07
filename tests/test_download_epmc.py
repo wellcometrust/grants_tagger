@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from grants_tagger.download_epmc import download_epmc, yield_results
+from grants_tagger.download_epmc import download_epmc
 
 
 @pytest.fixture
@@ -19,7 +19,7 @@ def create_month_data(month_path):
 
 @mock.patch('grants_tagger.download_epmc.get_hit_count', return_value=5)
 @mock.patch('grants_tagger.download_epmc.yield_results', return_value=["item"])
-def test_download_epmc(download_path, *mock_args):
+def test_download_epmc(mock_get_hit_count, mock_yield_results, download_path):
     year = 2020
     download_epmc(download_path, year)
     for month in range(12):
@@ -29,7 +29,7 @@ def test_download_epmc(download_path, *mock_args):
 
 @mock.patch('grants_tagger.download_epmc.get_hit_count', return_value=5)
 @mock.patch('grants_tagger.download_epmc.yield_results', return_value=["item"])
-def test_download_epmc_skip(download_path, *mock_args):
+def test_download_epmc_skip(mock_get_hit_count, mock_yield_results, download_path):
     year = 2020
     year_path = os.path.join(download_path, str(year))
     os.makedirs(year_path)
@@ -45,7 +45,7 @@ def test_download_epmc_skip(download_path, *mock_args):
 
 @mock.patch('grants_tagger.download_epmc.get_hit_count', return_value=5)
 @mock.patch('grants_tagger.download_epmc.yield_results', return_value=[{"item": "not fake"}])
-def test_download_redownload_tmp(download_path, *mock_args):
+def test_download_redownload_tmp(mock_get_hit_count, mock_yield_results, download_path):
     year = 2020
     year_path = os.path.join(download_path, str(year))
     os.makedirs(year_path)

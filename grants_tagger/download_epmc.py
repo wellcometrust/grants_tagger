@@ -49,7 +49,8 @@ def download_epmc(download_path, year=2020):
     year_path = os.path.join(download_path, str(year))
     os.makedirs(year_path, exist_ok=True)
     for month in range(12):
-        month_path = os.path.join(year_path, f"{month+1:02}.jsonl")
+        month = f"{month+1:02}"
+        month_path = os.path.join(year_path, f"{month}.jsonl")
         if os.path.exists(month_path):
             print(f"Skipping because {month_path} exists. Delete if you want to redownload")
             continue

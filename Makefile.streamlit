@@ -1,0 +1,20 @@
+AWS_ACCOUNT_ID := 160358319781
+ECR_IMAGE := 160358319781.dkr.ecr.eu-west-1.amazonaws.com/org.wellcome/labs
+TAG := streamlit-grants-tagger-latest
+
+.PHONY: aws-docker-login
+aws-docker-login:
+	aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin $(AWS_ACCOUNT_ID).dkr.ecr.eu-west-1.amazonaws.com
+
+.PHONY: build-streamlit-docker
+build-streamlit-docker: ## Builds Docker with streamlit and models
+	aws s3 cp --recursive s3://datalabs-data/grants_tagger/models/disease_mesh_cnn-2021.03.1/ models/disease_mesh_cnn-2021.03.1/
+	aws s3 cp s3://datalabs-data/grants_tagger/models/disease_mesh_label_binarizer.pkl models/
+	aws s3 cp s3://datalabs-data/grants_tagger/models/tfidf-svm-2020.05.2.pkl models/
+	aws s3 cp --recursive s3://datalabs-data/grants_tagger/models/scibert-2020.05.5/ models/
+	aws s3 cp s3://datalabs-data/grants_tagger/models/label_binarizer.pkl models/
+	docker build -t $(ECR_IMAGE):$(TAG) -f Dockerfile.streamlit -m 8g .
+
+.PHONY: docker-push
+docker-push: build-streamlit-docker aws-docker-login
+	docker push $(ECR_IMAGE):$(TAG)

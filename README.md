@@ -381,7 +381,7 @@ Options:
 ### ⬇️  Download
 
 This commands enables you to download mesh data from EPMC
-and pre trained models. The latter is still under development.
+and pre trained models.
 
 ```
 Usage: grants_tagger download [OPTIONS] COMMAND [ARGS]...
@@ -391,8 +391,12 @@ Options:
 
 Commands:
   epmc-mesh
-  models
+  model
 ```
+
+Available models:
+
+* disease_mesh
 
 ### 🔍 Explain 
 

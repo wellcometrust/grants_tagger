@@ -25,6 +25,7 @@ from grants_tagger.optimise_params import optimise_params
 from grants_tagger.train_with_sagemaker import train_with_sagemaker
 from grants_tagger.evaluate_mesh_on_grants import evaluate_mesh_on_grants
 from grants_tagger.download_epmc import download_epmc
+from grants_tagger.download_model import download_model
 
 app = typer.Typer(add_completion=False)
 
@@ -370,9 +371,8 @@ def epmc_mesh(
     download_epmc(download_path, year)
 
 @download_app.command()
-def models():
-    # downloads public trained models
-    pass
+def model(model_name: str = typer.Argument(..., help="model name to download e.g. disease_mesh")):
+    download_model(model_name)
 
 app.add_typer(download_app, name="download")
 

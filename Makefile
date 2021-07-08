@@ -4,6 +4,7 @@
 PRIVATE_PROJECT_BUCKET := $(PROJECTS_BUCKET)/$(PROJECT_NAME)
 PUBLIC_PROJECT_BUCKET := datalabs-public/$(PROJECT_NAME)
 MESH_MODEL := disease_mesh_cnn-2021.03.0
+MESH_LABEL_BINARIZER := disease_mesh_label_binarizer.pkl
 
 PYTHON := python3.7
 VIRTUALENV := venv
@@ -80,7 +81,7 @@ deploy: ## Deploy wheel to public s3 bucket
 	git tag v$(shell python setup.py --version)
 	git push --tags
 	$(VIRTUALENV)/bin/python -m twine upload --repository pypi dist/*
-	tar -c -z -v -f models/$(MESH_MODEL).tar.gz models/$(MESH_MODEL)
+	tar -c -z -v -f models/$(MESH_MODEL).tar.gz models/$(MESH_MODEL) models/$(MESH_LABEL_BINARIZER)
 	gh release upload v$(shell python setup.py --version) models/$(MESH_MODEL).tar.gz
 .PHONY: clean
 clean: ## Clean hidden and compiled files

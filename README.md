@@ -51,7 +51,7 @@ Grants tagger comes with a nice CLI with the following commands
 | 🔖 tag          | tag grants using a pretrained model                          |
 | 🎛 tune         | tune params and threshold                                    |
 | 📚 pretrain     | pretrains embeddings or language model using unlabeled data  |
-| ⬇️ [download]    | download trained models and data from EPMC                   |
+| ⬇️  download   | download trained models and data from EPMC                   |
 | 🔍 [explain]    | importance of feature be it words or tfidf numbers           |
 | 🌐 visualize    | creates a streamlit app to interactively tag grants          |
 
@@ -380,8 +380,19 @@ Options:
 
 ### ⬇️  Download
 
-This command is under development. The goal is to be able to download
-pretrained models and data from sources like EPMC.
+This commands enables you to download mesh data from EPMC
+and pre trained models. The latter is still under development.
+
+```
+Usage: grants_tagger download [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  epmc-mesh
+  models
+```
 
 ### 🔍 Explain 
 

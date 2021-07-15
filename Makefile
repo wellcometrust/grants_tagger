@@ -63,8 +63,9 @@ update-requirements: ## Updates requirement
 	$(VIRTUALENV)/bin/pip install -r unpinned_requirements.txt
 	$(VIRTUALENV)/bin/pip install -r unpinned_test_requirements.txt
 	echo "#Created by Makefile. Do not edit." > requirements.txt
-	$(VIRTUALENV)/bin/pip freeze | grep -v pkg-resources==0.0.0 >> requirements.txt
-	#echo "-e git://github.com/wellcometrust/WellcomeML.git@4e96150ff98ccbb3a12e137771fab362c02fa7f1#egg=wellcomeml" >> requirements.txt
+	$(VIRTUALENV)/bin/pip freeze | grep -v pkg-resources==0.0.0 | grep -v wellcomeml >> requirements.txt
+	echo "-e git://github.com/wellcometrust/WellcomeML.git@tokenizer-decode#egg=wellcomeml" >> requirements.txt
+	echo "git+https://github.com/nsorros/shap.git@dev" >> requirements.txt
 
 .PHONY: test
 test: ## Run tests

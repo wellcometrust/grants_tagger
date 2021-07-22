@@ -78,15 +78,23 @@ def create_hyperparameters(entrypoint, code_path, model_path, data_path, label_b
     container_data_path = f"/opt/ml/input/data/training/{data_filename}"
     container_label_binarizer_path = f"/opt/ml/model/{label_binarizer_filename}"
 
+    test_data_path = params.get("test_data_path")
+    if test_data_path:
+        _, test_data_filename = os.path.split(test_data_path)
+        container_test_data_path = f"/opt/ml/input/data/training/{test_data_filename}"            
+
     hyperparameters = {
         "data_path": container_data_path,
         "model_path": container_model_path,
-        "label_binarizer_path": container_label_binarizer_path
+        "label_binarizer_path": container_label_binarizer_path,
+        "test_data_path": container_test_data_path
     }
 
     # Step 2 - Add additional params passed to train in hyperparams
     for k, v in params.items():
-        hyperparameters[k] = v
+        # Do not overwrite converted params
+        if k not in hyperparameters:
+            hyperparameters[k] = v
     
     # Step 3 - Define entrypoint to invoke and additional source files needed
     hyperparameters["sagemaker_program"] = entrypoint
@@ -118,6 +126,13 @@ def train_with_sagemaker(instance_type="local", config_version=None, **kwargs):
     if config_version:
         config_version = config_version.replace(".","-")
         base_job_name = f"{base_job_name}-{config_version}"
+
+    from sagemaker.debugger import TensorBoardOutputConfig
+    tensorboard_output_config = TensorBoardOutputConfig(
+        s3_output_path=f"s3://{PROJECTS_BUCKET}/{PROJECT_NAME}/logs/",
+        container_local_output_path='/logs/'
+    )
+    
     es = Estimator(
         image_uri=os.environ["ECR_IMAGE"],
         role=SAGEMAKER_ROLE,
@@ -127,6 +142,7 @@ def train_with_sagemaker(instance_type="local", config_version=None, **kwargs):
         output_path=model_path,
         hyperparameters=hyperparameters,
         base_job_name=base_job_name,
-        max_run=5*24*60*60 # 5 days
+        max_run=5*24*60*60, # 5 days,
+        tensorboard_output_config=tensorboard_output_config
     )
     es.fit({"training": data_path})

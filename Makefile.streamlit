@@ -1,5 +1,5 @@
 AWS_ACCOUNT_ID := ${AWS_ACCOUNT_ID}
-ECR_IMAGE := 160358319781.dkr.ecr.eu-west-1.amazonaws.com/org.wellcome/labs
+ECR_IMAGE := ${AWS_ACCOUNT_ID}.dkr.ecr.eu-west-1.amazonaws.com/org.wellcome/labs
 TAG := streamlit-grants-tagger-latest
 
 .PHONY: aws-docker-login

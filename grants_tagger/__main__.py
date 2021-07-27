@@ -26,6 +26,7 @@ from grants_tagger.train_with_sagemaker import train_with_sagemaker
 from grants_tagger.evaluate_mesh_on_grants import evaluate_mesh_on_grants
 from grants_tagger.download_epmc import download_epmc
 from grants_tagger.download_model import download_model
+from grants_tagger.explain import explain as explain_predictions
 
 app = typer.Typer(add_completion=False)
 
@@ -378,9 +379,19 @@ app.add_typer(download_app, name="download")
 
 
 @app.command()
-def explain():
-    # feature importance for models
-    pass
+def explain(
+        texts_path: Path = typer.Argument(..., help=""),
+        label: str = typer.Argument(..., help=""),
+        approach: str = typer.Argument(..., help=""),
+        model_path: Path = typer.Argument(..., help=""),
+        label_binarizer_path: Path = typer.Argument(..., help=""),
+        explanations_path: Path = typer.Argument(..., help=""),
+        global_explanations: bool = typer.Option(True, help="")
+        ):
+    
+    explain_predictions(approach, texts_path, model_path, label_binarizer_path,
+        explanations_path, label, global_explanations)
+
 
 @app.command()
 def visualize():

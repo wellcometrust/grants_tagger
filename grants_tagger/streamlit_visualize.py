@@ -77,4 +77,4 @@ if SHAP_IMPORTED:
             tag_index = list(label_binarizer.classes_).index(tag)
 
             html = shap.plots.text(shap_values[0,:,tag_index], display=False)
-            st.components.v1.html(html)
+            st.components.v1.html(html, height=300, scrolling=True)

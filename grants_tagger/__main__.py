@@ -380,13 +380,13 @@ app.add_typer(download_app, name="download")
 
 @app.command()
 def explain(
-        texts_path: Path = typer.Argument(..., help=""),
-        label: str = typer.Argument(..., help=""),
-        approach: str = typer.Argument(..., help=""),
-        model_path: Path = typer.Argument(..., help=""),
-        label_binarizer_path: Path = typer.Argument(..., help=""),
-        explanations_path: Path = typer.Argument(..., help=""),
-        global_explanations: bool = typer.Option(True, help="")
+        texts_path: Path = typer.Argument(..., help="path to txt file with one text in every line"),
+        label: str = typer.Argument(..., help="label to explain with local or global explanations"),
+        approach: str = typer.Argument(..., help="model approach e.g. mesh-cnn"),
+        model_path: Path = typer.Argument(..., help="path to model to explain"),
+        label_binarizer_path: Path = typer.Argument(..., help="path to label binarizer associated with mode"),
+        explanations_path: Path = typer.Argument(..., help="path to save explanations html"),
+        global_explanations: bool = typer.Option(True, help="flag on whether global or local explanations should be produced")
         ):
     
     explain_predictions(approach, texts_path, model_path, label_binarizer_path,

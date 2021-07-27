@@ -51,8 +51,8 @@ Grants tagger comes with a nice CLI with the following commands
 | 🔖 tag          | tag grants using a pretrained model                          |
 | 🎛 tune         | tune params and threshold                                    |
 | 📚 pretrain     | pretrains embeddings or language model using unlabeled data  |
-| ⬇️  download   | download trained models and data from EPMC                   |
-| 🔍 [explain]    | importance of feature be it words or tfidf numbers           |
+| ⬇️  download     | download trained models and data from EPMC                   |
+| 🔍 explain      | importance of feature be it words or tfidf numbers           |
 | 🌐 visualize    | creates a streamlit app to interactively tag grants          |
 
 in square brackets the commands that are not implemented yet
@@ -400,10 +400,35 @@ Available models:
 
 ### 🔍 Explain 
 
-This command is under development. The goals is to be able to get
-feature importance scores on either words or features such as tfidf
-values.
+This command produces shap values for global or local expanations
+for a model (currently only mesh-cnn) and a given label. It saves
+the explanations into an html to visualise them.
 
+```
+Usage: grants_tagger explain [OPTIONS] TEXTS_PATH LABEL APPROACH MODEL_PATH
+                             LABEL_BINARIZER_PATH EXPLANATIONS_PATH
+
+Arguments:
+  TEXTS_PATH            path to txt file with one text in every line
+                        [required]
+
+  LABEL                 label to explain with local or global explanations
+                        [required]
+
+  APPROACH              model approach e.g. mesh-cnn  [required]
+  MODEL_PATH            path to model to explain  [required]
+  LABEL_BINARIZER_PATH  path to label binarizer associated with mode
+                        [required]
+
+  EXPLANATIONS_PATH     path to save explanations html  [required]
+
+Options:
+  --global-explanations / --no-global-explanations
+                                  flag on whether global or local explanations
+                                  should be produced  [default: True]
+
+  --help                          Show this message and exit.
+```
 ### 🌐 Visualize
 
 This command uses streamlit to create a web app in which you

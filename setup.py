@@ -20,7 +20,7 @@ setup(
         'scikit-learn==0.23.2',
         'nltk',
         'matplotlib',
-        'wellcomeml[tensorflow]==1.1.0',
+        'wellcomeml[tensorflow]==1.2.0',
         'docutils==0.15',
         'scipy==1.4.1',
         'wasabi',

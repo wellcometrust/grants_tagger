@@ -68,13 +68,13 @@ if SHAP_IMPORTED:
             label_binarizer = pickle.loads(f.read())
 
         with st.spinner("Calculating explanation..."):
-            masker = shap.maskers.Text(tokenizer)
-            explainer = shap.Explainer(mesh_cnn.predict_proba, masker)
+            masker = shap.maskers.Text(tokenizer, mask_token="")
+            explainer = shap.Explainer(mesh_cnn.predict_proba, masker, output_names=label_binarizer.classes_)
             shap_values = explainer([text])
 
         for tag in tags:
             st.write(tag)
             tag_index = list(label_binarizer.classes_).index(tag)
 
-            html = shap.plots.text(shap_values[0,:,tag_index], show=False)
+            html = shap.plots.text(shap_values[0,:,tag_index], display=False)
             st.components.v1.html(html)

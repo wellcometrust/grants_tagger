@@ -47,8 +47,7 @@ Grants tagger comes with a nice CLI with the following commands
 | ⚙️  preprocess   | preprocess data to use for training                          |
 | 🔥 train        | trains a new model                                           |
 | 📈 evaluate     | evaluate performance of pretrained model                     |
-| 🔮 predict      | predict tags given a grant abstract using a pretrained model |
-| 🔖 tag          | tag grants using a pretrained model                          |
+| 🔖 predict      | predict tags given a grant abstract using a pretrained model |
 | 🎛 tune         | tune params and threshold                                    |
 | 📚 pretrain     | pretrains embeddings or language model using unlabeled data  |
 | ⬇️  download   | download trained models and data from EPMC                   |
@@ -257,7 +256,7 @@ Options:
   --help  Show this message and exit.
 ```
 
-### 🔮 Predict
+### 🔖 Predict
 
 Predict assigns tags on a given abstract text that you can pass as argument.
 It is not meant to be used for tagging multiple grants, tag command is reserved
@@ -280,36 +279,6 @@ Options:
                                   [default: False]
   --threshold FLOAT               [default: 0.5]
   --help                          Show this message and exit.
-```
-
-### 🔖 Tag
-
-Tag is the main command of the tool as it allows you to tag with a pretrained
-model. This command expects a csv file with grants that contain a grant_id
-field and some text fields which can be specified with the relevant params.
-The default values work for Wellcome grants.
-
-```
-Usage: grants_tagger tag [OPTIONS] GRANTS_PATH TAGGED_GRANTS_PATH MODEL_PATH
-                         LABEL_BINARIZER_PATH APPROACH
-
-Arguments:
-  GRANTS_PATH           path to grants csv  [required]
-  TAGGED_GRANTS_PATH    path to output csv  [required]
-  MODEL_PATH            path to model  [required]
-  LABEL_BINARIZER_PATH  label binarizer for Y  [required]
-  APPROACH              approach used to train the model  [required]
-
-Options:
-  --threshold FLOAT         threshold upon which to assign tag  [default: 0.5]
-  --grant-id-field TEXT     field name for grant id  [default: grant_id]
-  --grant-text-fields TEXT  comma separated text fields to be used for tagging
-                            [default: title,synopsis]
-
-  --text-null-value TEXT    value indicating null in text fields  [default: No
-                            Data Entered]
-
-  --help                    Show this message and exit.
 ```
 
 ### 🎛 Tune

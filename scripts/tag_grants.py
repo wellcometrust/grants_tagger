@@ -5,7 +5,11 @@ from pathlib import Path
 import argparse
 import csv
 
+import typer
+
 from grants_tagger.predict import predict_tags
+
+app = typer.Typer()
 
 
 def yield_batched_grants(input_file, batch_size=256):
@@ -21,7 +25,7 @@ def yield_batched_grants(input_file, batch_size=256):
         if lines:
             yield lines
 
-
+@app.command()
 def tag_grants(grants_path, tagged_grants_path, model_path, label_binarizer_path, approach, threshold=0.5,
         grant_id_field = "grant_id", grant_text_fields=["title", "synopsis"], text_null_value="No Data Entered"):
 
@@ -56,3 +60,7 @@ def tag_grants(grants_path, tagged_grants_path, model_path, label_binarizer_path
                     })
 
             tagged_grants_tf.flush()
+
+
+if __name__ == "__main__":
+    app()

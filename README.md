@@ -404,6 +404,11 @@ This command produces shap values for global or local expanations
 for a model (currently only mesh-cnn) and a given label. It saves
 the explanations into an html to visualise them.
 
+Note that global explanations take time to compute so passing a
+txt with 100 examples take a bit less than 1 hour. Take care to
+ask for explanations for a label that is predicted in the txt 
+examples provided otherwise explanations might be less useful
+
 ```
 Usage: grants_tagger explain [OPTIONS] TEXTS_PATH LABEL APPROACH MODEL_PATH
                              LABEL_BINARIZER_PATH EXPLANATIONS_PATH

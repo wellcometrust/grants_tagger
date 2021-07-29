@@ -15,10 +15,8 @@ def explain(approach, data_path, model_path, label_binarizer_path,
         with open(label_binarizer_path, "rb") as f:
             label_binarizer = pickle.loads(f.read())
     
-        texts = []
         with open(data_path) as f:
-            for line in f:
-                texts.append(line)
+            texts = f.readlines()
 
         if len(texts) > 50:
             print("Data contains >50 examples. Explanations might take a while...")

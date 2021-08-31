@@ -1,5 +1,6 @@
 import pickle
 import json
+import math
 import os
 
 from sklearn.preprocessing import MultiLabelBinarizer
@@ -54,7 +55,7 @@ def train_xml_cnn(data_path, model_path):
     X, Y = load_data(data_path)
 
     print("Fitting label binarizer")
-    label_binarizer = MultiLabelBinarizer()
+    label_binarizer = MultiLabelBinarizer(sparse_output=True)
     Y_vec = label_binarizer.fit_transform(Y)
 
     print("Fitting tokenizer")
@@ -68,18 +69,31 @@ def train_xml_cnn(data_path, model_path):
     print(model.summary())
 
     print("Fitting model")
+    epochs = 50
+    batch_size = 256
+
     metrics = [tf.keras.metrics.Precision(name="precision"), tf.keras.metrics.Recall(name="recall"), tfa.metrics.F1Score(nb_labels, average="micro", name="f1")]
     model.compile(loss="binary_crossentropy", optimizer="adam", metrics=metrics)
-    model.fit(X_vec, Y_vec, batch_size=256, epochs=50, validation_split=0.01)
+    
+    def yield_train_data(X_vec, Y_vec, batch_size):
+        while True:
+            for i in range(0, X_vec.shape[0], batch_size):
+                X_batch = X_vec[i:i+batch_size,:]
+                Y_batch = Y_vec[i:i+batch_size,:].todense()
+                yield X_batch, Y_batch
+            print("Ran out of data")
+
+    train_data = yield_train_data(X_vec, Y_vec, batch_size)
+    model.fit(train_data, epochs=epochs, steps_per_epoch=math.ceil(X_vec.shape[0]/batch_size))
 
     model.save(model_path)
 
     label_binarizer_path = os.path.join(model_path, "label_binarizer.pkl")
-    with open(label_binarizer_path, "rb") as f:
+    with open(label_binarizer_path, "wb") as f:
         f.write(pickle.dumps(label_binarizer))
 
     tokenizer_path = os.path.join(model_path, "tokenizer.pkl")
-    with open(tokenizer_path, "rb") as f:
+    with open(tokenizer_path, "wb") as f:
         f.write(pickle.dumps(tokenizer))
 
 

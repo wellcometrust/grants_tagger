@@ -1,4 +1,5 @@
 import pickle
+import random
 import json
 import math
 import os
@@ -44,7 +45,7 @@ def create_model(vocab_size, sequence_length, nb_labels, emb_size, nb_filters, h
     return model
 
 
-def train_xml_cnn(data_path, model_path):
+def train_xml_cnn(train_data_path, test_data_path, model_path):
     vocab_size = 30_000
     sequence_length = 500
     emb_size = 300
@@ -52,17 +53,21 @@ def train_xml_cnn(data_path, model_path):
     hidden_dim = 512
 
     print("Loading data")
-    X, Y = load_data(data_path)
+    X, Y = load_data(train_data_path)
+    X_test, Y_test = load_data(test_data_path)
 
     print("Fitting label binarizer")
     label_binarizer = MultiLabelBinarizer(sparse_output=True)
     Y_vec = label_binarizer.fit_transform(Y)
+    Y_vec_test = label_binarizer.transform(Y_test)
 
     print("Fitting tokenizer")
     tokenizer = tf.keras.preprocessing.text.Tokenizer(vocab_size)
     tokenizer.fit_on_texts(X)
     X_vec = tokenizer.texts_to_sequences(X)
     X_vec = tf.keras.preprocessing.sequence.pad_sequences(X_vec, maxlen=sequence_length)
+    X_vec_test = tokenizer.texts_to_sequences(X_test)
+    X_vec_test = tf.keras.preprocessing.sequence.pad_sequences(X_vec_test, maxlen=sequence_length)
 
     nb_labels = Y_vec.shape[1]
     model = create_model(vocab_size, sequence_length, nb_labels, emb_size, nb_filters, hidden_dim)
@@ -72,19 +77,25 @@ def train_xml_cnn(data_path, model_path):
     epochs = 50
     batch_size = 256
 
-    metrics = [tf.keras.metrics.Precision(name="precision"), tf.keras.metrics.Recall(name="recall"), tfa.metrics.F1Score(nb_labels, average="micro", name="f1")]
+    metrics = [tf.keras.metrics.Precision(name="precision"), tf.keras.metrics.Recall(name="recall"),
+        tfa.metrics.F1Score(nb_labels, average="micro", name="f1")]
     model.compile(loss="binary_crossentropy", optimizer="adam", metrics=metrics)
-    
-    def yield_train_data(X_vec, Y_vec, batch_size):
-        while True:
-            for i in range(0, X_vec.shape[0], batch_size):
-                X_batch = X_vec[i:i+batch_size,:]
-                Y_batch = Y_vec[i:i+batch_size,:].todense()
-                yield X_batch, Y_batch
-            print("Ran out of data")
 
-    train_data = yield_train_data(X_vec, Y_vec, batch_size)
-    model.fit(train_data, epochs=epochs, steps_per_epoch=math.ceil(X_vec.shape[0]/batch_size))
+    def yield_data(X_vec, Y_vec, batch_size):
+        indices = list(range(X_vec.shape[0]))
+        while True:
+            random.shuffle(indices)
+            X_vec = X_vec[indices, :]
+            Y_vec = Y_vec[indices, :]
+            for i in range(0, X_vec.shape[0], batch_size):
+                X_batch = X_vec[i:i+batch_size, :]
+                Y_batch = Y_vec[i:i+batch_size, :].todense()
+                yield X_batch, Y_batch
+
+    train_data = yield_data(X_vec, Y_vec, batch_size)
+    test_data = yield_data(X_vec_test, Y_vec_test, batch_size)
+    model.fit(train_data, epochs=epochs, steps_per_epoch=math.ceil(X_vec.shape[0]/batch_size),
+        validation_data=test_data, validation_steps=math.ceil(X_vec_test.shape[0]/batch_size))
 
     model.save(model_path)
 

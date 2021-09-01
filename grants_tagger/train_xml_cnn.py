@@ -5,8 +5,10 @@ import math
 import os
 
 from sklearn.preprocessing import MultiLabelBinarizer
+import gensim.downloader as api
 import tensorflow_addons as tfa
 import tensorflow as tf
+import numpy as np
 import typer
 
 
@@ -21,11 +23,11 @@ def load_data(data_path):
     return X, Y
 
 
-def create_model(vocab_size, sequence_length, nb_labels, emb_size, nb_filters, hidden_dim):
+def create_model(vocab_size, sequence_length, nb_labels, emb_size, nb_filters, hidden_dim, embedding_matrix=None):
     inputs = tf.keras.Input(shape=(sequence_length,))
 
-    # Init weights with pretrain vectors
-    x = tf.keras.layers.Embedding(vocab_size, emb_size, input_length=sequence_length)(inputs)
+    embedding_initializer = tf.keras.initializers.Constant(embedding_matrix) if embedding_matrix is not None else "uniform"
+    x = tf.keras.layers.Embedding(vocab_size, emb_size, input_length=sequence_length, embeddings_initializer=embedding_initializer)(inputs)
     x = tf.keras.layers.Dropout(0.25)(x)
 
     conv_outs = []
@@ -51,6 +53,7 @@ def train_xml_cnn(train_data_path, test_data_path, model_path):
     emb_size = 300
     nb_filters = 32
     hidden_dim = 512
+    pretrained_vectors = "glove-wiki-gigaword-300"
 
     print("Loading data")
     X, Y = load_data(train_data_path)
@@ -69,8 +72,24 @@ def train_xml_cnn(train_data_path, test_data_path, model_path):
     X_vec_test = tokenizer.texts_to_sequences(X_test)
     X_vec_test = tf.keras.preprocessing.sequence.pad_sequences(X_vec_test, maxlen=sequence_length)
 
+    print("Creating model")
+    if pretrained_vectors:
+        embeddings_index = api.load(pretrained_vectors)
+        hits = 0
+        embeddings_matrix = np.random.uniform(-0.25, 0.25, (vocab_size, emb_size))
+        for w, i in tokenizer.word_index.items():
+            if i >= vocab_size:
+                continue
+
+            if w in embeddings_index:
+                embeddings_matrix[i,:] = embeddings_index[w]
+                hits += 1
+        print(f"Found {hits} hits in the pretrained vectors")
+    else:
+        embeddings_matrix = None
+
     nb_labels = Y_vec.shape[1]
-    model = create_model(vocab_size, sequence_length, nb_labels, emb_size, nb_filters, hidden_dim)
+    model = create_model(vocab_size, sequence_length, nb_labels, emb_size, nb_filters, hidden_dim, embeddings_matrix)
     print(model.summary())
 
     print("Fitting model")
@@ -78,7 +97,7 @@ def train_xml_cnn(train_data_path, test_data_path, model_path):
     batch_size = 256
 
     metrics = [tf.keras.metrics.Precision(name="precision"), tf.keras.metrics.Recall(name="recall"),
-        tfa.metrics.F1Score(nb_labels, average="micro", name="f1")]
+        tfa.metrics.F1Score(nb_labels, average="micro", threshold=0.5, name="f1")]
     model.compile(loss="binary_crossentropy", optimizer="adam", metrics=metrics)
 
     def yield_data(X_vec, Y_vec, batch_size):

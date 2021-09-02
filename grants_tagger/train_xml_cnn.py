@@ -93,7 +93,7 @@ def train_xml_cnn(train_data_path, test_data_path, model_path):
     print(model.summary())
 
     print("Fitting model")
-    epochs = 50
+    epochs = 20
     batch_size = 256
 
     metrics = [tf.keras.metrics.Precision(name="precision"), tf.keras.metrics.Recall(name="recall"),
@@ -116,7 +116,7 @@ def train_xml_cnn(train_data_path, test_data_path, model_path):
     model.fit(train_data, epochs=epochs, steps_per_epoch=math.ceil(X_vec.shape[0]/batch_size),
         validation_data=test_data, validation_steps=math.ceil(X_vec_test.shape[0]/batch_size))
 
-    model.save(model_path)
+    model.save(os.path.join(model_path, "model"))
 
     label_binarizer_path = os.path.join(model_path, "label_binarizer.pkl")
     with open(label_binarizer_path, "wb") as f:

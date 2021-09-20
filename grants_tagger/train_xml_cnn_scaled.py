@@ -67,10 +67,10 @@ def train_xml_cnn(train_data_path, test_data_path, model_path):
     print("Fitting tokenizer")
     tokenizer = tf.keras.preprocessing.text.Tokenizer(vocab_size)
     tokenizer.fit_on_texts(X)
-    X_vec = tokenizer.texts_to_sequences(X)
-    X_vec = tf.keras.preprocessing.sequence.pad_sequences(X_vec, maxlen=sequence_length)
-    X_vec_test = tokenizer.texts_to_sequences(X_test)
-    X_vec_test = tf.keras.preprocessing.sequence.pad_sequences(X_vec_test, maxlen=sequence_length)
+    #X_vec = tokenizer.texts_to_sequences(X)
+    #X_vec = tf.keras.preprocessing.sequence.pad_sequences(X_vec, maxlen=sequence_length)
+    #X_vec_test = tokenizer.texts_to_sequences(X_test)
+    #X_vec_test = tf.keras.preprocessing.sequence.pad_sequences(X_vec_test, maxlen=sequence_length)
 
     print("Creating model")
     if pretrained_vectors:
@@ -100,21 +100,23 @@ def train_xml_cnn(train_data_path, test_data_path, model_path):
         tfa.metrics.F1Score(nb_labels, average="micro", threshold=0.5, name="f1")]
     model.compile(loss="binary_crossentropy", optimizer="adam", metrics=metrics)
 
-    def yield_data(X_vec, Y_vec, batch_size):
-        indices = list(range(X_vec.shape[0]))
+    def yield_data(X, Y_vec, batch_size):
+        indices = list(range(Y_vec.shape[0]))
         while True:
             random.shuffle(indices)
-            X_vec = X_vec[indices, :]
+            X = [X[i] for i in indices]
             Y_vec = Y_vec[indices, :]
-            for i in range(0, X_vec.shape[0], batch_size):
-                X_batch = X_vec[i:i+batch_size, :]
+            for i in range(0, Y_vec.shape[0], batch_size):
+                X_batch = X[i:i+batch_size]
+                X_batch = tokenizer.texts_to_sequences(X_batch)
+                X_batch = tf.keras.preprocessing.sequence.pad_sequences(X_batch, maxlen=sequence_length)
                 Y_batch = Y_vec[i:i+batch_size, :].todense()
                 yield X_batch, Y_batch
 
-    train_data = yield_data(X_vec, Y_vec, batch_size)
-    test_data = yield_data(X_vec_test, Y_vec_test, batch_size)
-    model.fit(train_data, epochs=epochs, steps_per_epoch=math.ceil(X_vec.shape[0]/batch_size),
-        validation_data=test_data, validation_steps=math.ceil(X_vec_test.shape[0]/batch_size))
+    train_data = yield_data(X, Y_vec, batch_size)
+    test_data = yield_data(X_test, Y_vec_test, batch_size)
+    model.fit(train_data, epochs=epochs, steps_per_epoch=math.ceil(Y_vec.shape[0]/batch_size),
+        validation_data=test_data, validation_steps=math.ceil(Y_vec_test.shape[0]/batch_size))
 
     model.save(os.path.join(model_path, "model"))
 

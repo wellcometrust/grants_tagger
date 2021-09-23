@@ -1,5 +1,6 @@
 import pickle
 import time
+import os
 
 import tensorflow as tf
 import scipy.sparse as sp
@@ -43,8 +44,9 @@ def train_cnn(data_path, vectorizer_path, label_binarizer_path, model_path):
     train_time = time.time() - start
     print(f"It took {train_time:.2f}s to train the model")
 
-    obj = pickle.dumps(model)
-    model_size = sys.getsizeof(obj / 1_000_000)
+    model.save(model_path)
+    # Note that this does not work
+    model_size = sum(os.path.getsize(f) for f in os.listdir('.') if os.path.isfile(f)) / 1_000_000
     print(f"Model size is {model_size:.2f}MB")
 
     with open(model_path, "wb") as f:

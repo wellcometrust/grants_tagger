@@ -105,6 +105,8 @@ def tune_threshold(approach, data_path, model_path, label_binarizer_path, thresh
     Y_test_sample = Y_test[sample_indices, :]
 
     Y_pred_proba = predict(X_test_sample, model_path, approach, return_probabilities=True)
+    Y_pred_proba[Y_pred_proba < 0.01] = 0
+    Y_pred_proba = csr_matrix(Y_pred_proba)
 
     optimal_thresholds = optimise_threshold(Y_test_sample, Y_pred_proba, nb_thresholds, init_threshold)
 

@@ -15,12 +15,16 @@ import random
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, multilabel_confusion_matrix, confusion_matrix
-from scipy.sparse import csr_matrix, issparse
+from scipy.sparse import csr_matrix, issparse, vstack, load_npz
+from tqdm import tqdm
+import tensorflow as tf
 import numpy as np
+import typer
 
 from grants_tagger.evaluate_model import predict
-from grants_tagger.utils import load_train_test_data
+from grants_tagger.utils import load_train_test_data, load_data
 
+tf.get_logger().setLevel('ERROR')
 
 def argmaxf1(thresholds, Y_test, Y_pred_proba, label_i, nb_thresholds, iterations):
     candidate_thresholds = thresholds.copy()
@@ -35,7 +39,8 @@ def argmaxf1(thresholds, Y_test, Y_pred_proba, label_i, nb_thresholds, iteration
     if nb_thresholds:
         candidate_thresholds_i = [t/nb_thresholds for t in range(1, nb_thresholds)]
     else:
-        candidate_thresholds_i = np.unique(Y_pred_proba[:, label_i])
+        candidate_thresholds_i = np.unique(np.asarray(Y_pred_proba[:, label_i].todense()).ravel())
+
     for candidate_threshold_i in candidate_thresholds_i:
         # no need to check in first iteration where first calibration happens
         if iterations >= 1:
@@ -48,6 +53,8 @@ def argmaxf1(thresholds, Y_test, Y_pred_proba, label_i, nb_thresholds, iteration
         y_test = Y_test[:, label_i]
         if issparse(y_test):
             y_test = np.array(y_test.todense()).ravel()
+        if issparse(y_pred):
+            y_pred = np.array(y_pred.todense()).ravel()
         cm_i = confusion_matrix(y_test, y_pred)
         cm[label_i, :, :] = cm_i
 
@@ -65,7 +72,7 @@ def optimise_threshold(Y_test, Y_pred_proba, nb_thresholds=None, init_threshold=
         optimal_thresholds = [init_threshold] * Y_pred_proba.shape[1]
     else:
         # start with lowest posible threshold per label
-        optimal_thresholds = Y_pred_proba.min(axis=0).ravel()
+        optimal_thresholds = np.asarray(Y_pred_proba.min(axis=0).todense()).ravel()
     updated = True
 
     Y_pred = Y_pred_proba > optimal_thresholds
@@ -94,27 +101,39 @@ def tune_threshold(approach, data_path, model_path, label_binarizer_path, thresh
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
 
-    _, X_test, _, Y_test = load_train_test_data(data_path, label_binarizer)
-    if not sample_size:
-        sample_size = Y_test.shape[0]
+    #_, X_test, _, Y_test = load_train_test_data(data_path, label_binarizer)
+    X_test, Y_test, _ = load_data(data_path, label_binarizer)
 
-    sample_indices = random.sample(list(range(Y_test.shape[0])), sample_size)
+    if sample_size:
+        print("Creating sample...")
+        sample_size = int(sample_size)
+        sample_indices = random.sample(list(range(Y_test.shape[0])), sample_size)
 
-    X_test = np.array(X_test)
-    X_test_sample = X_test[sample_indices]
-    Y_test_sample = Y_test[sample_indices, :]
+        X_test = np.array(X_test)
+        X_test = X_test[sample_indices]
+        Y_test = Y_test[sample_indices, :]
 
-    Y_pred_proba = predict(X_test_sample, model_path, approach, return_probabilities=True)
-    Y_pred_proba[Y_pred_proba < 0.01] = 0
-    Y_pred_proba = csr_matrix(Y_pred_proba)
-
-    optimal_thresholds = optimise_threshold(Y_test_sample, Y_pred_proba, nb_thresholds, init_threshold)
-
-    Y_pred = predict(X_test, model_path, approach, threshold=optimal_thresholds)
+    # xlinear
+    Y_pred_proba = load_npz("data/processed/xlinear/Y_pred.npz")
+    if sample_size:
+        Y_pred_proba = Y_pred_proba[sample_indices, :]
     
+    #Y_pred_proba = predict(X_test_sample, model_path, approach, return_probabilities=True)
+    #Y_pred_proba[Y_pred_proba < 0.01] = 0
+    #Y_pred_proba = csr_matrix(Y_pred_proba)
+
+    print("Optimising...")
+    optimal_thresholds = optimise_threshold(Y_test, Y_pred_proba, nb_thresholds, init_threshold)
+
+    #Y_pred = predict(X_test, model_path, approach, threshold=optimal_thresholds)
+    Y_pred = Y_pred_proba > optimal_thresholds
+
     optimal_f1 = f1_score(Y_test, Y_pred, average="micro")
     print("---Optimal f1---")
     print(f"{optimal_f1:.3f}")
 
     with open(thresholds_path, "wb") as f:
         f.write(pickle.dumps(optimal_thresholds))
+
+if __name__ == "__main__":
+    typer.run(tune_threshold)

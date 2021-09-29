@@ -1,4 +1,5 @@
 import pickle
+import json
 
 from sklearn.preprocessing import MultiLabelBinarizer
 import scipy.sparse as sp
@@ -6,7 +7,6 @@ import numpy as np
 import typer
 
 from wellcomeml.ml import KerasVectorizer, CNNClassifier
-from grants_tagger.utils import load_data
 
 
 def write_pickle(pickle_path, obj):
@@ -19,9 +19,19 @@ def write_txt(data_path, data):
             f.write(line)
             f.write("\n")
 
-def prepare_cnn(data_path, x_path, y_path, vectorizer_path, label_binarizer_path):
+def load_data(data_path):
+    with open(data_path) as f:
+        texts = []
+        tags = []
+        for line in f:
+            item = json.loads(line)
+            texts.append(item["text"])
+            tags.append(item["tags"])
+    return texts, tags
+
+def prepare_cnn(data_path, vectorizer_path, label_binarizer_path):
     print("Loading data")
-    X, Y, _ = load_data(data_path)
+    X, Y = load_data(data_path)
 
     print("Training vectorizer")
     vectorizer = KerasVectorizer(tokenizer_library="transformers", vocab_size=30_000, sequence_length=200)

@@ -36,8 +36,9 @@ def train_cnn_with_warmup(data_path, tfidf_vectorizer_path, keras_vectorizer_pat
     X_vec = vectorizer.transform(X)
 
     # sample
-    X_vec = X_vec[:100_000,:]
-    Y_vec = Y_vec[:100_000,:]
+    X_vec = X_vec[:10_000,:]
+    Y_vec = Y_vec[:10_000,:]
+    L_vec = L_vec[:,:10_000]
 
     for i, cluster_size in enumerate([16, 256, 4096, Y_vec.shape[0]]):
         print(f"I:{i} Cluster size {cluster_size}")
@@ -63,7 +64,7 @@ def train_cnn_with_warmup(data_path, tfidf_vectorizer_path, keras_vectorizer_pat
             model = tf.keras.Model(inputs, cnn.model.layers[-2].output)
             out = model(inputs)
             out = tf.keras.layers.Dense(cluster_size, activation="sigmoid", kernel_regularizer=tf.keras.regularizers.l2(l2))(out)
-            cnn.model = tf.keras.Model(inputs, outputs)
+            cnn.model = tf.keras.Model(inputs, out)
             print(cnn.model.summary())
 
         cnn.fit(X_vec, M)

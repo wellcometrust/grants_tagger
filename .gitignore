@@ -10,6 +10,8 @@ models/**
 **/*.json
 **/*.txt
 **/*.tmp
+**/*.npz
+**/*.npy
 !results/*.json
 
 # Hidden files

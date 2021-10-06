@@ -96,3 +96,11 @@ def calc_performance_per_tag(Y_true, Y_pred, tags):
             'f1': f1_score(y_true_tag, y_pred_tag)
         })
     return pd.DataFrame(metrics)
+
+def load_pickle(obj_path):
+    with open(obj_path, "rb") as f:
+        return pickle.loads(f.read())
+
+def save_pickle(obj_path, obj):
+    with open(obj_path, "wb") as f:
+        f.write(pickle.dumps(obj))

@@ -10,6 +10,7 @@ PYTHON := python3.7
 VIRTUALENV := venv
 PIP := $(VIRTUALENV)/bin/pip
 
+UNAME := $(shell uname)
 
 .PHONY: sync_data
 sync_data: sync_science_data sync_mesh_data ## Sync data to and from s3
@@ -50,6 +51,10 @@ virtualenv: ## Creates virtualenv
 	@mkdir -p $(VIRTUALENV)
 	virtualenv --python $(PYTHON) $(VIRTUALENV)
 	$(PIP) install --upgrade pip
+# As to why no identation see https://stackoverflow.com/questions/4483313/make-error-for-ifeq-syntax-error-near-unexpected-token
+ifeq ($(UNAME), Linux)
+	$(PIP) install libpecos==0.1.0
+endif		
 	$(PIP) install -r requirements.txt
 	$(PIP) install --no-deps -e .
 	$(PIP) install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.4.0/en_core_sci_sm-0.4.0.tar.gz

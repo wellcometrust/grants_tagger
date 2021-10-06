@@ -86,59 +86,57 @@ stages:
     - results/science_ensemble.json:
         cache: false
   preprocess_bioasq_mesh:
-    cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/disease_mesh.jsonl
-      --mesh-metadata-path data/raw/desc2021.xml
+    cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/mesh2021.jsonl --test-split 0.01
     deps:
     - data/raw/allMeSH_2021.json
-    - data/raw/desc2021.xml
     - grants_tagger/preprocess_mesh.py
     outs:
-    - data/processed/disease_mesh.jsonl
-  train_mesh_cnn:
-    cmd: grants_tagger train data/processed/disease_mesh.jsonl
-      models/disease_mesh_label_binarizer-2021.06.0.pkl models/disease_mesh_cnn-2021.06.0
-      --approach mesh-cnn --sparse-labels
+    - data/processed/train_mesh2021.jsonl
+    - data/processed/test_mesh2021.jsonl
+  train_mesh_xlinear:
+    cmd: grants_tagger train data/processed/train_mesh2021.jsonl
+      models/xlinear/label_binarizer-2021.09.0.pkl models/xlinear/model-2021.09.0
+      --test-data-path data/processed/test_mesh2021.jsonl --approach mesh-xlinear 
+      --sparse-labels --no-evaluate
     deps:
-    - data/processed/disease_mesh.jsonl
+    - data/processed/test_mesh2021.jsonl
     - grants_tagger/train.py
     - grants_tagger/models.py
     params:
-    - train.mesh-cnn.vec.tokenizer_library
-    - train.mesh-cnn.vec.vocab_size
-    - train.mesh-cnn.vec.sequence_length
-    - train.mesh-cnn.cnn.attention
-    - train.mesh-cnn.cnn.multilabel
-    - train.mesh-cnn.cnn.l2
-    - train.mesh-cnn.cnn.hidden_size
-    - train.mesh-cnn.cnn.dense_size
-    - train.mesh-cnn.cnn.batch_size
-    - train.mesh-cnn.cnn.learning_rate
-    - train.mesh-cnn.cnn.learning_rate_decay
-    - train.mesh-cnn.cnn.nb_epochs
-    - train.mesh-cnn.cnn.dropout
+    - train.mesh-xlinear.tfidf.stop_words
+    - train.mesh-xlinear.tfidf.min_df
+    - train.mesh-xlinear.tfidf.max_df
+    - train.mesh-xlinear.tfidf.max_features
+    - train.mesh-xlinear.tfidf.ngram_range
+    - train.mesh-xlinear.tfidf.lowercase
+    - train.mesh-xlinear.xlinear.cluster_chain
+    - train.mesh-xlinear.xlinear.negative_sampling_scheme
+    - train.mesh-xlinear.xlinear.beam_size
+    - train.mesh-xlinear.xlinear.only_topk
+    - train.mesh-xlinear.xlinear.min_weight_value
     outs:
-    - models/disease_mesh_label_binarizer-2021.06.0.pkl
-    - models/disease_mesh_cnn-2021.06.0
-  evaluate_mesh_cnn:
-    cmd: grants_tagger evaluate model mesh-cnn models/disease_mesh_cnn-2021.06.0
-      data/processed/disease_mesh.jsonl models/disease_mesh_label_binarizer-2021.06.0.pkl
-      --results-path results/mesh_cnn.json
+    - models/xlinear/label_binarizer-2021.09.0.pkl
+    - models/xlinear/model-2021.09.0
+  evaluate_mesh_xlinear:
+    cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model-2021.09.0
+      data/processed/test_mesh2021.jsonl models/xlinear/label_binarizer-2021.09.0.pkl
+      --results-path results/mesh_xlinear.json --no-split-data
     deps:
     - grants_tagger/evaluate_model.py
-    - models/disease_mesh_cnn-2021.06.0
-    - models/disease_mesh_label_binarizer-2021.06.0.pkl
+    - models/xlinear/model-2021.09.0
+    - models/xlinear/label_binarizer-2021.09.0.pkl
     metrics:
-    - results/mesh_cnn.json:
+    - results/mesh_xlinear.json:
         cache: false
-  evaluate_mesh_cnn_on_grants:
-    cmd: grants_tagger evaluate model mesh-cnn models/disease_mesh_cnn-2021.06.0
-      data/raw/disease_tags_validation_grants.xlsx models/disease_mesh_label_binarizer-2021.06.0.pkl
-      --results-path results/mesh_cnn_on_grants.json --grants
+  evaluate_mesh_xlinear_on_grants:
+    cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model-2021.09.0
+      data/raw/disease_tags_validation_grants.xlsx models/xlinear/label_binarizer-2021.09.0.pkl
+      --results-path results/mesh_xlinear_on_grants.json --grants
     deps:
     - data/raw/disease_tags_validation_grants.xlsx
     - grants_tagger/evaluate_mesh_on_grants.py
-    - models/disease_mesh_cnn-2021.06.0
-    - models/disease_mesh_label_binarizer-2021.06.0.pkl
+    - models/xlinear/model-2021.09.0
+    - models/xlinear/label_binarizer-2021.09.0.pkl
     metrics:
-    - results/mesh_cnn_on_grants.json:
+    - results/mesh_xlinear_on_grants.json:
         cache: false

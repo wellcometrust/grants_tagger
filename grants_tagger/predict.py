@@ -12,7 +12,7 @@ import os
 import numpy as np
 
 from wellcomeml.ml import BertClassifier
-from grants_tagger.models import MeshCNN, MeshTfidfSVM, ScienceEnsemble 
+from grants_tagger.models import MeshCNN, MeshTfidfSVM, ScienceEnsemble, MeshXLinear
 
 FILEPATH = os.path.dirname(__file__)
 DEFAULT_SCIBERT_PATH = os.path.join(FILEPATH, '../models/scibert-2020.05.5')
@@ -41,6 +41,9 @@ def predict(X_test, model_path, approach, threshold=0.5, return_probabilities=Fa
     # part of science-ensemble
     elif approach == 'scibert':
         model = BertClassifier(pretrained="scibert")
+        model.load(model_path)
+    elif approach == 'mesh-xlinear':
+        model = MeshXLinear()
         model.load(model_path)
     else:
         raise NotImplementedError

@@ -128,12 +128,20 @@ stages:
     metrics:
     - results/mesh_xlinear.json:
         cache: false
+  filter_mesh_tags:
+    cmd: python grants_tagger/filter_mesh_tags.py data/raw/desc2021.xml data/processed/mesh_disease_tags.csv
+    deps:
+    - data/raw/desc2021.xml
+    outs:
+    - data/processed/mesh_disease_tags.csv
   evaluate_mesh_xlinear_on_grants:
     cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model-2021.09.0
       data/raw/disease_tags_validation_grants.xlsx models/xlinear/label_binarizer-2021.09.0.pkl
       --results-path results/mesh_xlinear_on_grants.json --grants
+      --mesh-tags-path data/processed/mesh_disease_tags.csv
     deps:
     - data/raw/disease_tags_validation_grants.xlsx
+    - data/processed/mesh_disease_tags.csv
     - grants_tagger/evaluate_mesh_on_grants.py
     - models/xlinear/model-2021.09.0
     - models/xlinear/label_binarizer-2021.09.0.pkl

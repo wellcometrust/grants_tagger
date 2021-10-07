@@ -7,6 +7,7 @@ COPY setup.py /code
 COPY requirements.txt /code
 
 RUN pip install --upgrade pip
+RUN pip install libpecos==0.1.0
 RUN pip install -r requirements.txt
 RUN pip install . --no-dependencies
 
@@ -15,5 +16,6 @@ COPY models/tfidf-svm-2020.05.2.pkl models/
 COPY models/scibert-2020.05.5/ models/scibert-2020.05.5/
 COPY models/label_binarizer.pkl models/
 COPY models/disease_mesh_label_binarizer.pkl models/
+COPY models/xlinear models/xlinear
 
 CMD ["streamlit", "run", "grants_tagger/streamlit_visualize.py"]

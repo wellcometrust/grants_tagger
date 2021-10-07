@@ -33,6 +33,11 @@ models = {
         "model_path": "models/scibert-2020.05.5/",
         "label_binarizer_path": "models/label_binarizer.pkl",
         "approach": "scibert"
+    },
+    "mesh-xlinear-2021.09.0": {
+        "model_path": "models/xlinear/model-2021.09.0",
+        "label_binarizer_path": "models/xlinear/label_binarizer-2021.09.0.pkl",
+        "approach": "mesh-xlinear"
     }
 }
 

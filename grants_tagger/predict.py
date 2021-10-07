@@ -9,6 +9,7 @@ import argparse
 import pickle
 import os
 
+import scipy.sparse as sp
 import numpy as np
 
 from wellcomeml.ml import BertClassifier
@@ -74,9 +75,11 @@ def predict_tags(
     # TODO: Now that all models accept threshold, is that needed?
     tags = []
     for y_pred_proba in Y_pred_proba:
+        if sp.issparse(y_pred_proba):
+            y_pred_proba = np.asarray(y_pred_proba.todense()).ravel()
         if probabilities:
-            tags_i = {tag: prob for tag, prob in zip(label_binarizer.classes_, y_pred_proba) if prob > threshold}
+            tags_i = {tag: prob for tag, prob in zip(label_binarizer.classes_, y_pred_proba) if prob >= threshold}
         else:
-            tags_i = [tag for tag, prob in zip(label_binarizer.classes_, y_pred_proba) if prob > threshold]
+            tags_i = [tag for tag, prob in zip(label_binarizer.classes_, y_pred_proba) if prob >= threshold]
         tags.append(tags_i)
     return tags

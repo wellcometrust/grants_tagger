@@ -1,6 +1,8 @@
 preprocess_wellcome_science:
   text_cols: "Title,Synopsis"
   meta_cols: "Grant_ID,Title"
+preprocess_bioasq_mesh:
+  mesh_tags_path: null
 train:
   tfidf-svm:
     tfidf:

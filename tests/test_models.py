@@ -11,8 +11,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, MultiLabelBinarizer
 
 from wellcomeml.ml import BertVectorizer, BertClassifier, BiLSTMClassifier, CNNClassifier, KerasVectorizer, Doc2VecVectorizer, Sent2VecVectorizer, SpacyClassifier
-
-from grants_tagger.models import create_model, ApproachNotImplemented, MeshCNN, MeshTfidfSVM, TfidfTransformersSVM
+from grants_tagger.models import create_model, ApproachNotImplemented, MeshCNN, MeshTfidfSVM, TfidfTransformersSVM, MeshXLinear
 
 
 X = [
@@ -30,6 +29,28 @@ Y_mesh = [
     ["200"],
     ["1000"]
 ]
+
+def test_mesh_xlinear(tmp_path):
+    label_binarizer = MultiLabelBinarizer(sparse_output=True)
+    label_binarizer.fit(Y_mesh)
+
+    Y_vec = label_binarizer.transform(Y_mesh)
+   
+    model = MeshXLinear(max_features=2000, min_df=1)
+    assert model.max_features == 2000
+    assert model.min_df == 1
+    
+    params = {"tfidf__max_features": 1000}
+    model.set_params(**params)
+    assert model.vectorizer.max_features == 1000
+
+    model.fit(X, Y_vec)
+    model.save(tmp_path)
+
+    vectorizer_path = os.path.join(tmp_path, "vectorizer.pkl")
+    param_path = os.path.join(tmp_path, "param.json")
+    assert os.path.exists(vectorizer_path)
+    assert os.path.exists(param_path)
 
 def test_mesh_cnn(tmp_path):
     label_binarizer = MultiLabelBinarizer(sparse_output=True)
@@ -105,6 +126,10 @@ def test_tfidf_transformers_svm():
     model.set_params(**params)
 
     model.fit(X, Y_vec)
+
+def test_create_mesh_xlinear():
+    model = create_model('mesh-xlinear')
+    assert isinstance(model, MeshXLinear)
 
 def test_create_tfidf_transformers_svm():
     model = create_model('tfidf-transformers-svm')

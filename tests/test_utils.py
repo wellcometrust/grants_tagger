@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from grants_tagger.utils import (load_data, calc_performance_per_tag,   load_train_test_data)
+from grants_tagger.utils import load_data, calc_performance_per_tag, load_train_test_data, load_pickle, save_pickle
 
 
 @pytest.fixture
@@ -118,3 +118,10 @@ def test_load_train_test_data_generator(train_data_path, test_data_path, label_b
     assert np.array_equal(tags_train[1], [1, 0])
     assert np.array_equal(tags_test[0], [0, 1])
 
+def test_save_load_pickle(tmp_path):
+    obj = {"data": [1,2]}
+    obj_path = os.path.join(tmp_path, "obj.pkl")
+    save_pickle(obj_path, obj)
+    assert os.path.exists(obj_path)
+    obj_loaded = load_pickle(obj_path)
+    assert obj_loaded == obj

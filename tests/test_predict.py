@@ -115,6 +115,22 @@ def mesh_cnn_path(tmp_path):
     return model_path
 
 @pytest.fixture
+def mesh_xlinear_path(tmp_path):
+    mesh_data_path = os.path.join(tmp_path, "mesh_data.jsonl")
+    create_data(X, Y_mesh, mesh_data_path)
+ 
+    label_binarizer_path = os.path.join(tmp_path, "label_binarizer.pkl")
+    model_path = os.path.join(tmp_path, "mesh_xlinear")
+    parameters = {
+        'tfidf__min_df': 1,
+        'tfidf__stop_words': None
+    }
+    train_and_evaluate(mesh_data_path, label_binarizer_path,
+        approach="mesh-xlinear", model_path=model_path,
+        sparse_labels=True, verbose=False, parameters=str(parameters))
+    return model_path
+
+@pytest.fixture
 def label_binarizer_path(tmp_path):
     data_path = os.path.join(tmp_path, "mesh_data.jsonl")
     create_data(X, Y, data_path)
@@ -259,3 +275,25 @@ def test_predict_tags_mesh_cnn(mesh_cnn_path, mesh_label_binarizer_path):
     for tags_ in tags:
         assert len(tags_) == 0
 
+
+def test_predict_tags_mesh_xlinear(mesh_xlinear_path, mesh_label_binarizer_path):
+    tags = predict_tags(
+        X, mesh_xlinear_path, mesh_label_binarizer_path,
+        approach="mesh-xlinear")
+    assert len(tags) == 5
+    tags = predict_tags(
+        X, mesh_xlinear_path, mesh_label_binarizer_path,
+        approach="mesh-xlinear", probabilities=True)
+    for tags_ in tags:
+        for tag, prob in tags_.items():
+            assert 0 <= prob <= 1.0
+    tags = predict_tags(
+        X, mesh_xlinear_path, mesh_label_binarizer_path,
+        approach="mesh-xlinear", threshold=0)
+    for tags_ in tags:
+        assert len(tags_) == 5000
+    tags = predict_tags(
+        X, mesh_xlinear_path, mesh_label_binarizer_path,
+        approach="mesh-xlinear", threshold=1)
+    for tags_ in tags:
+        assert len(tags_) == 0

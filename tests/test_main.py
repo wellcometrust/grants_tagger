@@ -13,7 +13,7 @@ from typer.testing import CliRunner
 import pytest
 
 from grants_tagger.__main__ import app, convert_dvc_to_sklearn_params
-from grants_tagger.models import MeshCNN
+from grants_tagger.models.mesh_cnn import MeshCNN
 
 runner = CliRunner()
 

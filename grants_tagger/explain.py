@@ -2,7 +2,7 @@ import pickle
 
 import shap
 
-from grants_tagger.models import MeshCNN
+from grants_tagger.models.mesh_cnn import MeshCNN
 
 
 def explain(approach, data_path, model_path, label_binarizer_path,

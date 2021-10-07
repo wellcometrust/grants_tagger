@@ -11,7 +11,11 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, MultiLabelBinarizer
 
 from wellcomeml.ml import BertVectorizer, BertClassifier, BiLSTMClassifier, CNNClassifier, KerasVectorizer, Doc2VecVectorizer, Sent2VecVectorizer, SpacyClassifier
-from grants_tagger.models import create_model, ApproachNotImplemented, MeshCNN, MeshTfidfSVM, TfidfTransformersSVM, MeshXLinear
+from grants_tagger.models.create_model import create_model, ApproachNotImplemented
+from grants_tagger.models.mesh_cnn import MeshCNN
+from grants_tagger.models.mesh_tfidf_svm import MeshTfidfSVM
+from grants_tagger.models.tfidf_transformers_svm import TfidfTransformersSVM
+from grants_tagger.models.mesh_xlinear import MeshXLinear
 
 
 X = [

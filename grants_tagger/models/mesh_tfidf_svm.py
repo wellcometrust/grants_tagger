@@ -1,3 +1,4 @@
+from pathlib import Path
 import pickle
 import json
 import os
@@ -8,7 +9,7 @@ from sklearn.multiclass import OneVsRestClassifier
 import scipy.sparse as sp
 import numpy as np
 
-from grants_tagger.modes.utils import get_params_for_component
+from grants_tagger.models.utils import get_params_for_component
 
 
 class MeshTfidfSVM():

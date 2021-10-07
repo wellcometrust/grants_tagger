@@ -13,12 +13,10 @@ import scipy.sparse as sp
 import numpy as np
 
 from wellcomeml.ml import BertClassifier
-from grants_tagger.models import MeshCNN, MeshTfidfSVM, ScienceEnsemble, MeshXLinear
-
-FILEPATH = os.path.dirname(__file__)
-DEFAULT_SCIBERT_PATH = os.path.join(FILEPATH, '../models/scibert-2020.05.5')
-DEFAULT_TFIDF_SVM_PATH = os.path.join(FILEPATH, '../models/tfidf-svm-2020.05.2.pkl')
-DEFAULT_LABELBINARIZER_PATH = os.path.join(FILEPATH, '../models/label_binarizer.pkl')
+from grants_tagger.models.mesh_cnn import MeshCNN
+from grants_tagger.models.mesh_tfidf_svm import MeshTfidfSVM
+from grants_tagger.models.science_ensemble import ScienceEnsemble
+from grants_tagger.models.mesh_xlinear import MeshXLinear
 
 
 def predict(X_test, model_path, approach, threshold=0.5, return_probabilities=False):

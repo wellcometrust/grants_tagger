@@ -1,3 +1,4 @@
+import json
 import os
 
 import tensorflow as tf
@@ -6,7 +7,7 @@ import scipy.sparse as sp
 
 from wellcomeml.ml import CNNClassifier, KerasVectorizer
 from grants_tagger.models.utils import get_params_for_component
-
+from grants_tagger.utils import save_pickle, load_pickle
 
 class MeshCNN():
     def __init__(self, threshold=0.5, batch_size=256, shuffle=True,
@@ -190,9 +191,7 @@ class MeshCNN():
             f.write(json.dumps(meta))
         
         vectorizer_path = os.path.join(model_path, "vectorizer.pkl")
-        with open(vectorizer_path, "wb") as f:
-            f.write(pickle.dumps(self.vectorizer))
-        
+        save_pickle(vectorizer_path, self.vectorizer)
         self.classifier.save(model_path)
 
     def load(self, model_path): 
@@ -202,8 +201,7 @@ class MeshCNN():
         self.set_params(**meta)
         
         vectorizer_path = os.path.join(model_path, "vectorizer.pkl")
-        with open(vectorizer_path, "rb") as f:
-            self.vectorizer = pickle.loads(f.read())
+        self.vectorizer = load_pickle(vectorizer_path)
 
         self._init_classifier()
         self.classifier.load(model_path)

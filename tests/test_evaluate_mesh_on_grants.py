@@ -5,7 +5,7 @@ import pickle
 from sklearn.preprocessing import MultiLabelBinarizer
 import pandas as pd
 
-from grants_tagger.models import MeshCNN
+from grants_tagger.models.mesh_cnn import MeshCNN
 from grants_tagger.evaluate_mesh_on_grants import evaluate_mesh_on_grants
 
 

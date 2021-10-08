@@ -101,7 +101,7 @@ stages:
     deps:
     - data/processed/test_mesh2021.jsonl
     - grants_tagger/train.py
-    - grants_tagger/models.py
+    - grants_tagger/models/mesh_xlinear.py
     params:
     - train.mesh-xlinear.tfidf.stop_words
     - train.mesh-xlinear.tfidf.min_df

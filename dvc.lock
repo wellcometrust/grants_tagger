@@ -51,8 +51,8 @@ stages:
       md5: 2fb37d57daeece50a0190e16e229647a
       size: 2809039
     - path: grants_tagger/train.py
-      md5: c07a28772ee20b9d2a5eb1727d347877
-      size: 5375
+      md5: 652028d5c0cf9083eafafd01a2193464
+      size: 5388
     params:
       params.yaml:
         train.tfidf-svm.svm__estimator.class_weight: balanced
@@ -65,7 +65,7 @@ stages:
       md5: 220319a004a60bd6475e2fb617c2c1f3
       size: 1067
     - path: models/tfidf-svm-2020.05.2.pkl
-      md5: f6f5ad2b1baec695075b2eb0551ab527
+      md5: 0f89b310ac6aa20ddf1fc59cdd9c1c4f
       size: 17768857
   evaluate:
     cmd: grants_tagger evaluate model tfidf-svm models/tfidf-svm-2020.05.2.pkl data/processed/science_grants_tagged_title_synopsis.jsonl
@@ -95,7 +95,7 @@ stages:
       md5: 220319a004a60bd6475e2fb617c2c1f3
       size: 1067
     - path: models/tfidf-svm-2020.05.2.pkl
-      md5: f6f5ad2b1baec695075b2eb0551ab527
+      md5: 0f89b310ac6aa20ddf1fc59cdd9c1c4f
       size: 17768857
     outs:
     - path: results/tfidf_svm.json
@@ -109,8 +109,8 @@ stages:
       md5: 2fb37d57daeece50a0190e16e229647a
       size: 2809039
     - path: grants_tagger/train.py
-      md5: c07a28772ee20b9d2a5eb1727d347877
-      size: 5375
+      md5: 652028d5c0cf9083eafafd01a2193464
+      size: 5388
     params:
       params.yaml:
         train.scibert.epochs: 10
@@ -121,7 +121,7 @@ stages:
       md5: 220319a004a60bd6475e2fb617c2c1f3
       size: 1067
     - path: models/scibert-2020.05.5
-      md5: 04d9e31be6a236da841b31d78ba149d2.dir
+      md5: 19e4f9ec887098b36fe7cadbc04d6879.dir
       size: 440020010
       nfiles: 2
   evaluate_scibert:
@@ -135,7 +135,7 @@ stages:
       md5: 220319a004a60bd6475e2fb617c2c1f3
       size: 1067
     - path: models/scibert-2020.05.5
-      md5: 04d9e31be6a236da841b31d78ba149d2.dir
+      md5: 19e4f9ec887098b36fe7cadbc04d6879.dir
       size: 440020010
       nfiles: 2
     outs:
@@ -171,15 +171,15 @@ stages:
       md5: 220319a004a60bd6475e2fb617c2c1f3
       size: 1067
     - path: models/scibert-2020.05.5
-      md5: 04d9e31be6a236da841b31d78ba149d2.dir
+      md5: 19e4f9ec887098b36fe7cadbc04d6879.dir
       size: 440020010
       nfiles: 2
     - path: models/tfidf-svm-2020.05.2.pkl
-      md5: f6f5ad2b1baec695075b2eb0551ab527
+      md5: 0f89b310ac6aa20ddf1fc59cdd9c1c4f
       size: 17768857
     outs:
     - path: results/science_ensemble.json
-      md5: 5fd17018d4a60be4c8ab1fa36f68cb34
+      md5: 91951d9c207b4c93a61229ed87e9a6e6
       size: 89
   train_mesh_cnn:
     cmd: grants_tagger train data/processed/disease_mesh.jsonl models/disease_mesh_label_binarizer-2021.06.0.pkl
@@ -225,12 +225,12 @@ stages:
     - path: data/processed/test_mesh2021.jsonl
       md5: 9de03e6c3768c6918421a46fc908bb9b
       size: 247324489
-    - path: grants_tagger/models.py
-      md5: fbf24463e7bd7550a6d9235f46e058ca
-      size: 28404
+    - path: grants_tagger/models/mesh_xlinear.py
+      md5: b9f2e3c302c9826b5378fd871375fce9
+      size: 3135
     - path: grants_tagger/train.py
-      md5: c07a28772ee20b9d2a5eb1727d347877
-      size: 5375
+      md5: 652028d5c0cf9083eafafd01a2193464
+      size: 5388
     params:
       params.yaml:
         train.mesh-xlinear.tfidf.lowercase: true
@@ -251,7 +251,7 @@ stages:
       md5: 67d759ed4142feab2e575dc9bd3d5f54
       size: 827793
     - path: models/xlinear/model-2021.09.0
-      md5: 764cbf5354498f718ddf3c03dcebaa5c.dir
+      md5: 504415571ba82cc006c32dcc401b4468.dir
       size: 4263320373
       nfiles: 33
   evaluate_mesh_xlinear_on_grants:
@@ -273,7 +273,7 @@ stages:
       md5: 67d759ed4142feab2e575dc9bd3d5f54
       size: 827793
     - path: models/xlinear/model-2021.09.0
-      md5: 764cbf5354498f718ddf3c03dcebaa5c.dir
+      md5: 504415571ba82cc006c32dcc401b4468.dir
       size: 4263320373
       nfiles: 33
     outs:
@@ -292,7 +292,7 @@ stages:
       md5: 67d759ed4142feab2e575dc9bd3d5f54
       size: 827793
     - path: models/xlinear/model-2021.09.0
-      md5: 764cbf5354498f718ddf3c03dcebaa5c.dir
+      md5: 504415571ba82cc006c32dcc401b4468.dir
       size: 4263320373
       nfiles: 33
     outs:

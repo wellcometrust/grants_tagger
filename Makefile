@@ -63,7 +63,7 @@ update-requirements: VIRTUALENV := /tmp/update-requirements-venv/
 update-requirements: ## Updates requirement
 	@if [ -d $(VIRTUALENV) ]; then rm -rf $(VIRTUALENV); fi
 	@mkdir -p $(VIRTUALENV)
-	$(PYTHON) -m venv $(VIRTUALENV)
+	virtualenv --python $(PYTHON) $(VIRTUALENV)
 	$(VIRTUALENV)/bin/pip install --upgrade pip
 	$(VIRTUALENV)/bin/pip install -r unpinned_requirements.txt
 	$(VIRTUALENV)/bin/pip install -r unpinned_test_requirements.txt

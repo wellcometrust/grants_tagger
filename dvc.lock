@@ -86,7 +86,7 @@ stages:
       size: 89
   evaluate_tfidf_svm:
     cmd: grants_tagger evaluate model tfidf-svm models/tfidf-svm-2020.05.2.pkl data/processed/science_grants_tagged_title_synopsis.jsonl
-      models/label_binarizer.pkl --results-path results/tfidf_svm.json
+      models/label_binarizer-2020.05.2.pkl --results-path results/tfidf_svm.json
     deps:
     - path: grants_tagger/evaluate_model.py
       md5: f44b129408d66916e59c881bc777db87

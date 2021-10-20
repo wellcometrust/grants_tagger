@@ -12,7 +12,7 @@ stages:
     - data/processed/science_grants_tagged_title_synopsis.jsonl
   train_tfidf_svm:
     cmd: grants_tagger train data/processed/science_grants_tagged_title_synopsis.jsonl
-      models/label_binarizer-2020.05.2.pkl models/tfidf-svm-2020.05.2.pkl --approach tfidf-svm
+      models/label_binarizer-2020.05.2.pkl models/tfidf-svm-2020.05.2.pkl --approach tfidf-svm --metrics-path results/tfidf_svm_train.json
     deps:
     - data/processed/science_grants_tagged_title_synopsis.jsonl
     - grants_tagger/train.py
@@ -23,6 +23,9 @@ stages:
     outs:
     - models/label_binarizer-2020.05.2.pkl
     - models/tfidf-svm-2020.05.2.pkl
+    metrics:
+      - results/tfidf_svm_train.json:
+          cache: false
   evaluate_tfidf_svm:
     cmd: grants_tagger evaluate model tfidf-svm models/tfidf-svm-2020.05.2.pkl data/processed/science_grants_tagged_title_synopsis.jsonl
       models/label_binarizer-2020.05.2.pkl --results-path results/tfidf_svm.json

@@ -105,7 +105,7 @@ def get_ec2_instance_type():
     instance_type_request = requests.get('http://169.254.169.254/latest/meta-data/instance-type')
 
     if instance_type_request.status_code == 200:
-        return instance_type.content.decode()
+        return instance_type_request.content.decode()
     else:
         return ""
 

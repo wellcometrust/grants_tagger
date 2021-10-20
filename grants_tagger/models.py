@@ -21,8 +21,6 @@ from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import SGDClassifier
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.preprocessing import Normalizer, OneHotEncoder, FunctionTransformer
-from pecos.xmc.xlinear.model import XLinearModel
-from pecos.xmc import Indexer, LabelEmbeddingFactory
 from scipy import sparse as sp
 import tensorflow as tf
 import numpy as np
@@ -32,6 +30,11 @@ from wellcomeml.ml import BiLSTMClassifier, CNNClassifier, KerasVectorizer, Spac
 
 logger = logging.getLogger(__name__)
 
+try:
+    from pecos.xmc.xlinear.model import XLinearModel
+    from pecos.xmc import Indexer, LabelEmbeddingFactory
+except ImportError:
+    logger.warning("pecos library is not installed possbly because you are not in a Linux machine. XLinear will not work")
 
 class ApproachNotImplemented(Exception):
     pass

@@ -3,6 +3,8 @@ from functools import partial
 import pickle
 import json
 
+import boto3
+import botocore
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
 import tensorflow as tf
@@ -96,3 +98,24 @@ def calc_performance_per_tag(Y_true, Y_pred, tags):
             'f1': f1_score(y_true_tag, y_pred_tag)
         })
     return pd.DataFrame(metrics)
+
+
+def get_ec2_instance_type():
+    """Utility function to get ec2 instance name, or empty string if not possible to get name"""
+
+    instance_id_request = requests.get('http://169.254.169.254/latest/meta-data/instance-id')
+
+    instance_type = ""
+
+    if instance_id_request == 200:
+        ec2 = boto3.resource('ec2')
+        ec2instance = ec2.Instance(instance_id_request.content)
+
+        try:
+            instance_type = ec2instance.instance_type
+        except botocore.exceptions.ClientError:
+            # Do nothing here, it will return an empty string instance_type in this case
+            pass
+
+    return instance_type
+

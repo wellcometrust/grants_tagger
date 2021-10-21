@@ -26,6 +26,7 @@ from grants_tagger.evaluate_mesh_on_grants import evaluate_mesh_on_grants
 from grants_tagger.download_epmc import download_epmc
 from grants_tagger.download_model import download_model
 from grants_tagger.explain import explain as explain_predictions
+from grants_tagger.utils import get_ec2_instance_type
 
 app = typer.Typer(add_completion=False)
 
@@ -61,6 +62,7 @@ def train(
         threshold: float = typer.Option(None, help="threshold to assign a tag"),
         data_format: str = typer.Option("list", help="format that will be used when loading the data. One of list,generator"),
         test_size: float = typer.Option(0.25, help="float or int indicating either percentage or absolute number of test examples"),
+        metrics_path: str = typer.Option(None, help="path to train times and instance"),
         sparse_labels: bool = typer.Option(False, help="flat about whether labels should be sparse when binarized"),
         cache_path: Optional[Path] = typer.Option(None, help="path to cache data transformartions"),
         config: Path = None,
@@ -120,6 +122,15 @@ def train(
             threshold=threshold,
             data_format=data_format, test_size=test_size,
             sparse_labels=sparse_labels, cache_path=cache_path)
+
+    duration = time.time() - start
+    print(f"Took {duration:.2f} to train")
+    if metrics_path:
+        with open(metrics_path, 'w') as f:
+            json.dump({
+                "duration": duration,
+                "ec2_instance": get_ec2_instance_type()
+            }, f)
 
 
 preprocess_app = typer.Typer()

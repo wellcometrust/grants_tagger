@@ -51,8 +51,8 @@ stages:
       md5: 2fb37d57daeece50a0190e16e229647a
       size: 2809039
     - path: grants_tagger/train.py
-      md5: 78683e5785fe5f403b4d1f58211b5dc8
-      size: 3971
+      md5: eb868db7c43e5e51ea054cd1ee0777be
+      size: 5091
     params:
       params.yaml:
         train.tfidf-svm.svm__estimator.class_weight: balanced
@@ -65,7 +65,7 @@ stages:
       md5: 220319a004a60bd6475e2fb617c2c1f3
       size: 1067
     - path: models/tfidf-svm-2020.05.2.pkl
-      md5: c2cb2d67152b2f19dfd09ef75d93179d
+      md5: adddd6e0dee135e9eb9f23bd6632d571
       size: 17768857
   evaluate:
     cmd: grants_tagger evaluate model tfidf-svm models/tfidf-svm-2020.05.2.pkl data/processed/science_grants_tagged_title_synopsis.jsonl
@@ -104,13 +104,14 @@ stages:
   train_scibert:
     cmd: grants_tagger train data/processed/science_grants_tagged_title_synopsis.jsonl
       models/label_binarizer-2020.05.5.pkl models/scibert-2020.05.5 --approach scibert
+      --metrics-path results/scibert_train.json
     deps:
     - path: data/processed/science_grants_tagged_title_synopsis.jsonl
       md5: 2fb37d57daeece50a0190e16e229647a
       size: 2809039
     - path: grants_tagger/train.py
-      md5: 78683e5785fe5f403b4d1f58211b5dc8
-      size: 3971
+      md5: eb868db7c43e5e51ea054cd1ee0777be
+      size: 5091
     params:
       params.yaml:
         train.scibert.epochs: 10
@@ -121,8 +122,8 @@ stages:
       md5: 220319a004a60bd6475e2fb617c2c1f3
       size: 1067
     - path: models/scibert-2020.05.5
-      md5: 6431d90a5c2a9a7fe4519ffc9c4216d8.dir
-      size: 440019948
+      md5: 0285dad37f55357d610bfcd73fe6161b.dir
+      size: 440020010
       nfiles: 2
   evaluate_scibert:
     cmd: grants_tagger evaluate model scibert models/scibert-2020.05.5 data/processed/science_grants_tagged_title_synopsis.jsonl
@@ -135,8 +136,8 @@ stages:
       md5: 220319a004a60bd6475e2fb617c2c1f3
       size: 1067
     - path: models/scibert-2020.05.5
-      md5: 6431d90a5c2a9a7fe4519ffc9c4216d8.dir
-      size: 440019948
+      md5: 0285dad37f55357d610bfcd73fe6161b.dir
+      size: 440020010
       nfiles: 2
     outs:
     - path: results/scibert.json

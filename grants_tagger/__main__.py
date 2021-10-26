@@ -8,6 +8,7 @@ import tempfile
 import yaml
 import json
 import os
+import time
 
 import typer
 
@@ -68,7 +69,8 @@ def train(
         config: Path = None,
         cloud: bool = typer.Option(False, help="flag to train using Sagemaker"),
         instance_type: str = typer.Option("local", help="instance type to use when training with Sagemaker")):
-
+    
+    start = time.time()
     params_path = os.path.join(os.path.dirname(__file__), "../params.yaml")
     with open(params_path) as f:
         params = yaml.safe_load(f)

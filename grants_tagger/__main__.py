@@ -63,7 +63,7 @@ def train(
         threshold: float = typer.Option(None, help="threshold to assign a tag"),
         data_format: str = typer.Option("list", help="format that will be used when loading the data. One of list,generator"),
         test_size: float = typer.Option(0.25, help="float or int indicating either percentage or absolute number of test examples"),
-        metrics_path: str = typer.Option(None, help="path to train times and instance"),
+        train_info: str = typer.Option(None, help="path to train times and instance"),
         sparse_labels: bool = typer.Option(False, help="flat about whether labels should be sparse when binarized"),
         cache_path: Optional[Path] = typer.Option(None, help="path to cache data transformartions"),
         config: Path = None,
@@ -127,8 +127,8 @@ def train(
 
     duration = time.time() - start
     print(f"Took {duration:.2f} to train")
-    if metrics_path:
-        with open(metrics_path, 'w') as f:
+    if train_info:
+        with open(train_info, 'w') as f:
             json.dump({
                 "duration": duration,
                 "ec2_instance": get_ec2_instance_type()

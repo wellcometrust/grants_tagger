@@ -9,14 +9,18 @@ from sklearn.svm import SVC
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, MultiLabelBinarizer
+import pytest
 
 from wellcomeml.ml import BertVectorizer, BertClassifier, BiLSTMClassifier, CNNClassifier, KerasVectorizer, Doc2VecVectorizer, Sent2VecVectorizer, SpacyClassifier
 from grants_tagger.models.create_model import create_model, ApproachNotImplemented
 from grants_tagger.models.mesh_cnn import MeshCNN
 from grants_tagger.models.mesh_tfidf_svm import MeshTfidfSVM
 from grants_tagger.models.tfidf_transformers_svm import TfidfTransformersSVM
-from grants_tagger.models.mesh_xlinear import MeshXLinear
-
+try:
+    from grants_tagger.models.mesh_xlinear import MeshXLinear
+    MESH_XLINEAR_IMPORTED = True
+except ImportError:
+    MESH_XLINEAR_IMPORTED = False
 
 X = [
     "all",
@@ -34,6 +38,7 @@ Y_mesh = [
     ["1000"]
 ]
 
+@pytest.mark.skipif(not MESH_XLINEAR_IMPORTED, reason="MeshXLinear missing")
 def test_mesh_xlinear(tmp_path):
     label_binarizer = MultiLabelBinarizer(sparse_output=True)
     label_binarizer.fit(Y_mesh)
@@ -131,6 +136,7 @@ def test_tfidf_transformers_svm():
 
     model.fit(X, Y_vec)
 
+@pytest.mark.skipif(not MESH_XLINEAR_IMPORTED, reason="MeshXLinear missing")
 def test_create_mesh_xlinear():
     model = create_model('mesh-xlinear')
     assert isinstance(model, MeshXLinear)

@@ -8,8 +8,13 @@ import os
 import numpy as np
 import pytest
 
-from grants_tagger.train import create_label_binarizer, train_and_evaluate
+from grants_tagger.train import create_label_binarizer, train
 from grants_tagger.predict import predict_tags, predict
+try:
+    from grants_tagger.models.mesh_xlinear import MeshXLinear
+    MESH_XLINEAR_IMPORTED = True
+except ImportError:
+    MESH_XLINEAR_IMPORTED = False
 
 X = [
     "all",
@@ -56,7 +61,7 @@ def tfidf_svm_path(tmp_path):
         'tfidf__min_df': 1,
         'tfidf__stop_words': None
     }
-    train_and_evaluate(data_path, label_binarizer_path,
+    train(data_path, label_binarizer_path,
             approach="tfidf-svm", model_path=tfidf_svm_path,
             parameters=str(parameters), verbose=False)
     return tfidf_svm_path
@@ -71,7 +76,7 @@ def scibert_path(tmp_path):
 
     scibert_path = os.path.join(tmp_path, "scibert")
     parameters = {"epochs": 1}
-    train_and_evaluate(data_path, label_binarizer_path,
+    train(data_path, label_binarizer_path,
             approach="scibert", model_path=scibert_path,
             parameters=str(parameters), verbose=False)
     
@@ -96,7 +101,7 @@ def mesh_tfidf_svm_path(tmp_path):
         'svm__estimator__loss': 'log',
         'model_path': model_path
     }
-    train_and_evaluate(mesh_data_path, label_binarizer_path,
+    train(mesh_data_path, label_binarizer_path,
         approach="mesh-tfidf-svm", model_path=model_path,
         parameters=str(parameters), sparse_labels=True,
         verbose=False)
@@ -109,7 +114,7 @@ def mesh_cnn_path(tmp_path):
  
     label_binarizer_path = os.path.join(tmp_path, "label_binarizer.pkl")
     model_path = os.path.join(tmp_path, "mesh_cnn")
-    train_and_evaluate(mesh_data_path, label_binarizer_path,
+    train(mesh_data_path, label_binarizer_path,
         approach="mesh-cnn", model_path=model_path,
         sparse_labels=True, verbose=False)
     return model_path
@@ -125,7 +130,7 @@ def mesh_xlinear_path(tmp_path):
         'tfidf__min_df': 1,
         'tfidf__stop_words': None
     }
-    train_and_evaluate(mesh_data_path, label_binarizer_path,
+    train(mesh_data_path, label_binarizer_path,
         approach="mesh-xlinear", model_path=model_path,
         sparse_labels=True, verbose=False, parameters=str(parameters))
     return model_path
@@ -276,6 +281,7 @@ def test_predict_tags_mesh_cnn(mesh_cnn_path, mesh_label_binarizer_path):
         assert len(tags_) == 0
 
 
+@pytest.mark.skipif(not MESH_XLINEAR_IMPORTED, reason="MeshXLinear missing")
 def test_predict_tags_mesh_xlinear(mesh_xlinear_path, mesh_label_binarizer_path):
     tags = predict_tags(
         X, mesh_xlinear_path, mesh_label_binarizer_path,

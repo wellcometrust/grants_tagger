@@ -99,14 +99,8 @@ class MeshTfidfSVM():
             X_vec = self.vectorizer.transform(X)
             
             Y_pred_proba_batch = classifier.predict_proba(X_vec)
-            
-            # TODO: Make batches sparse and batch by x if it is memory intensive
-            # Y_pred_proba_batch[Y_pred_proba_batch < 0.01] = 0        
-            # Y_pred_proba_batch = sp.csr_matrix(Y_pred_proba_batch)
-
             Y_pred_proba.append(Y_pred_proba_batch)
 
-        # Y_pred_proba = sp.hstack(Y_pred_proba)
         Y_pred_proba = np.hstack(Y_pred_proba)
         return Y_pred_proba
 

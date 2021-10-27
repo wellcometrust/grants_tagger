@@ -171,10 +171,7 @@ class MeshCNN():
             Y_pred_proba = []
             for i in range(0, X_vec.shape[0], self.batch_size):
                 Y_pred_proba_batch = self.classifier.predict_proba(X_vec[i:i+self.batch_size])
-                # Y_pred_proba_batch[Y_pred_proba_batch < 0.01] = 0
-                # Y_pred_proba_batch = sp.csr_matrix(Y_pred_proba)
                 Y_pred_proba.append(Y_pred_proba_batch)
-            # Y_pred_proba = sp.hstack(Y_pred_proba)
             Y_pred_proba = np.hstack(Y_pred_proba)
         else:
             pred_data = self._yield_data(X, self.vectorizer)

@@ -81,8 +81,11 @@ def load_train_test_data(
             X_test = partial(yield_texts, test_data_path)
             Y_test = partial(yield_tags, test_data_path, label_binarizer)
         else:
-            # need to split train / test and shuffle in memory efficient way
-            raise NotImplementedError
+            # note that we do not split the data, we assume the user has them splitted
+            X_train = partial(yield_texts, train_data_path)
+            Y_train = partial(yield_tags, train_data_path, label_binarizer)
+            X_test = None
+            Y_test = None
 
     return X_train, X_test, Y_train, Y_test
 

@@ -19,7 +19,7 @@ from grants_tagger.evaluate_model import evaluate_model
 from grants_tagger.predict import predict_tags
 from grants_tagger.preprocess import preprocess
 from grants_tagger.preprocess_mesh import preprocess_mesh
-from grants_tagger.train import train_and_evaluate
+from grants_tagger.train import train as train_model
 from grants_tagger.tune_threshold import tune_threshold
 from grants_tagger.optimise_params import optimise_params
 from grants_tagger.train_with_sagemaker import train_with_sagemaker
@@ -59,13 +59,10 @@ def train(
         model_path: Optional[Path] = typer.Argument(None, help="path to output model.pkl or dir to save model"),
         approach: str = typer.Option("tfidf-svm", help="tfidf-svm, scibert, cnn, ..."),
         parameters: str = typer.Option(None, help="model params in sklearn format e.g. {'svm__kernel: linear'}"),
-        test_data_path: Path = typer.Option(None, help="path to processed JSON test data"),
         threshold: float = typer.Option(None, help="threshold to assign a tag"),
         data_format: str = typer.Option("list", help="format that will be used when loading the data. One of list,generator"),
-        test_size: float = typer.Option(0.25, help="float or int indicating either percentage or absolute number of test examples"),
         train_info: str = typer.Option(None, help="path to train times and instance"),
         sparse_labels: bool = typer.Option(False, help="flat about whether labels should be sparse when binarized"),
-        evaluate: bool = typer.Option(True, help="flag on whether to evaluate at the end"),
         cache_path: Optional[Path] = typer.Option(None, help="path to cache data transformartions"),
         config: Path = None,
         cloud: bool = typer.Option(False, help="flag to train using Sagemaker"),
@@ -94,18 +91,13 @@ def train(
         approach = cfg["model"]["approach"]
         parameters = cfg["model"]["parameters"]
         model_path = cfg["model"].get("model_path", None)
-        test_data_path = cfg["data"]["test_data_path"]
         threshold = cfg["model"].get("threshold", None)
         if threshold:
             threshold = float(threshold)
         data_format = cfg["data"].get("data_format", "list")
-        test_size = float(cfg["data"].get("test_size", 0.25))
         sparse_labels = cfg["model"].get("sparse_labels", False)
         if sparse_labels:
             sparse_labels = bool(sparse_labels)
-        evaluate = cfg["model"].get("evaluate", True)
-        if evaluate:
-            evaluate = bool(evaluate)
         cache_path = cfg["data"].get("cache_path")
     
     if cloud:
@@ -114,19 +106,16 @@ def train(
         train_with_sagemaker(
             data_path=data_path, label_binarizer_path=label_binarizer_path,
             approach=approach, parameters=parameters, model_path=model_path,
-            test_data_path=test_data_path, threshold=threshold,
-            data_format=data_format, test_size=test_size,
+            threshold=threshold, data_format=data_format,
             sparse_labels=sparse_labels, cache_path=cache_path,
             instance_type=instance_type, config_version=config_version)
     elif model_path and os.path.exists(model_path):
         print(f"{model_path} exists. Remove if you want to rerun.")
     else:
-        train_and_evaluate(
+        train_model(
             data_path, label_binarizer_path, approach,
             parameters, model_path=model_path,
-            test_data_path=test_data_path,
-            threshold=threshold, evaluate=evaluate,
-            data_format=data_format, test_size=test_size,
+            threshold=threshold, data_format=data_format,
             sparse_labels=sparse_labels, cache_path=cache_path)
 
     duration = time.time() - start
@@ -248,7 +237,7 @@ def model(
         data_path: Path = typer.Argument(..., help="path to data that was used for training"),
         label_binarizer_path: Path = typer.Argument(..., help="path to label binarize"),
         threshold: Optional[str] = typer.Option("0.5", help="threshold or comma separated thresholds used to assign tags"),
-        results_path: str = typer.Option("results.json", help="path to save results"),
+        results_path: Optional[str] = typer.Option(None, help="path to save results"),
         mesh_tags_path: str = typer.Option(None, help="path to mesh subset to evaluate"),
         split_data: bool = typer.Option(True, help="flag on whether to split data in same way as was done in train"),
         grants: bool = typer.Option(False, help="flag on whether the data is grants data instead of publications to evaluate MeSH"),

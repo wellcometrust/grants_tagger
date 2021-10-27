@@ -18,8 +18,8 @@ from sklearn.metrics import f1_score, multilabel_confusion_matrix, confusion_mat
 from scipy.sparse import csr_matrix, issparse
 import numpy as np
 
-from grants_tagger.predict import predict
 from grants_tagger.utils import load_train_test_data
+from grants_tagger.models.create_model import load_model
 
 
 def argmaxf1(thresholds, Y_test, Y_pred_proba, label_i, nb_thresholds, iterations):
@@ -104,11 +104,12 @@ def tune_threshold(approach, data_path, model_path, label_binarizer_path, thresh
     X_test_sample = X_test[sample_indices]
     Y_test_sample = Y_test[sample_indices, :]
 
-    Y_pred_proba = predict(X_test_sample, model_path, approach, return_probabilities=True)
+    model = load_model(approach, model_path)
+    Y_pred_proba = model.predict_proba(X_test_sample)
 
     optimal_thresholds = optimise_threshold(Y_test_sample, Y_pred_proba, nb_thresholds, init_threshold)
 
-    Y_pred = predict(X_test, model_path, approach, threshold=optimal_thresholds)
+    Y_pred = Y_pred_proba > optimal_thresholds
     
     optimal_f1 = f1_score(Y_test, Y_pred, average="micro")
     print("---Optimal f1---")

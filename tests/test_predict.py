@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 
 from grants_tagger.train import create_label_binarizer, train
-from grants_tagger.predict import predict_tags, predict
+from grants_tagger.predict import predict_tags
 try:
     from grants_tagger.models.mesh_xlinear import MeshXLinear
     MESH_XLINEAR_IMPORTED = True

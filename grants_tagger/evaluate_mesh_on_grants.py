@@ -13,7 +13,7 @@ import json
 from sklearn.metrics import f1_score
 import pandas as pd
 
-from grants_tagger.predict import predict
+from grants_tagger.models.create_model import load_model
 
 
 def get_tags(data, annotator):
@@ -54,8 +54,10 @@ def evaluate_mesh_on_grants(approach, data_path, model_path, label_binarizer_pat
     Y = label_binarizer.transform(gold_tags)
 
     texts = get_texts(data)
-    Y_pred = predict(texts, model_path, approach)
-    
+
+    model = load_model(approach, model_path)
+    Y_pred = model.predict(texts)
+ 
     if mesh_tags_path:
         Y = Y[:,mesh_tags_idx]
         Y_pred = Y_pred[:,mesh_tags_idx] 

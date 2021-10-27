@@ -12,9 +12,21 @@ from grants_tagger.utils import load_train_test_data, load_data
 from grants_tagger.models.create_model import load_model
 
 
+# TODO: Move inside model that need to produce sparse probs
+def predict_sparse_probs(model, X_test, batch_size=256, cutoff_prob=0.01):
+    Y_pred_proba = []
+    for i in range(0, X_test.shape[0], batch_size):
+        Y_pred_proba_batch = model.predict_proba(X_test)
+        Y_pred_proba_batch[Y_pred_proba_batch < cutoff_prob] = 0
+        Y_pred_proba_batch = sp.csr_matrix(Y_pred_proba_batch)
+        Y_pred_proba.append(Y_pred_proba_batch)
+    Y_pred_proba = sp.vstack(Y_pred_proba_batch)
+    return Y_pred_proba
+
+
 def evaluate_model(approach, model_path, data_path, label_binarizer_path,
                    threshold, split_data=True, results_path=None,
-                   sparse_y=False, x_batch_size=256, sparse_cutoff_prob=0.01):
+                   sparse_y=False):
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
 
@@ -27,15 +39,8 @@ def evaluate_model(approach, model_path, data_path, label_binarizer_path,
 
     model = load_model(approach, model_path)
 
-    # TODO: Move inside model that need to produce sparse probs
     if sparse_y:
-        Y_pred_proba = []
-        for i in range(0, X_test.shape[0], x_batch_size):
-            Y_pred_proba_batch = model.predict_proba(X_test)
-            Y_pred_proba_batch[Y_pred_proba_batch < sparse_cutoff_prob] = 0
-            Y_pred_proba_batch = sp.csr_matrix(Y_pred_proba_batch)
-            Y_pred_proba.append(Y_pred_proba_batch)
-        Y_pred_proba = sp.vstack(Y_pred_proba_batch)
+        predict_sparse_probs(model, X_test)
     else:
         Y_pred_proba = model.predict_proba(X_test)
 

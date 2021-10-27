@@ -15,19 +15,6 @@ import numpy as np
 from grants_tagger.models.create_model import load_model
 
 
-# Do we need both predict and predict tags?
-def predict(X_test, model_path, approach, threshold=0.5, return_probabilities=False,
-        sparse_y=False):
-    model = load_model(approach, model_path)
-
-    Y_pred_proba = model.predict_proba(X_test)
-
-    if return_probabilities:
-        return Y_pred_proba
- 
-    return model.predict(X_test) > threshold
-
-
 def predict_tags(
         X, model_path, label_binarizer_path,
         approach, probabilities=False,
@@ -43,8 +30,8 @@ def predict_tags(
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
 
-    Y_pred_proba = predict(X, model_path, threshold=threshold,
-        return_probabilities=True, approach=approach)
+    model = load_model(approach, model_path)
+    Y_pred_proba = model.predict_proba(X)
 
     # TODO: Now that all models accept threshold, is that needed?
     tags = []

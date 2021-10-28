@@ -24,7 +24,7 @@ stages:
     - models/label_binarizer-2020.05.2.pkl
     - models/tfidf-svm-2020.05.2.pkl
     metrics:
-      - results/tfidf_svm_train.json:
+      - results/tfidf_svm_train_info.json:
           cache: false
   evaluate_tfidf_svm:
     cmd: grants_tagger evaluate model tfidf-svm models/tfidf-svm-2020.05.2.pkl data/processed/science_grants_tagged_title_synopsis.jsonl

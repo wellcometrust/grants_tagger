@@ -12,6 +12,7 @@ import os
 
 from tqdm import tqdm
 import pandas as pd
+import typer
 
 
 def filter_disease_codes(mesh_descriptions_file):
@@ -46,6 +47,8 @@ def yield_raw_data(input_path):
 def process_data(item, filter_tags=None):
     text = item["abstractText"]
     tags = item["meshMajor"]
+    journal = item["journal"]
+    year = item["year"]
     if filter_tags:
         tags = list(set(tags).intersection(filter_tags))
     if not tags:
@@ -53,7 +56,10 @@ def process_data(item, filter_tags=None):
     data = {
         "text": text,
         "tags": tags,
-        "meta": {}
+        "meta": {
+            "journal": journal,
+            "year": year
+        }
     }
     return data
 
@@ -106,3 +112,6 @@ def preprocess_mesh(raw_data_path, processed_data_path,
             for data_batch in yield_data(raw_data_path, filter_tags):
                 write_jsonl(f, data_batch)
 
+
+if __name__ == "__main__":
+    typer.run(preprocess_mesh)

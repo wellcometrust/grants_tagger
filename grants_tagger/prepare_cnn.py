@@ -1,6 +1,7 @@
 import pickle
 import json
 
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import MultiLabelBinarizer
 import scipy.sparse as sp
 import numpy as np
@@ -13,12 +14,6 @@ def write_pickle(pickle_path, obj):
     with open(pickle_path, "wb") as f:
         f.write(pickle.dumps(obj))
 
-def write_txt(data_path, data):
-    with open(data_path, "w") as f:
-        for line in data:
-            f.write(line)
-            f.write("\n")
-
 def load_data(data_path):
     with open(data_path) as f:
         texts = []
@@ -29,7 +24,7 @@ def load_data(data_path):
             tags.append(item["tags"])
     return texts, tags
 
-def prepare_cnn(data_path, vectorizer_path, label_binarizer_path):
+def prepare_cnn(data_path, vectorizer_path, label_binarizer_path, tfidf_vectorizer_path=None):
     print("Loading data")
     X, Y = load_data(data_path)
 
@@ -37,6 +32,11 @@ def prepare_cnn(data_path, vectorizer_path, label_binarizer_path):
     vectorizer = KerasVectorizer(tokenizer_library="transformers", vocab_size=30_000, sequence_length=200)
     vectorizer.fit(X)
     write_pickle(vectorizer_path, vectorizer)
+
+    if tfidf_vectorizer_path:
+        tfidf_vectorizer = TfidfVectorizer(max_features=400_000, min_df=10, stop_words="english")
+        tfidf_vectorizer.fit(X)
+        write_pickle(tfidf_vectorizer_path, tfidf_vectorizer)
 
     print("Training label binarizer")
     label_binarizer = MultiLabelBinarizer(sparse_output=True)

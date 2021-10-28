@@ -58,13 +58,13 @@ update-requirements: VIRTUALENV := /tmp/update-requirements-venv/
 update-requirements: ## Updates requirement
 	@if [ -d $(VIRTUALENV) ]; then rm -rf $(VIRTUALENV); fi
 	@mkdir -p $(VIRTUALENV)
-	$(PYTHON) -m venv $(VIRTUALENV)
+	virtualenv --python $(PYTHON) $(VIRTUALENV)
 	$(VIRTUALENV)/bin/pip install --upgrade pip
 	$(VIRTUALENV)/bin/pip install -r unpinned_requirements.txt
 	$(VIRTUALENV)/bin/pip install -r unpinned_test_requirements.txt
 	echo "#Created by Makefile. Do not edit." > requirements.txt
-	$(VIRTUALENV)/bin/pip freeze | grep -v pkg-resources==0.0.0 >> requirements.txt
-#	echo "-e git://github.com/wellcometrust/WellcomeML.git@tokenizer-decode#egg=wellcomeml" >> requirements.txt
+	$(VIRTUALENV)/bin/pip freeze | grep -v pkg-resources==0.0.0 | grep -v wellcomeml >> requirements.txt
+	echo "-e git://github.com/wellcometrust/WellcomeML.git@reuse-cnn#egg=wellcomeml[tensorflow,torch,spacy]" >> requirements.txt
 	echo "git+https://github.com/nsorros/shap.git@dev" >> requirements.txt
 
 .PHONY: test

@@ -3,7 +3,8 @@ xlrd
 scikit-learn==0.23.2
 nltk
 matplotlib
-wellcomeml[tensorflow,torch,spacy]==1.2.0
+#wellcomeml[tensorflow,torch,spacy]==1.2.0
+-e git://github.com/wellcometrust/WellcomeML.git@reuse-cnn#egg=wellcomeml[tensorflow,torch,spacy]
 docutils==0.15
 scipy==1.4.1
 wasabi

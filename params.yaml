@@ -1,6 +1,8 @@
 preprocess_wellcome_science:
   text_cols: "Title,Synopsis"
   meta_cols: "Grant_ID,Title"
+preprocess_bioasq_mesh:
+  mesh_tags_path: null
 train:
   tfidf-svm:
     tfidf:
@@ -12,22 +14,17 @@ train:
     validation_split: 0.10
     learning_rate: 0.00002
     epochs: 10
-  mesh-cnn:
-    vec:
-      tokenizer_library: "transformers"
-      vocab_size: 30_000
-      sequence_length: 400
-    cnn:
-      attention: True
-      multilabel: True
-      l2: 0.0000007 # 1e-7
-      dense_size: 10_000
-      hidden_size: 400
-      batch_size: 256
-      nb_epochs: 10
-      dropout: 0.1
-      learning_rate: 0.0001
-      learning_rate_decay: 0.8
-preprocess_bioasq_mesh:
-  filter_tags: "disease"
-
+  mesh-xlinear:
+    tfidf:
+      stop_words: "english"
+      min_df: 5
+      max_df: 1.0
+      max_features: 400_000
+      ngram_range: [1,1]
+      lowercase: True
+    xlinear:
+      cluster_chain: True
+      negative_sampling_scheme: "tfn"
+      beam_size: 10
+      only_topk: 20
+      min_weight_value: 0.1

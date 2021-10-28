@@ -34,17 +34,32 @@ def get_texts(data):
 
 
 def evaluate_mesh_on_grants(approach, data_path, model_path, label_binarizer_path,
-        results_path="mesh_on_grants_results.json"):
+        results_path="mesh_on_grants_results.json", mesh_tags_path=None):
     data = pd.read_excel(data_path, engine="openpyxl")
+
+    if mesh_tags_path:
+        mesh_tags = pd.read_csv(mesh_tags_path)
+        mesh_tags = set(mesh_tags["DescriptorName"].tolist())
 
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
+
+    if mesh_tags_path:
+        mesh_tags_idx = [
+            idx for idx, mesh_tag in enumerate(label_binarizer.classes_)
+            if mesh_tag in mesh_tags 
+        ]
 
     gold_tags = get_tags(data, "KW")
     Y = label_binarizer.transform(gold_tags)
 
     texts = get_texts(data)
     Y_pred = predict(texts, model_path, approach)
+    
+    if mesh_tags_path:
+        Y = Y[:,mesh_tags_idx]
+        Y_pred = Y_pred[:,mesh_tags_idx] 
+
     f1 = f1_score(Y, Y_pred, average='micro')
     print(f"F1 micro is {f1}")
 

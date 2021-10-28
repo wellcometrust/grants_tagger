@@ -98,7 +98,6 @@ def calc_performance_per_tag(Y_true, Y_pred, tags):
         })
     return pd.DataFrame(metrics)
 
-
 def get_ec2_instance_type():
     """Utility function to get ec2 instance name, or empty string if not possible to get name"""
 
@@ -109,3 +108,10 @@ def get_ec2_instance_type():
     else:
         return ""
 
+def load_pickle(obj_path):
+    with open(obj_path, "rb") as f:
+        return pickle.loads(f.read())
+
+def save_pickle(obj_path, obj):
+    with open(obj_path, "wb") as f:
+        f.write(pickle.dumps(obj))

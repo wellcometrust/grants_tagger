@@ -14,7 +14,7 @@ import ast
 from sklearn.metrics import f1_score, classification_report
 from sklearn.preprocessing import MultiLabelBinarizer
 
-from grants_tagger.models import create_model
+from grants_tagger.models.create_model import create_model
 from grants_tagger.utils import load_train_test_data, yield_tags
 
 from tensorflow.random import set_seed
@@ -39,7 +39,7 @@ def train_and_evaluate(
         train_data_path, label_binarizer_path, approach,
         parameters=None, model_path=None, test_data_path=None,
         threshold=None, test_size=0.25, sparse_labels=False,
-        cache_path=None, data_format="list", verbose=True):
+        cache_path=None, data_format="list", evaluate=True, verbose=True):
     """
     train_data_path: path. path to JSONL data that contains "text" and "tags" fields.
     label_binarizer_path: path. path to load or store label_binarizer.
@@ -52,6 +52,7 @@ def train_and_evaluate(
     sparse_labels: bool, default False. whether tags (labels) would be sparse for memory efficiency.
     cache_path: path, default None. path to use for caching data transformations for speed.
     data_format: str, default list. one of list, generator. generator used for memory efficiency.
+    evaluate: bool, default True. flag on whether to evaluate at the end
     """
 
     if os.path.exists(label_binarizer_path):
@@ -80,23 +81,27 @@ def train_and_evaluate(
             Y_test = sp.vstack(Y_test_batches)
         else:
             Y_test = list(Y_test_gen)
-    
-    if threshold:
-        Y_pred_prob = model.predict_proba(X_test)
-        Y_pred_test = Y_pred_prob > threshold
-    else:
-        Y_pred_test = model.predict(X_test)
+  
+    f1 = None
+    if evaluate:
+        if threshold:
+            Y_pred_prob = model.predict_proba(X_test)
+            Y_pred_test = Y_pred_prob > threshold
+        else:
+            Y_pred_test = model.predict(X_test)
 
-    f1 = f1_score(Y_test, Y_pred_test, average='micro')
-    if verbose:
-        report = classification_report(Y_test, Y_pred_test, target_names=label_binarizer.classes_)
-        print(report)
+        f1 = f1_score(Y_test, Y_pred_test, average='micro')
+        if verbose:
+            report = classification_report(Y_test, Y_pred_test, target_names=label_binarizer.classes_)
+            print(report)
 
     if model_path:
         if str(model_path).endswith('pkl') or str(model_path).endswith('pickle'):
             with open(model_path, 'wb') as f:
                 f.write(pickle.dumps(model))
         else:
+            if not os.path.exists(model_path):
+                Path(model_path).mkdir(parents=True, exist_ok=True)
             model.save(model_path)
 
     return f1
@@ -114,7 +119,7 @@ if __name__ == "__main__":
     argparser.add_argument("--parameters", type=str)
     argparser.add_argument("--test_data_path", type=Path)
     argparser.add_argument("--threshold", type=float)
-    argparser.add_argument("--data_format", type=str)
+    argparser.add_argument("--data_format", type=str, default="list")
     argparser.add_argument("--test_size", type=float)
     argparser.add_argument("--sparse_labels", type=bool)
     argparser.add_argument("--cache_path", type=Path)

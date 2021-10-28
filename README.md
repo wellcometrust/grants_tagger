@@ -92,8 +92,7 @@ Arguments:
   [OUTPUT_PATH]  path to output JSONL data
 
 Options:
-  --mesh-metadata-path TEXT  path to xml file containing MeSH taxonomy
-  --filter-tags TEXT         filter mesh subbranch like disease
+  --mesh-tags-path TEXT      path to mesh tags to filter
   --test-split FLOAT         split percentage for test data. if None no split.
   --config PATH              path to config files that defines arguments
   --help                     Show this message and exit.
@@ -135,6 +134,9 @@ Options:
   --sparse-labels / --no-sparse-labels
                                   flat about whether labels should be sparse
                                   when binarized  [default: False]
+
+  --evaluate / --no-evaluate      flag on whether to evaluate at the end
+                                  [default: True]
 
   --cache-path PATH               path to cache data transformartions
   --config PATH

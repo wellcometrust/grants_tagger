@@ -65,6 +65,7 @@ def train(
         test_size: float = typer.Option(0.25, help="float or int indicating either percentage or absolute number of test examples"),
         train_info: str = typer.Option(None, help="path to train times and instance"),
         sparse_labels: bool = typer.Option(False, help="flat about whether labels should be sparse when binarized"),
+        evaluate: bool = typer.Option(True, help="flag on whether to evaluate at the end"),
         cache_path: Optional[Path] = typer.Option(None, help="path to cache data transformartions"),
         config: Path = None,
         cloud: bool = typer.Option(False, help="flag to train using Sagemaker"),
@@ -102,6 +103,9 @@ def train(
         sparse_labels = cfg["model"].get("sparse_labels", False)
         if sparse_labels:
             sparse_labels = bool(sparse_labels)
+        evaluate = cfg["model"].get("evaluate", True)
+        if evaluate:
+            evaluate = bool(evaluate)
         cache_path = cfg["data"].get("cache_path")
     
     if cloud:
@@ -121,7 +125,7 @@ def train(
             data_path, label_binarizer_path, approach,
             parameters, model_path=model_path,
             test_data_path=test_data_path,
-            threshold=threshold,
+            threshold=threshold, evaluate=evaluate,
             data_format=data_format, test_size=test_size,
             sparse_labels=sparse_labels, cache_path=cache_path)
 
@@ -142,8 +146,7 @@ preprocess_app = typer.Typer()
 def bioasq_mesh(
         input_path: Optional[str] = typer.Argument(None, help="path to BioASQ JSON data"),
         output_path: Optional[str] = typer.Argument(None, help="path to output JSONL data"),
-        mesh_metadata_path: Optional[str] = typer.Option(None, help="path to xml file containing MeSH taxonomy"),
-        filter_tags: Optional[str] = typer.Option(None, help="filter mesh subbranch like disease"),
+        mesh_tags_path: Optional[str] = typer.Option(None, help="path to mesh tags to filter"),
         test_split: Optional[float] = typer.Option(None, help="split percentage for test data. if None no split."),
         config: Optional[Path] = typer.Option(None, help="path to config files that defines arguments")):
 
@@ -152,8 +155,8 @@ def bioasq_mesh(
         params = yaml.safe_load(f)
 
     # Default values from params
-    if not filter_tags:
-        filter_tags = params["preprocess_bioasq_mesh"]["filter_tags"]
+    if not mesh_tags_path:
+        mesh_tags_path = params["preprocess_bioasq_mesh"].get("mesh_tags_path")
 
     if config:
         cfg = configparser.ConfigParser()
@@ -161,8 +164,7 @@ def bioasq_mesh(
 
         input_path = cfg["preprocess"]["input"]
         output_path = cfg["preprocess"]["output"]
-        mesh_metadata_path = cfg["filter_disease_codes"]["mesh_descriptions_file"]
-        filter_tags = cfg["filter_disease_codes"].get("filter_tags")
+        mesh_tags_path = cfg["filter_mesh"].get("mesh_tags_path")
         test_split = cfg["preprocess"].getfloat("test_split")
 
     # TODO: Refactor with preprocess_mesh
@@ -179,8 +181,8 @@ def bioasq_mesh(
             print(f"{output_path} exists. Remove if you want to rerun.")
             return
 
-    preprocess_mesh(input_path, output_path, mesh_metadata_path=mesh_metadata_path,
-        filter_tags=filter_tags, test_split=test_split)
+    preprocess_mesh(input_path, output_path,
+        mesh_tags_path=mesh_tags_path, test_split=test_split)
 
 
 @preprocess_app.command()
@@ -247,6 +249,8 @@ def model(
         label_binarizer_path: Path = typer.Argument(..., help="path to label binarize"),
         threshold: Optional[str] = typer.Option("0.5", help="threshold or comma separated thresholds used to assign tags"),
         results_path: str = typer.Option("results.json", help="path to save results"),
+        mesh_tags_path: str = typer.Option(None, help="path to mesh subset to evaluate"),
+        split_data: bool = typer.Option(True, help="flag on whether to split data in same way as was done in train"),
         grants: bool = typer.Option(False, help="flag on whether the data is grants data instead of publications to evaluate MeSH"),
         config: Optional[Path] = typer.Option(None, help="path to config file that defines arguments")):
 
@@ -259,6 +263,7 @@ def model(
         data_path = cfg["ensemble"]["data"]
         label_binarizer_path = cfg["ensemble"]["label_binarizer"]
         threshold = cfg["ensemble"]["threshold"]
+        split_data = cfg["ensemble"]["split_data"] # needs convert to bool
         results_path = cfg["ensemble"].get("results_path", "results.json")
 
     if "," in threshold:
@@ -268,10 +273,12 @@ def model(
     
     if grants:
         evaluate_mesh_on_grants(approach, data_path,
-            model_path, label_binarizer_path)
+            model_path, label_binarizer_path,
+            results_path=results_path, mesh_tags_path=mesh_tags_path)
     else:
         evaluate_model(approach, model_path, data_path,
-            label_binarizer_path, threshold, results_path=results_path)
+            label_binarizer_path, threshold, split_data, 
+            results_path=results_path)
 
 @evaluate_app.command()
 def human(data_path: Path, label_binarizer_path: Path):

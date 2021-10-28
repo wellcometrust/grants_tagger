@@ -9,15 +9,14 @@ import argparse
 import pickle
 import os
 
+import scipy.sparse as sp
 import numpy as np
 
 from wellcomeml.ml import BertClassifier
-from grants_tagger.models import MeshCNN, MeshTfidfSVM, ScienceEnsemble 
-
-FILEPATH = os.path.dirname(__file__)
-DEFAULT_SCIBERT_PATH = os.path.join(FILEPATH, '../models/scibert-2020.05.5')
-DEFAULT_TFIDF_SVM_PATH = os.path.join(FILEPATH, '../models/tfidf-svm-2020.05.2.pkl')
-DEFAULT_LABELBINARIZER_PATH = os.path.join(FILEPATH, '../models/label_binarizer.pkl')
+from grants_tagger.models.mesh_cnn import MeshCNN
+from grants_tagger.models.mesh_tfidf_svm import MeshTfidfSVM
+from grants_tagger.models.science_ensemble import ScienceEnsemble
+from grants_tagger.models.mesh_xlinear import MeshXLinear
 
 
 def predict(X_test, model_path, approach, threshold=0.5, return_probabilities=False):
@@ -41,6 +40,9 @@ def predict(X_test, model_path, approach, threshold=0.5, return_probabilities=Fa
     # part of science-ensemble
     elif approach == 'scibert':
         model = BertClassifier(pretrained="scibert")
+        model.load(model_path)
+    elif approach == 'mesh-xlinear':
+        model = MeshXLinear()
         model.load(model_path)
     else:
         raise NotImplementedError
@@ -71,9 +73,11 @@ def predict_tags(
     # TODO: Now that all models accept threshold, is that needed?
     tags = []
     for y_pred_proba in Y_pred_proba:
+        if sp.issparse(y_pred_proba):
+            y_pred_proba = np.asarray(y_pred_proba.todense()).ravel()
         if probabilities:
-            tags_i = {tag: prob for tag, prob in zip(label_binarizer.classes_, y_pred_proba) if prob > threshold}
+            tags_i = {tag: prob for tag, prob in zip(label_binarizer.classes_, y_pred_proba) if prob >= threshold}
         else:
-            tags_i = [tag for tag, prob in zip(label_binarizer.classes_, y_pred_proba) if prob > threshold]
+            tags_i = [tag for tag, prob in zip(label_binarizer.classes_, y_pred_proba) if prob >= threshold]
         tags.append(tags_i)
     return tags

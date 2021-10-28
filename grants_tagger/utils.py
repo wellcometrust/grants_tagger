@@ -3,6 +3,7 @@ from functools import partial
 import pickle
 import json
 
+import requests
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
 import tensorflow as tf
@@ -96,6 +97,16 @@ def calc_performance_per_tag(Y_true, Y_pred, tags):
             'f1': f1_score(y_true_tag, y_pred_tag)
         })
     return pd.DataFrame(metrics)
+
+def get_ec2_instance_type():
+    """Utility function to get ec2 instance name, or empty string if not possible to get name"""
+
+    instance_type_request = requests.get('http://169.254.169.254/latest/meta-data/instance-type')
+
+    if instance_type_request.status_code == 200:
+        return instance_type_request.content.decode()
+    else:
+        return ""
 
 def load_pickle(obj_path):
     with open(obj_path, "rb") as f:

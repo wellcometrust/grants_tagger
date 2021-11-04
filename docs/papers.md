@@ -10,7 +10,7 @@ This document aims to list some useful papers to read for someone working on thi
 * [AttentionMesh](https://users.cs.duke.edu/~bdhingra/papers/attentionmesh.pdf)
 * [BertMesh](https://pubmed.ncbi.nlm.nih.gov/32976559/)
 
-# Extreme multilabel classification
+## Extreme multilabel classification
 
 * [DeepXML](https://dl.acm.org/doi/pdf/10.1145/3077136.3080834)
 * [Parabel](http://manikvarma.org/pubs/prabhu18b.pdf)
@@ -28,3 +28,6 @@ This document aims to list some useful papers to read for someone working on thi
 * [BioSent2Vec](https://arxiv.org/abs/1810.09302)
 * [Dont decay the learning rate, increase the batch size](https://arxiv.org/abs/1711.00489v2)
 * [Self attentive sentence embedding](https://arxiv.org/pdf/1703.03130.pdf)
+* [On the stratification of multilabel data](https://www.semanticscholar.org/paper/On-the-Stratification-of-Multi-label-Data-Sechidis-Tsoumakas/71cc53b5f667ce26d3eb5f60c74279559c085007)
+* [BioWordVec](https://www.nature.com/articles/s41597-019-0055-0/)
+* [A disciplined approach to neural network training](https://arxiv.org/abs/1803.09820)

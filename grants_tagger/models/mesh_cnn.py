@@ -167,7 +167,6 @@ class MeshCNN():
     def predict_proba(self, X):
         if type(X) in [list, np.ndarray]:
             X_vec = self.vectorizer.transform(X)
-            # TODO: Move to CNNClassifier with sparse_y flag or remove sparse_y argument
             Y_pred_proba = []
             for i in range(0, X_vec.shape[0], self.batch_size):
                 Y_pred_proba_batch = self.classifier.predict_proba(X_vec[i:i+self.batch_size])

@@ -12,7 +12,6 @@ from grants_tagger.utils import load_train_test_data, load_data
 from grants_tagger.models.create_model import load_model
 
 
-# TODO: Move inside model that need to produce sparse probs
 def predict_sparse_probs(model, X_test, batch_size=256, cutoff_prob=0.01):
     Y_pred_proba = []
     for i in range(0, X_test.shape[0], batch_size):
@@ -30,7 +29,6 @@ def evaluate_model(approach, model_path, data_path, label_binarizer_path,
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
 
-    # Add issue to move default to False and pass this in configs
     if split_data:
         print("Warning: Data will be split in the same way as train. If you don't want that you set split_data=False")
         _, X_test, _, Y_test = load_train_test_data(data_path, label_binarizer)

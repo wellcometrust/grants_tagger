@@ -225,5 +225,4 @@ def load_model(approach, model_path):
         model = create_model(approach)
         model.load(model_path)
 
-    # The problem becomes the ensemble
     return model

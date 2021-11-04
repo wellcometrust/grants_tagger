@@ -18,3 +18,5 @@ twine
 sagemaker
 streamlit
 requests
+# https://github.com/google/pygtrie/issues/36
+pygtrie==2.3.3

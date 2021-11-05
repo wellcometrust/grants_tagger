@@ -28,7 +28,7 @@ jobs:
         with:
           title: Auto format code with black
           commit-message: Auto format code with black
-          committer: GitHub <noreply@github.com
+          committer: GitHub <noreply@github.com>
           author: nsorros <nsorros@users.noreply.github.com>
           branch: auto-autoblack
           delete-branch: true

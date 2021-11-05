@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
         with:
-          ref: {{ github.head_ref }}
+          ref: ${{ github.head_ref }}
       - uses: actions/setup-python@v1
       - run: pip install black
 #      - name: Auto format code if needed

@@ -122,21 +122,13 @@ Options:
   --parameters TEXT               model params in sklearn format e.g.
                                   {'svm__kernel: linear'}
 
-  --test-data-path PATH           path to processed JSON test data
   --threshold FLOAT               threshold to assign a tag
   --data-format TEXT              format that will be used when loading the
                                   data. One of list,generator  [default: list]
 
-  --test-size FLOAT               float or int indicating either percentage or
-                                  absolute number of test examples  [default:
-                                  0.25]
-
   --sparse-labels / --no-sparse-labels
                                   flat about whether labels should be sparse
                                   when binarized  [default: False]
-
-  --evaluate / --no-evaluate      flag on whether to evaluate at the end
-                                  [default: True]
 
   --cache-path PATH               path to cache data transformartions
   --config PATH
@@ -145,6 +137,7 @@ Options:
 
   --instance-type TEXT            instance type to use when training with
                                   Sagemaker  [default: local]
+
   --help                          Show this message and exit.
 ```
 
@@ -184,12 +177,20 @@ Arguments:
   LABEL_BINARIZER_PATH  path to label binarize  [required]
 
 Options:
-  --threshold TEXT     threshold or comma separated thresholds used to assign
-                       tags  [default: 0.5]
+  --threshold TEXT                threshold or comma separated thresholds used
+                                  to assign tags  [default: 0.5]
 
-  --results-path TEXT  path to save results  [default: results.json]
-  --config PATH        path to config file that defines arguments
-  --help               Show this message and exit.
+  --results-path TEXT             path to save results
+  --mesh-tags-path TEXT           path to mesh subset to evaluate
+  --split-data / --no-split-data  flag on whether to split data in same way as
+                                  was done in train  [default: True]
+
+  --grants / --no-grants          flag on whether the data is grants data
+                                  instead of publications to evaluate MeSH
+                                  [default: False]
+
+  --config PATH                   path to config file that defines arguments
+  --help                          Show this message and exit.
 ```
 
 #### Human

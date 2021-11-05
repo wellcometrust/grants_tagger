@@ -81,37 +81,28 @@ class MeshTfidfSVM():
             print(tag_i)
             X_vec = self.vectorizer.transform(X)
             self.classifier.fit(X_vec, Y[:,tag_i:tag_i+self.y_batch_size])
+            
+            # TODO: Sparsify weights before saving
             with open(f"{self.model_path}/{tag_i}.pkl", "wb") as f:
                 f.write(pickle.dumps(self.classifier))
 
         return self
 
-    def _predict(self, X, return_probabilities=False): 
-        Y_pred = []
+    def predict(self, X):
+        return self.predict_proba(X) > self.threshold
+
+    def predict_proba(self, X):
+        Y_pred_proba = []
         for tag_i in range(0, self.nb_labels, self.y_batch_size):
             with open(f"{self.model_path}/{tag_i}.pkl", "rb") as f:
                 classifier = pickle.loads(f.read())
             X_vec = self.vectorizer.transform(X)
-            if return_probabilities:
-                Y_pred_i = classifier.predict_proba(X_vec)
-            elif self.threshold != 0.5:
-                Y_pred_i = classifier.predict_proba(X_vec) > self.threshold
-                Y_pred_i = sp.csr_matrix(Y_pred_i)
-            else:
-                Y_pred_i = classifier.predict(X_vec)
-            Y_pred.append(Y_pred_i)
+            
+            Y_pred_proba_batch = classifier.predict_proba(X_vec)
+            Y_pred_proba.append(Y_pred_proba_batch)
 
-        if return_probabilities:
-            Y_pred = np.hstack(Y_pred)
-        else:
-            Y_pred = sp.hstack(Y_pred)
-        return Y_pred
-
-    def predict(self, X):
-        return self._predict(X)
-
-    def predict_proba(self, X):
-        return self._predict(X, return_probabilities=True)
+        Y_pred_proba = np.hstack(Y_pred_proba)
+        return Y_pred_proba
 
     def save(self, model_path):
         if model_path != self.model_path:

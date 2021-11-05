@@ -12,45 +12,8 @@ import os
 import scipy.sparse as sp
 import numpy as np
 
-from wellcomeml.ml import BertClassifier
-from grants_tagger.models.mesh_cnn import MeshCNN
-from grants_tagger.models.mesh_tfidf_svm import MeshTfidfSVM
-from grants_tagger.models.science_ensemble import ScienceEnsemble
-from grants_tagger.models.mesh_xlinear import MeshXLinear
+from grants_tagger.models.create_model import load_model
 
-
-def predict(X_test, model_path, approach, threshold=0.5, return_probabilities=False):
-    if approach == 'mesh-cnn':
-        model = MeshCNN(
-            threshold=threshold
-        )
-        model.load(model_path)
-    elif approach == 'mesh-tfidf-svm':
-        model = MeshTfidfSVM(
-            threshold=threshold,
-        )
-        model.load(model_path)
-    elif approach == 'science-ensemble':
-        model = ScienceEnsemble()
-        model.load(model_path)
-    # part of science-ensemble
-    elif approach == 'tfidf-svm':
-        with open(model_path, "rb") as f:
-            model = pickle.loads(f.read())
-    # part of science-ensemble
-    elif approach == 'scibert':
-        model = BertClassifier(pretrained="scibert")
-        model.load(model_path)
-    elif approach == 'mesh-xlinear':
-        model = MeshXLinear()
-        model.load(model_path)
-    else:
-        raise NotImplementedError
-
-    if return_probabilities:
-        return model.predict_proba(X_test)
-    else:
-        return model.predict(X_test)
 
 def predict_tags(
         X, model_path, label_binarizer_path,
@@ -67,8 +30,8 @@ def predict_tags(
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
 
-    Y_pred_proba = predict(X, model_path, threshold=threshold,
-        return_probabilities=True, approach=approach)
+    model = load_model(approach, model_path)
+    Y_pred_proba = model.predict_proba(X)
 
     # TODO: Now that all models accept threshold, is that needed?
     tags = []

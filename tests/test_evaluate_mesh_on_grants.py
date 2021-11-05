@@ -23,7 +23,7 @@ VAL_DATA = [
 def test_evaluate_mesh_on_grants():
     with tempfile.TemporaryDirectory() as tmp_dir:
         data_path = os.path.join(tmp_dir, "data.xlsx")
-        model_path = os.path.join(tmp_dir, "model.pkl")
+        model_path = os.path.join(tmp_dir, "model")
         label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
 
         texts = [example["text"] for example in TRAIN_DATA]

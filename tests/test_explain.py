@@ -3,7 +3,7 @@ import os
 
 import pytest
 
-from grants_tagger.train import train_and_evaluate, create_label_binarizer
+from grants_tagger.train import train, create_label_binarizer
 from grants_tagger.explain import explain
 
 X = [
@@ -35,7 +35,7 @@ def mesh_cnn_path(tmp_path):
  
     label_binarizer_path = os.path.join(tmp_path, "label_binarizer.pkl")
     model_path = os.path.join(tmp_path, "mesh_cnn")
-    train_and_evaluate(mesh_data_path, label_binarizer_path,
+    train(mesh_data_path, label_binarizer_path,
         approach="mesh-cnn", model_path=model_path,
         sparse_labels=True, verbose=False,
         parameters="{'vec__tokenizer_library': 'transformers'}")

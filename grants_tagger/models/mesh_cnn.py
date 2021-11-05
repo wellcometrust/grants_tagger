@@ -165,14 +165,13 @@ class MeshCNN():
         return Y_pred
 
     def predict_proba(self, X):
-        # TODO: Maybe not needed beacause CNN batches in predict. Test in disease MeSH.
         if type(X) in [list, np.ndarray]:
             X_vec = self.vectorizer.transform(X)
             Y_pred_proba = []
             for i in range(0, X_vec.shape[0], self.batch_size):
                 Y_pred_proba_batch = self.classifier.predict_proba(X_vec[i:i+self.batch_size])
                 Y_pred_proba.append(Y_pred_proba_batch)
-            Y_pred_proba = np.vstack(Y_pred_proba)
+            Y_pred_proba = np.hstack(Y_pred_proba)
         else:
             pred_data = self._yield_data(X, self.vectorizer)
             Y_pred_proba = self.classifier.predict_proba(pred_data)

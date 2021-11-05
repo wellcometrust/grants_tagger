@@ -205,22 +205,7 @@ def create_model(approach, parameters=None):
     elif approach == 'mesh-cnn':
         model = MeshCNN()
     elif approach == 'science-ensemble':
-        tfidf_svm = Pipeline([
-            ('tfidf', TfidfVectorizer(
-                stop_words='english', max_df=0.95,
-                min_df=0.0, ngram_range=(1,1)
-            )),
-            ('svm', OneVsRestClassifier(SVC(kernel='linear', probability=True)))
-        ])
-        scibert = BertClassifier(pretrained="scibert") 
-        model = WellcomeVotingClassifier(
-            estimators=[
-                ("tfidf-svm", tfidf_svm),
-                ("scibert", scibert)
-            ],
-            voting="soft",
-            multilabel=True
-        )
+        model = ScienceEnsemble()
     elif approach == 'mesh-xlinear':
         model = MeshXLinear()
     else:
@@ -230,4 +215,14 @@ def create_model(approach, parameters=None):
         model.set_params(**params)
     else:
         parameters = {}
+    return model
+
+
+def load_model(approach, model_path):
+    if str(model_path).endswith(".pkl"):
+        model = load_pickle(model_path)
+    else:
+        model = create_model(approach)
+        model.load(model_path)
+
     return model

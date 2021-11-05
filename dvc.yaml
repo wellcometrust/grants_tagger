@@ -99,8 +99,7 @@ stages:
   train_mesh_xlinear:
     cmd: grants_tagger train data/processed/train_mesh2021.jsonl
       models/xlinear/label_binarizer-2021.09.0.pkl models/xlinear/model-2021.09.0
-      --test-data-path data/processed/test_mesh2021.jsonl --approach mesh-xlinear 
-      --sparse-labels --no-evaluate --train-info results/mesh_xlinear_train_info.json
+      --approach mesh-xlinear --sparse-labels --train-info results/mesh_xlinear_train_info.json
     deps:
     - data/processed/test_mesh2021.jsonl
     - grants_tagger/train.py

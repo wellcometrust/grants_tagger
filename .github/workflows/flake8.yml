@@ -1,7 +1,7 @@
 # Github action that runs flake8 check
 
 name: flake8-check
-on: [pull_request, push]
+on: pull_request
 jobs:
   flake8-check:
     runs-on: ubuntu-latest

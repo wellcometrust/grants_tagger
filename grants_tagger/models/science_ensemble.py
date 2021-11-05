@@ -5,7 +5,7 @@ import numpy as np
 from wellcomeml.ml import BertClassifier, WellcomeVotingClassifier
 
 
-class ScienceEnsemble():
+class ScienceEnsemble:
     def __init__(self, threshold=0.5):
         self.threshold = threshold
 
@@ -21,8 +21,7 @@ class ScienceEnsemble():
 
     def predict_proba(self, X):
         # TODO: Replace with self.model.predict_proba(X) when implmented
-        Y_probs = np.array([
-            est.predict_proba(X) for est in self.estimators])
+        Y_probs = np.array([est.predict_proba(X) for est in self.estimators])
         Y_prob = np.mean(Y_probs, axis=0)
         return Y_prob
 
@@ -40,7 +39,9 @@ class ScienceEnsemble():
             model.load(model_path)
             return model
         else:
-            print(f"Did not recognise model in {model_path} to be one of tfidf-svm or scibert")
+            print(
+                f"Did not recognise model in {model_path} to be one of tfidf-svm or scibert"
+            )
             raise NotImplementedError
 
     def load(self, model_paths):
@@ -48,9 +49,7 @@ class ScienceEnsemble():
         for model_path in model_paths.split(","):
             estimator = self._load(model_path)
             self.estimators.append(estimator)
-        
+
         self.model = WellcomeVotingClassifier(
-            estimators=self.estimators,
-            voting="soft",
-            multilabel=True
+            estimators=self.estimators, voting="soft", multilabel=True
         )

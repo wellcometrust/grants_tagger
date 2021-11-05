@@ -16,9 +16,8 @@ from grants_tagger.models.create_model import load_model
 
 
 def predict_tags(
-        X, model_path, label_binarizer_path,
-        approach, probabilities=False,
-        threshold=0.5):
+    X, model_path, label_binarizer_path, approach, probabilities=False, threshold=0.5
+):
     """
     X: list or numpy array of texts
     model_path: path to trained model
@@ -39,8 +38,16 @@ def predict_tags(
         if sp.issparse(y_pred_proba):
             y_pred_proba = np.asarray(y_pred_proba.todense()).ravel()
         if probabilities:
-            tags_i = {tag: prob for tag, prob in zip(label_binarizer.classes_, y_pred_proba) if prob >= threshold}
+            tags_i = {
+                tag: prob
+                for tag, prob in zip(label_binarizer.classes_, y_pred_proba)
+                if prob >= threshold
+            }
         else:
-            tags_i = [tag for tag, prob in zip(label_binarizer.classes_, y_pred_proba) if prob >= threshold]
+            tags_i = [
+                tag
+                for tag, prob in zip(label_binarizer.classes_, y_pred_proba)
+                if prob >= threshold
+            ]
         tags.append(tags_i)
     return tags

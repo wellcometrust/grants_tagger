@@ -37,7 +37,9 @@ def get_mti_tags(mti_output_path, mesh_tags):
     return mti_tags
 
 
-def evaluate_mti(label_binarizer_path, mesh_sample_data_path, mti_output_path, verbose=False):
+def evaluate_mti(
+    label_binarizer_path, mesh_sample_data_path, mti_output_path, verbose=False
+):
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
     disease_tags = set(label_binarizer.classes_)
@@ -57,11 +59,22 @@ def evaluate_mti(label_binarizer_path, mesh_sample_data_path, mti_output_path, v
 
     return f1
 
+
 if __name__ == "__main__":
     argparser = ArgumentParser(description=__doc__.strip())
-    argparser.add_argument('--mesh_label_binarizer_path', type=Path, help="path to pickled mesh label binarizer")
-    argparser.add_argument('--mesh_sample_data_path', type=Path, help="path to sample JSONL mesh data")
-    argparser.add_argument('--mti_output_path', type=Path, help="path to mti output txt")
+    argparser.add_argument(
+        "--mesh_label_binarizer_path",
+        type=Path,
+        help="path to pickled mesh label binarizer",
+    )
+    argparser.add_argument(
+        "--mesh_sample_data_path", type=Path, help="path to sample JSONL mesh data"
+    )
+    argparser.add_argument(
+        "--mti_output_path", type=Path, help="path to mti output txt"
+    )
     args = argparser.parse_args()
 
-    evaluate_mti(args.mesh_label_binarizer_path, args.mesh_sample_data_path, args.mti_output_path)
+    evaluate_mti(
+        args.mesh_label_binarizer_path, args.mesh_sample_data_path, args.mti_output_path
+    )

@@ -9,14 +9,21 @@ from wellcomeml.ml import TransformersTokenizer
 class TfidfTransformersSVM:
     def _init_model(self):
         self.tokenizer = TransformersTokenizer()
-        self.model = Pipeline([
-            ('tfidf', TfidfVectorizer(
-                stop_words='english', max_df=0.95,
-                min_df=0.0, ngram_range=(1,1), 
-                tokenizer=self.tokenizer.tokenize
-            )),
-            ('svm', OneVsRestClassifier(SVC(kernel='linear', probability=True)))
-        ])
+        self.model = Pipeline(
+            [
+                (
+                    "tfidf",
+                    TfidfVectorizer(
+                        stop_words="english",
+                        max_df=0.95,
+                        min_df=0.0,
+                        ngram_range=(1, 1),
+                        tokenizer=self.tokenizer.tokenize,
+                    ),
+                ),
+                ("svm", OneVsRestClassifier(SVC(kernel="linear", probability=True))),
+            ]
+        )
 
     def set_params(self, **params):
         if not hasattr(self, "model"):

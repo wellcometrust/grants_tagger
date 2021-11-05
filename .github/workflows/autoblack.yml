@@ -30,6 +30,6 @@ jobs:
           commit-message: Auto format code with black
           committer: GitHub <noreply@github.com
           author: nsorros <nsorros@users.noreply.github.com>
-          branch: autoblack
+          branch: auto-autoblack
           delete-branch: true
           draft: false

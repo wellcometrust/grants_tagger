@@ -1,0 +1,31 @@
+
+
+name: autoblack
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 8 * * 5'
+
+jobs:
+  autoblack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          ref: {{ github.head_ref }}
+      - uses: actions/setup-python@v1
+      - run: pip install black
+      - name: Auto format code if needed
+        run: black --check grants_tagger
+      - name: If needed, open a PR
+        if: failure()
+        run: black grants_tagger
+        uses: peter-evans/create-pull-request@v3
+        with:
+          title: Auto format code with black
+          commit-message: Auto format code with black
+          committer: GitHub <noreply@github.com
+          author: nsorros <nsorros@users.noreply.github.com>
+          branch: autoblack
+          delete-branch: true
+          draft: false

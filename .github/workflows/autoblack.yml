@@ -1,3 +1,6 @@
+# Github action to run black and open a PR
+# https://github.com/explosion/spaCy/blob/master/.github/workflows/autoblack.yml
+
 name: autoblack
 on:
   pull_request
@@ -15,16 +18,18 @@ jobs:
       - uses: actions/setup-python@v1
       - run: pip install black
       - name: Auto format code if needed
-        run: black --check grants_tagger
-      - name: If needed, open a PR
-        if: failure()
         run: black grants_tagger
-#        uses: peter-evans/create-pull-request@v3
-#        with:
-#          title: Auto format code with black
-#          commit-message: Auto format code with black
-#          committer: GitHub <noreply@github.com
-#          author: nsorros <nsorros@users.noreply.github.com>
-#          branch: autoblack
-#          delete-branch: true
-#          draft: false
+      - name: Check for modified files
+        id: git-check
+        run: echo ::set-output name=modified::$(if git diff-index --quiet HEAD --; then echo "false"; else echo "true"; fi)
+      - name: Create Pull Request
+        if: steps.git-check.outputs.modified == 'true'
+        uses: peter-evans/create-pull-request@v3
+        with:
+          title: Auto format code with black
+          commit-message: Auto format code with black
+          committer: GitHub <noreply@github.com
+          author: nsorros <nsorros@users.noreply.github.com>
+          branch: autoblack
+          delete-branch: true
+          draft: false

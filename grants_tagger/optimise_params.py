@@ -45,7 +45,7 @@ def optimise_params(data_path, label_binarizer_path, approach, params=None):
 
     X, Y, _ = load_data(data_path, label_binarizer)
 
-    pipeline = create_model(args.approach)
+    pipeline = create_model(approach)
 
     if approach in DEFAULT_PARAMS_SEARCH:
         params = DEFAULT_PARAMS_SEARCH[approach]
@@ -57,6 +57,7 @@ def optimise_params(data_path, label_binarizer_path, approach, params=None):
         return
 
     search = GridSearchCV(pipeline, params[args.approach], cv=3, scoring='f1_micro', verbose=1, n_jobs=-1)
+
     search.fit(X, Y)
 
     results = search.cv_results_

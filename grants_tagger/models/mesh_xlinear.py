@@ -34,6 +34,7 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
         self.beam_size = beam_size
         self.only_topk = only_topk
         self.min_weight_value = min_weight_value
+        self.imbalanced_ratio = imbalanced_ratio
 
     def _init_vectorizer(self):
         # Sklearn estimators need variables introduced during training to have a trailing comma
@@ -66,7 +67,8 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
             cluster_chain=self.cluster_chain,
             negative_sampling_scheme=self.negative_sampling_scheme,
             only_topk=self.only_topk,
-            treshold=self.min_weight_value
+            threshold=self.min_weight_value,
+            imbalanced_ratio=imbalanced_ratio
         )
         return self
 

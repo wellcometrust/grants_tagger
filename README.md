@@ -512,14 +512,15 @@ and you would be able to run `grants_tagger preprocess epmc_mesh ...`
 To use grants_tagger with your own model you need to define a class
 for your model that adheres to the sklearn api so implements a
 `fit`, `predict`, `predict_proba` and `set_params` but also a `save` 
-and `load`.
+and `load`. Each custom model is defined in their own python script inside
+the `grants_tagger/models` folder.
 
-Then you need to import you class to `models.py` and add it in `create_model`
-as a separate approach with a name. Assuming your new approach is a bilstm
-with attention
+Then you need to import you class to `models/create_model.py` and add it in
+`create_model` as a separate approach with a name. Assuming your new approach
+is a bilstm with attention
 
 ```
-from bilstm_attention import BiLSTMAttention
+from grants_tagger.models.bilstm_attention import BiLSTMAttention
 
 ...
 

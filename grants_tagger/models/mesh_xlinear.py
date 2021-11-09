@@ -15,9 +15,11 @@ logger = logging.getLogger(__name__)
 
 class MeshXLinear(BaseEstimator, ClassifierMixin):
     def __init__(self, stop_words="english", min_df=5, max_df=1.0,
-            max_features=400_000, ngram_range=(1,1), lowercase=True,
+            max_features=400_000, ngram_range=(1, 1), lowercase=True,
             cluster_chain=True, negative_sampling_scheme="tfn",
             beam_size=10, only_topk=20, min_weight_value=0.1):
+        # Sklearn estimators need all arguments to be assigned to variables with the same name
+
         # Those are Tf-idf params
         self.stop_words = stop_words
         self.min_df = min_df
@@ -34,6 +36,7 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
         self.min_weight_value = min_weight_value
 
     def _init_vectorizer(self):
+        # Sklearn estimators need variables introduced during training to have a trailing comma
         self.vectorizer_ = TfidfVectorizer(
             stop_words=self.stop_words, min_df=self.min_df, max_df=self.max_df,
             max_features=self.max_features, ngram_range=self.ngram_range,
@@ -51,9 +54,11 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
         logger.info("Creating cluster chain") 
         label_feat = LabelEmbeddingFactory.create(Y, X_vec, method="pifa")
         cluster_chain = Indexer.gen(label_feat, indexer_type="hierarchicalkmeans")
-        xlinear_model  = XLinearModel()
+        xlinear_model = XLinearModel()
 
         logger.info("Training model")
+
+        # Sklearn estimators need variables introduced during training to have a trailing comma
         self.xlinear_model_ = xlinear_model.train(
             X_vec,
             Y,

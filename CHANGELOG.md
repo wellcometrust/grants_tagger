@@ -1,3 +1,14 @@
+## v0.2.0
+
+Improvements:
+
+- #76 Implements `grants_tagger download` which downloads data from EPMC that contain mesh tags
+- #74 Implements `grants_tagger visualize` that uses streamlit to interact with the models
+- #84 Implements `grants_tagger explain` that produces local and global explanations using SHAP
+- #78 Extends `grants_tagger download` to download models from Github releases
+- #90 Add `MeshXLinear` class, config and results for MeSH
+- #100 Add time to train and ec2_instance information when training
+
 ## v0.1.x
 
 This is the first release that packages everything developed 

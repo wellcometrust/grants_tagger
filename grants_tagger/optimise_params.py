@@ -38,7 +38,7 @@ DEFAULT_PARAMS_SEARCH = {
     },
     'mesh-xlinear': {
         'ngram_range': [(1, 1), (1, 2)],
-        'imbalanced_ratio': [0.0, 0.25],
+        'imbalanced_ratio': [0.0, 0.25]
     }
 }
 

@@ -486,7 +486,7 @@ def params(
         approach: str = typer.Argument(..., help="modelling approach e.g. mesh-xlinear"),
         data_path: Path = typer.Argument(..., help="Path to training data jsonl"),
         label_binarizer_path: Path = typer.Argument(..., help="path to label binarizer"),
-        results_path: Path = typer.Argument(..., help="Path to save the cross-val results"),
+        results_path: Path = typer.Option(..., help="Path to save the cross-val results"),
         params: Optional[str] = typer.Option(None, help="Stringified json parameters")):
     optimise_params(data_path, label_binarizer_path, approach, results_path, params=params)
 

@@ -6,6 +6,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 
 from pecos.xmc.xlinear.model import XLinearModel
 from pecos.xmc import Indexer, LabelEmbeddingFactory
+from pecos.utils.featurization.text.vectorizers import Tfidf
 
 from grants_tagger.models.utils import get_params_for_component
 from grants_tagger.utils import save_pickle, load_pickle
@@ -38,18 +39,21 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
 
     def _init_vectorizer(self):
         # Sklearn estimators need variables introduced during training to have a trailing comma
-        self.vectorizer_ = TfidfVectorizer(
-            stop_words=self.stop_words, min_df=self.min_df, max_df=self.max_df,
-            max_features=self.max_features, ngram_range=self.ngram_range,
-            lowercase=self.lowercase)
+        #self.vectorizer_ = TfidfVectorizer(
+        #    stop_words=self.stop_words, min_df=self.min_df, max_df=self.max_df,
+        #    max_features=self.max_features, ngram_range=self.ngram_range,
+        #    lowercase=self.lowercase)
+        self.vectorizer_ = Tfidf()
 
     def fit(self, X, Y):
         logger.info("Fitting vectorizer")
         
         self._init_vectorizer()
-        self.vectorizer_.fit(X)
-
-        X_vec = self.vectorizer_.transform(X).astype("float32")
+        self.vectorizer_ = self.vectorizer_.train(X, config={'ngram_range': self.ngram_range, 'max_feature': self.max_features, 'min_df_cnt': self.min_df})
+        
+        print("Its fit!")
+        X_vec = self.vectorizer_.predict(X)
+        print("It's predict!")
         Y = Y.astype("float32")
         
         logger.info("Creating cluster chain") 
@@ -77,7 +81,7 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
 
     def predict_proba(self, X):
         return self.xlinear_model_.predict(
-            self.vectorizer_.transform(X).astype("float32"),
+            self.vectorizer_.predict(X).astype("float32"),
             beam_size=self.beam_size
         )
 

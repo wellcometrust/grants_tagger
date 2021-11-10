@@ -78,7 +78,6 @@ def train(
         parameters = params["train"].get(approach)
         parameters = convert_dvc_to_sklearn_params(parameters)
         parameters = str(parameters)
-        logger.info(parameters)
 
     # Note that config overwrites parameters for backwards compatibility
     if config:
@@ -112,6 +111,7 @@ def train(
     elif model_path and os.path.exists(model_path):
         print(f"{model_path} exists. Remove if you want to rerun.")
     else:
+        logger.info(parameters)
         train_model(
             data_path, label_binarizer_path, approach,
             parameters, model_path=model_path,

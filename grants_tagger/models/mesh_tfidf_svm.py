@@ -12,9 +12,10 @@ import numpy as np
 from grants_tagger.models.utils import get_params_for_component
 
 
-class MeshTfidfSVM():
-    def __init__(self, y_batch_size=256, nb_labels=None, model_path=None,
-            threshold=0.5):
+class MeshTfidfSVM:
+    def __init__(
+        self, y_batch_size=256, nb_labels=None, model_path=None, threshold=0.5
+    ):
         """
         y_batch_size: int, default 256. Size of column batches for Y i.e. tags that each classifier will train on
         nb_labels: int, default None. Number of tags that will be trained.
@@ -24,46 +25,45 @@ class MeshTfidfSVM():
         Note that model_path needs to be provided as it is used to save
         intermediate classifiers trained to reduce memory usage.
         """
-        self.y_batch_size=y_batch_size
-        self.model_path=model_path
-        self.nb_labels=None
-        self.threshold=threshold
-    
+        self.y_batch_size = y_batch_size
+        self.model_path = model_path
+        self.nb_labels = None
+        self.threshold = threshold
+
     def _init_vectorizer(self):
         self.vectorizer = TfidfVectorizer(
-            stop_words='english', max_df=0.95,
-            min_df=5, ngram_range=(1,1)
+            stop_words="english", max_df=0.95, min_df=5, ngram_range=(1, 1)
         )
 
     def _init_classifier(self):
-        self.classifier = OneVsRestClassifier(SGDClassifier(loss='hinge', penalty='l2'))
+        self.classifier = OneVsRestClassifier(SGDClassifier(loss="hinge", penalty="l2"))
 
     def set_params(self, **params):
-        if not hasattr(self, 'vectorizer'):
+        if not hasattr(self, "vectorizer"):
             self._init_vectorizer()
-        if not hasattr(self, 'classifier'):
+        if not hasattr(self, "classifier"):
             self._init_classifier()
 
-        tfidf_params = get_params_for_component(params, 'tfidf')
-        svm_params = get_params_for_component(params, 'svm')
+        tfidf_params = get_params_for_component(params, "tfidf")
+        svm_params = get_params_for_component(params, "svm")
         self.vectorizer.set_params(**tfidf_params)
         self.classifier.set_params(**svm_params)
         # TODO: Create function that checks in params for arguments available in init
-        if 'model_path' in params:
-            self.model_path = params['model_path']
-        if 'y_batch_size' in params:
-            self.y_batch_size = params['y_batch_size']
-        if 'nb_labels' in params:
-            self.nb_labels = params['nb_labels']
+        if "model_path" in params:
+            self.model_path = params["model_path"]
+        if "y_batch_size" in params:
+            self.y_batch_size = params["y_batch_size"]
+        if "nb_labels" in params:
+            self.nb_labels = params["nb_labels"]
 
     def fit(self, X, Y):
         """
         X: list of texts
         Y: sparse csr_matrix of tags assigned
         """
-        if not hasattr(self, 'vectorizer'):
+        if not hasattr(self, "vectorizer"):
             self._init_vectorizer()
-        if not hasattr(self, 'classifier'):
+        if not hasattr(self, "classifier"):
             self._init_classifier()
 
         # TODO: Currently Y is expected to be sparse, otherwise predict does not
@@ -80,8 +80,8 @@ class MeshTfidfSVM():
         for tag_i in range(0, self.nb_labels, self.y_batch_size):
             print(tag_i)
             X_vec = self.vectorizer.transform(X)
-            self.classifier.fit(X_vec, Y[:,tag_i:tag_i+self.y_batch_size])
-            
+            self.classifier.fit(X_vec, Y[:, tag_i : tag_i + self.y_batch_size])
+
             # TODO: Sparsify weights before saving
             with open(f"{self.model_path}/{tag_i}.pkl", "wb") as f:
                 f.write(pickle.dumps(self.classifier))
@@ -97,7 +97,7 @@ class MeshTfidfSVM():
             with open(f"{self.model_path}/{tag_i}.pkl", "rb") as f:
                 classifier = pickle.loads(f.read())
             X_vec = self.vectorizer.transform(X)
-            
+
             Y_pred_proba_batch = classifier.predict_proba(X_vec)
             Y_pred_proba.append(Y_pred_proba_batch)
 
@@ -106,13 +106,15 @@ class MeshTfidfSVM():
 
     def save(self, model_path):
         if model_path != self.model_path:
-            print(f"{model_path} is different from self.model_path {self.model_path}. This will result in model and meta.json be saved in different paths")
+            print(
+                f"{model_path} is different from self.model_path {self.model_path}. This will result in model and meta.json be saved in different paths"
+            )
 
         meta = {
             "name": "MeshTfidfSVM",
             "approach": "mesh-tfidf-svm",
             "y_batch_size": self.y_batch_size,
-            "nb_labels": self.nb_labels
+            "nb_labels": self.nb_labels,
         }
         meta_path = os.path.join(model_path, "meta.json")
         with open(meta_path, "w") as f:

@@ -33,7 +33,7 @@ def argmaxf1(thresholds, Y_test, Y_pred_proba, label_i, nb_thresholds, iteration
     cm = multilabel_confusion_matrix(Y_test, Y_pred)
 
     if nb_thresholds:
-        candidate_thresholds_i = [t/nb_thresholds for t in range(1, nb_thresholds)]
+        candidate_thresholds_i = [t / nb_thresholds for t in range(1, nb_thresholds)]
     else:
         candidate_thresholds_i = np.unique(Y_pred_proba[:, label_i])
     for candidate_threshold_i in candidate_thresholds_i:
@@ -52,7 +52,7 @@ def argmaxf1(thresholds, Y_test, Y_pred_proba, label_i, nb_thresholds, iteration
         cm[label_i, :, :] = cm_i
 
         tn, fp, fn, tp = cm.sum(axis=0).ravel()
-        f1 = tp / (tp + (fp+fn) / 2)
+        f1 = tp / (tp + (fp + fn) / 2)
 
         if f1 > max_f1:
             max_f1 = f1
@@ -72,16 +72,25 @@ def optimise_threshold(Y_test, Y_pred_proba, nb_thresholds=None, init_threshold=
     optimal_f1 = f1_score(Y_test, Y_pred, average="micro")
     print("---Starting f1---")
     print(f"{optimal_f1:.3f}\n")
-    
+
     iterations = 0
     while updated:
         print(f"---Iteration {iterations}---")
         updated = False
         for label_i in range(Y_test.shape[1]):
             # find threshold for label that maximises overall f1
-            optimal_threshold_i, max_f1 = argmaxf1(optimal_thresholds, Y_test, Y_pred_proba, label_i, nb_thresholds, iterations)
+            optimal_threshold_i, max_f1 = argmaxf1(
+                optimal_thresholds,
+                Y_test,
+                Y_pred_proba,
+                label_i,
+                nb_thresholds,
+                iterations,
+            )
             if max_f1 > optimal_f1:
-                print(f"Label: {label_i:4d} - f1: {max_f1:.6f} - Th: {optimal_threshold_i:.3f}")
+                print(
+                    f"Label: {label_i:4d} - f1: {max_f1:.6f} - Th: {optimal_threshold_i:.3f}"
+                )
                 optimal_f1 = max_f1
                 optimal_thresholds[label_i] = optimal_threshold_i
                 updated = True
@@ -90,7 +99,16 @@ def optimise_threshold(Y_test, Y_pred_proba, nb_thresholds=None, init_threshold=
     return optimal_thresholds
 
 
-def tune_threshold(approach, data_path, model_path, label_binarizer_path, thresholds_path, sample_size=None, nb_thresholds=None, init_threshold=None):
+def tune_threshold(
+    approach,
+    data_path,
+    model_path,
+    label_binarizer_path,
+    thresholds_path,
+    sample_size=None,
+    nb_thresholds=None,
+    init_threshold=None,
+):
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
 
@@ -107,10 +125,12 @@ def tune_threshold(approach, data_path, model_path, label_binarizer_path, thresh
     model = load_model(approach, model_path)
     Y_pred_proba = model.predict_proba(X_test_sample)
 
-    optimal_thresholds = optimise_threshold(Y_test_sample, Y_pred_proba, nb_thresholds, init_threshold)
+    optimal_thresholds = optimise_threshold(
+        Y_test_sample, Y_pred_proba, nb_thresholds, init_threshold
+    )
 
     Y_pred = Y_pred_proba > optimal_thresholds
-    
+
     optimal_f1 = f1_score(Y_test, Y_pred, average="micro")
     print("---Optimal f1---")
     print(f"{optimal_f1:.3f}")

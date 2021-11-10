@@ -52,6 +52,10 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
             raise ValueError('Vectorizer library has to be pecos or sklearn')
 
     def fit(self, X, Y):
+        # Basic tabs and linebreak removal because pecos tfidf doesnt do it
+        logger.info("Removing punctuation")
+        X = [x.replace('\n', '').replace('\t', '') for x in X]
+
         logger.info("Fitting vectorizer")
         
         self._init_vectorizer()
@@ -84,8 +88,7 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
             cluster_chain=self.cluster_chain,
             negative_sampling_scheme=self.negative_sampling_scheme,
             only_topk=self.only_topk,
-            threshold=self.min_weight_value,
-            beam_size=self.beam_size
+            threshold=self.min_weight_value
         )
         return self
 
@@ -106,10 +109,19 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
 
     def save(self, model_path):
         vectorizer_path = os.path.join(model_path, "vectorizer.pkl")
-        save_pickle(vectorizer_path, self.vectorizer_)
+        if self.vectorizer_library == 'sklearn':
+            save_pickle(vectorizer_path, self.vectorizer_)
+        else:
+            self.vectorizer_.save(model_path)
+
         self.xlinear_model_.save(model_path)
 
     def load(self, model_path, is_predict_only=True):
         vectorizer_path = os.path.join(model_path, "vectorizer.pkl")
-        self.vectorizer_ = load_pickle(vectorizer_path)
+        if self.vectorizer_library == 'sklearn':
+            self.vectorizer_ = load_pickle(vectorizer_path)
+        else:
+            self.vectorizer_ = Tfidf()
+            self.vectorizer_ = self.vectorizer_.load(model_path)
+            
         self.xlinear_model_ = XLinearModel.load(model_path, is_predict_only=is_predict_only)

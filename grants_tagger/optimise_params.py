@@ -56,7 +56,6 @@ def optimise_params(data_path, label_binarizer_path, approach, params=None):
         print("Params not specified")
         return
     
-    print(len(X))
     search = GridSearchCV(pipeline, params, cv=3, scoring='f1_micro',
                           verbose=1, n_jobs=-1)
     search.fit(X, Y)
@@ -67,30 +66,6 @@ def optimise_params(data_path, label_binarizer_path, approach, params=None):
 
     best_params = search.best_params_
     print(best_params)
-
-    with open(results_path, 'a+') as f:
-        old_results = f.read()
-        old_results = (json.loads(old_results) if old_results else [])
-        existing_params = [json_line['params'] for json_line in old_results]
-
-        for new_param, new_score, new_time in zip(
-                results['params'], results['mean_test_score'], results['mean_fit_time']
-        ):
-            json_line = {'params': new_param, 'f1_score': new_score, 'time': new_time}
-
-            # If the parameter was already evaluated, replaces the results, if not appends
-            for pos, old_param in enumerate(existing_params):
-                if old_param == new_param:
-                    old_results[pos] = json_line
-            else:
-                old_results.append(json_line)
-
-        # Sorts the parameters by score
-        old_results = sorted(old_results, key = lambda x: x['f1_score'], reverse=True)
-
-        # Re-writes to the file
-        f.seek(0)
-        f.write(json.dumps(old_results, indent=4))
 
     best_params_path = os.path.join(
         os.path.dirname(__file__),

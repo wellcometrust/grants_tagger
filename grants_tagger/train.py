@@ -24,22 +24,30 @@ from tensorflow.random import set_seed
 set_seed(41)
 
 
-def create_label_binarizer(data_path, label_binarizer_path, sparse=False):        
+def create_label_binarizer(data_path, label_binarizer_path, sparse=False):
     """Creates, saves and returns a multilabel binarizer for targets Y"""
     label_binarizer = MultiLabelBinarizer(sparse_output=sparse)
     # TODO: pass Y_train here which can be generator or list
     label_binarizer.fit(yield_tags(data_path))
 
-    with open(label_binarizer_path, 'wb') as f:
+    with open(label_binarizer_path, "wb") as f:
         f.write(pickle.dumps(label_binarizer))
 
     return label_binarizer
 
+
 def train(
-        train_data_path, label_binarizer_path, approach,
-        parameters=None, model_path=None, threshold=None, 
-        sparse_labels=False, cache_path=None, data_format="list",
-        verbose=True):
+    train_data_path,
+    label_binarizer_path,
+    approach,
+    parameters=None,
+    model_path=None,
+    threshold=None,
+    sparse_labels=False,
+    cache_path=None,
+    data_format="list",
+    verbose=True,
+):
     """
     train_data_path: path. path to JSONL data that contains "text" and "tags" fields.
     label_binarizer_path: path. path to load or store label_binarizer.
@@ -57,7 +65,9 @@ def train(
         with open(label_binarizer_path, "rb") as f:
             label_binarizer = pickle.loads(f.read())
     else:
-        label_binarizer = create_label_binarizer(train_data_path, label_binarizer_path, sparse_labels)
+        label_binarizer = create_label_binarizer(
+            train_data_path, label_binarizer_path, sparse_labels
+        )
 
     model = create_model(approach, parameters)
 
@@ -68,8 +78,8 @@ def train(
     model.fit(X_train, Y_train)
 
     if model_path:
-        if str(model_path).endswith('pkl') or str(model_path).endswith('pickle'):
-            with open(model_path, 'wb') as f:
+        if str(model_path).endswith("pkl") or str(model_path).endswith("pickle"):
+            with open(model_path, "wb") as f:
                 f.write(pickle.dumps(model))
         else:
             if not os.path.exists(model_path):
@@ -94,8 +104,12 @@ if __name__ == "__main__":
     args = argparser.parse_args()
 
     train(
-        args.data_path, args.label_binarizer_path, args.approach,
+        args.data_path,
+        args.label_binarizer_path,
+        args.approach,
         args.parameters,
-        threshold=args.threshold, model_path=args.model_path,
+        threshold=args.threshold,
+        model_path=args.model_path,
         data_format=args.data_format,
-        sparse_labels=args.sparse_labels)
+        sparse_labels=args.sparse_labels,
+    )

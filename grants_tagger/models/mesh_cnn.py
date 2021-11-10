@@ -9,9 +9,17 @@ from wellcomeml.ml import CNNClassifier, KerasVectorizer
 from grants_tagger.models.utils import get_params_for_component
 from grants_tagger.utils import save_pickle, load_pickle
 
-class MeshCNN():
-    def __init__(self, threshold=0.5, batch_size=256, shuffle=True,
-            buffer_size=1000, data_cache=None, random_seed=42):
+
+class MeshCNN:
+    def __init__(
+        self,
+        threshold=0.5,
+        batch_size=256,
+        shuffle=True,
+        buffer_size=1000,
+        data_cache=None,
+        random_seed=42,
+    ):
         """
         threshold: float, default 0.5. Probability threshold on top of which a tag should be assigned.
         batch_size: int, default 256. Size of batches used for training and prediction.
@@ -37,6 +45,7 @@ class MeshCNN():
 
         If Y is missing, for example when called by predict, yield_data yields only X vectorized
         """
+
         def yield_transformed_data(X_buffer, Y_buffer):
             # TODO: This could move to WellcomeML to enable CNN to receive generators
             Y_den = None
@@ -45,7 +54,7 @@ class MeshCNN():
                 # Y_buffer list of np or sparse arrays
                 if type(Y_buffer[0]) == np.ndarray:
                     Y_den = np.vstack(Y_buffer)
-                else: # sparse
+                else:  # sparse
                     Y_buffer = sp.vstack(Y_buffer)
                     Y_den = np.asarray(Y_buffer.todense())
 
@@ -89,39 +98,43 @@ class MeshCNN():
                 yield from yield_transformed_data(X_buffer, Y_buffer)
 
         output_types = (tf.int32, tf.int32) if Y else (tf.int32)
-        data = tf.data.Dataset.from_generator(
-                data_gen, output_types=output_types)
-         
+        data = tf.data.Dataset.from_generator(data_gen, output_types=output_types)
+
         if self.data_cache:
             data = data.cache(self.data_cache)
         return data
 
     def _init_vectorizer(self):
-        self.vectorizer = KerasVectorizer(
-            vocab_size=5_000, sequence_length=400)
-        
+        self.vectorizer = KerasVectorizer(vocab_size=5_000, sequence_length=400)
+
     def _init_classifier(self):
         self.classifier = CNNClassifier(
-            learning_rate=0.01, dropout=0.1, sparse_y=True, 
-            nb_epochs=20, nb_layers=4, multilabel=True,
-            threshold=self.threshold, batch_size=self.batch_size)
-    
+            learning_rate=0.01,
+            dropout=0.1,
+            sparse_y=True,
+            nb_epochs=20,
+            nb_layers=4,
+            multilabel=True,
+            threshold=self.threshold,
+            batch_size=self.batch_size,
+        )
+
     def set_params(self, **params):
-        if not hasattr(self, 'vectorizer'):
+        if not hasattr(self, "vectorizer"):
             self._init_vectorizer()
-        if not hasattr(self, 'classifier'):
+        if not hasattr(self, "classifier"):
             self._init_classifier()
-        vec_params = get_params_for_component(params, 'vec')
-        clf_params = get_params_for_component(params, 'cnn')
+        vec_params = get_params_for_component(params, "vec")
+        clf_params = get_params_for_component(params, "cnn")
         self.vectorizer.set_params(**vec_params)
         self.classifier.set_params(**clf_params)
 
     def fit(self, X, Y):
         """
         X: list or generator of texts
-        Y: 2d numpy array or sparse csr_matrix or generator of 2d numpy array of tags assigned 
+        Y: 2d numpy array or sparse csr_matrix or generator of 2d numpy array of tags assigned
 
-        If X is a generator it need to be callable i.e. return 
+        If X is a generator it need to be callable i.e. return
         the generator by calling it X_gen = X(). This is so
         we can iterate on the data again.
         """
@@ -144,7 +157,7 @@ class MeshCNN():
             print("Fitting classifier")
             params_from_vectorizer = {
                 "sequence_length": self.vectorizer.sequence_length,
-                "vocab_size": self.vectorizer.vocab_size
+                "vocab_size": self.vectorizer.vocab_size,
             }
             self.classifier.set_params(**params_from_vectorizer)
             train_data = self._yield_data(X, self.vectorizer, Y)
@@ -152,9 +165,9 @@ class MeshCNN():
             if self.shuffle:
                 train_data = train_data.shuffle(self.buffer_size, seed=self.random_seed)
             self.classifier.fit(train_data)
-            
+
         return self
- 
+
     def predict(self, X):
         if type(X) in [list, np.ndarray]:
             X_vec = self.vectorizer.transform(X)
@@ -169,7 +182,9 @@ class MeshCNN():
             X_vec = self.vectorizer.transform(X)
             Y_pred_proba = []
             for i in range(0, X_vec.shape[0], self.batch_size):
-                Y_pred_proba_batch = self.classifier.predict_proba(X_vec[i:i+self.batch_size])
+                Y_pred_proba_batch = self.classifier.predict_proba(
+                    X_vec[i : i + self.batch_size]
+                )
                 Y_pred_proba.append(Y_pred_proba_batch)
             Y_pred_proba = np.hstack(Y_pred_proba)
         else:
@@ -181,24 +196,21 @@ class MeshCNN():
         if not os.path.exists(model_path):
             os.mkdir(model_path)
 
-        meta = {
-            "name": "MeshCNN",
-            "approach": "mesh-cnn"
-        }
+        meta = {"name": "MeshCNN", "approach": "mesh-cnn"}
         meta_path = os.path.join(model_path, "meta.json")
         with open(meta_path, "w") as f:
             f.write(json.dumps(meta))
-        
+
         vectorizer_path = os.path.join(model_path, "vectorizer.pkl")
         save_pickle(vectorizer_path, self.vectorizer)
         self.classifier.save(model_path)
 
-    def load(self, model_path): 
+    def load(self, model_path):
         meta_path = os.path.join(model_path, "meta.json")
         with open(meta_path, "r") as f:
             meta = json.loads(f.read())
         self.set_params(**meta)
-        
+
         vectorizer_path = os.path.join(model_path, "vectorizer.pkl")
         self.vectorizer = load_pickle(vectorizer_path)
 

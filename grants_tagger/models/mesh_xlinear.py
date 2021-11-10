@@ -8,7 +8,6 @@ from pecos.xmc.xlinear.model import XLinearModel
 from pecos.xmc import Indexer, LabelEmbeddingFactory
 from pecos.utils.featurization.text.vectorizers import Tfidf
 
-from grants_tagger.models.utils import get_params_for_component
 from grants_tagger.utils import save_pickle, load_pickle
 
 logger = logging.getLogger(__name__)
@@ -63,7 +62,7 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
 
         logger.info("Training model")
 
-        # Sklearn estimators need variables introduced during training to have a trailing comma
+        # Sklearn estimators need variables introduced during training to have a trailing underscore
         self.xlinear_model_ = xlinear_model.train(
             X_vec,
             Y,

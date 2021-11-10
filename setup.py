@@ -18,7 +18,6 @@ setup(
         'pandas',
         'xlrd',
         'scikit-learn==0.23.2',
-        'nltk',
         'matplotlib',
         'wellcomeml[tensorflow]==1.2.0',
         'docutils==0.15',
@@ -26,10 +25,10 @@ setup(
         'wasabi',
         'typer',
         'scispacy',
-        'dvc',
         'tqdm',
-        'sagemaker',
-        'streamlit'
+        'streamlit',
+        'requests',
+        'pygtrie==2.3.3'
     ],
     tests_require=[
         'pytest',

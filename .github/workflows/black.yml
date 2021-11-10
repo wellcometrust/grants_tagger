@@ -1,0 +1,12 @@
+name: Check black compliance
+on: pull_request
+
+jobs:
+  check_black:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      - run: pip install black
+      - name: Check black compliance
+        run: black --check grants_tagger

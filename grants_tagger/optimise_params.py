@@ -35,6 +35,16 @@ DEFAULT_PARAMS_SEARCH = {
         'batch_size': [8, 16, 32, 64],
         'learning_rate': [0.0001, 0.001, 0.01, 0.1],
         'dropout': [0.1, 0.2, 0.3]
+<<<<<<< HEAD
+=======
+    },
+    'mesh-xlinear': {
+       # 'ngram_range': [(1, 1), (1, 2)],
+       # 'imbalanced_ratio': [0.0, 0.25],
+        'max_features': [400_000, 600_000],
+        'negative_sampling_scheme': ["tfn", "man"],
+        'beam_size': [10, 20]
+>>>>>>> 7d0cca9 (Add beamsize)
     }
 }
 
@@ -44,7 +54,11 @@ def optimise_params(data_path, label_binarizer_path, approach, params=None):
         label_binarizer = pickle.load(f)
 
     X, Y, _ = load_data(data_path, label_binarizer)
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 7d0cca9 (Add beamsize)
     pipeline = create_model(approach)
 
     if approach in DEFAULT_PARAMS_SEARCH:
@@ -55,9 +69,16 @@ def optimise_params(data_path, label_binarizer_path, approach, params=None):
     else:
         print("Params not specified")
         return
+<<<<<<< HEAD
 
     search = GridSearchCV(pipeline, params[args.approach], cv=3, scoring='f1_micro', verbose=1, n_jobs=-1)
 
+=======
+    
+    print(len(X))
+    search = GridSearchCV(pipeline, params, cv=3, scoring='f1_micro',
+                          verbose=1, n_jobs=-1)
+>>>>>>> 7d0cca9 (Add beamsize)
     search.fit(X, Y)
 
     results = search.cv_results_
@@ -67,10 +88,37 @@ def optimise_params(data_path, label_binarizer_path, approach, params=None):
     best_params = search.best_params_
     print(best_params)
 
+<<<<<<< HEAD
+=======
+    with open(results_path, 'a+') as f:
+        old_results = f.read()
+        old_results = (json.loads(old_results) if old_results else [])
+        existing_params = [json_line['params'] for json_line in old_results]
+
+        for new_param, new_score, new_time in zip(
+                results['params'], results['mean_test_score'], results['mean_fit_time']
+        ):
+            json_line = {'params': new_param, 'f1_score': new_score, 'time': new_time}
+
+            # If the parameter was already evaluated, replaces the results, if not appends
+            for pos, old_param in enumerate(existing_params):
+                if old_param == new_param:
+                    old_results[pos] = json_line
+            else:
+                old_results.append(json_line)
+
+        # Sorts the parameters by score
+        old_results = sorted(old_results, key = lambda x: x['f1_score'], reverse=True)
+
+        # Re-writes to the file
+        f.seek(0)
+        f.write(json.dumps(old_results, indent=4))
+
+>>>>>>> 7d0cca9 (Add beamsize)
     best_params_path = os.path.join(
         os.path.dirname(__file__),
         '../models/',
-        '{approach}_best_params.json'.format(approach=args.approach)
+        '{approach}_best_params.json'.format(approach=approach)
     )
     with open(best_params_path, 'w') as f:
         json.dump(best_params, f)

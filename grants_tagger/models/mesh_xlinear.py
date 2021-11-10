@@ -17,7 +17,7 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
     def __init__(self, stop_words="english", min_df=5, max_df=1.0,
             max_features=400_000, ngram_range=(1, 1), lowercase=True,
             cluster_chain=True, negative_sampling_scheme="tfn",
-            beam_size=10, only_topk=20, min_weight_value=0.1):
+            beam_size=10, only_topk=20, min_weight_value=0.1, imbalanced_ratio=0):
         # Sklearn estimators need all arguments to be assigned to variables with the same name
 
         # Those are Tf-idf params
@@ -68,7 +68,7 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
             negative_sampling_scheme=self.negative_sampling_scheme,
             only_topk=self.only_topk,
             threshold=self.min_weight_value,
-            imbalanced_ratio=imbalanced_ratio
+            beam_size=self.beam_size
         )
         return self
 
@@ -77,7 +77,8 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
 
     def predict_proba(self, X):
         return self.xlinear_model_.predict(
-            self.vectorizer_.transform(X).astype("float32")
+            self.vectorizer_.transform(X).astype("float32"),
+            beam_size=self.beam_size
         )
 
     def save(self, model_path):

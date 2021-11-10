@@ -17,7 +17,8 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
     def __init__(self, stop_words="english", min_df=5, max_df=1.0,
             max_features=400_000, ngram_range=(1, 1), lowercase=True,
             cluster_chain=True, negative_sampling_scheme="tfn",
-            beam_size=10, only_topk=20, min_weight_value=0.1, imbalanced_ratio=0):
+            beam_size=10, only_topk=20, min_weight_value=0.1, imbalanced_ratio=0,
+            vectorizer_library='pecos'):
         # Sklearn estimators need all arguments to be assigned to variables with the same name
 
         # Those are Tf-idf params
@@ -35,24 +36,37 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
         self.only_topk = only_topk
         self.min_weight_value = min_weight_value
         self.imbalanced_ratio = imbalanced_ratio
+        self.vectorizer_library = vectorizer_library
 
     def _init_vectorizer(self):
         # Sklearn estimators need variables introduced during training to have a trailing comma
-        #self.vectorizer_ = TfidfVectorizer(
-        #    stop_words=self.stop_words, min_df=self.min_df, max_df=self.max_df,
-        #    max_features=self.max_features, ngram_range=self.ngram_range,
-        #    lowercase=self.lowercase)
-        self.vectorizer_ = Tfidf()
+        if self.vectorizer_library == 'sklearn':
+            self.vectorizer_ = TfidfVectorizer(
+                stop_words=self.stop_words, min_df=self.min_df, max_df=self.max_df,
+                max_features=self.max_features, ngram_range=self.ngram_range,
+                lowercase=self.lowercase
+            )
+        elif self.vectorizer_library == 'pecos':
+            self.vectorizer_ = Tfidf()
+        else:
+            raise ValueError('Vectorizer library has to be pecos or sklearn')
 
     def fit(self, X, Y):
         logger.info("Fitting vectorizer")
         
         self._init_vectorizer()
-        self.vectorizer_ = self.vectorizer_.train(X, config={'ngram_range': self.ngram_range, 'max_feature': self.max_features, 'min_df_cnt': self.min_df})
-        
-        print("Its fit!")
-        X_vec = self.vectorizer_.predict(X)
-        print("It's predict!")
+
+        if self.vectorizer_library == 'sklearn':
+            X_vec = self.vectorizer_.fit_transform(X).astype("float32")
+        else:
+            self.vectorizer_ = self.vectorizer_.train(
+                X,
+                config={'ngram_range': self.ngram_range,
+                        'max_feature': self.max_features,
+                        'min_df_cnt': self.min_df}
+            )
+            X_vec = self.vectorizer_.predict(X).astype("float32")
+
         Y = Y.astype("float32")
         
         logger.info("Creating cluster chain") 
@@ -79,10 +93,16 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
         return self.predict_proba(X) > 0.5
 
     def predict_proba(self, X):
-        return self.xlinear_model_.predict(
-            self.vectorizer_.predict(X).astype("float32"),
-            beam_size=self.beam_size
-        )
+        if self.vectorizer_library == 'sklearn':
+            return self.xlinear_model_.predict(
+                self.vectorizer_.transform(X).astype("float32"),
+                beam_size=self.beam_size
+            )
+        else:
+            return self.xlinear_model_.predict(
+                self.vectorizer_.predict(X).astype("float32"),
+                beam_size=self.beam_size
+            )
 
     def save(self, model_path):
         vectorizer_path = os.path.join(model_path, "vectorizer.pkl")

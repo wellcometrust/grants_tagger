@@ -50,7 +50,6 @@ stages:
     - train.scibert.learning_rate
     - train.scibert.epochs
     outs:
-    - models/label_binarizer-${version}.pkl
     - models/scibert-${version}
   evaluate_scibert:
     cmd: grants_tagger evaluate model scibert models/scibert-${version} data/processed/science_grants_tagged_title_synopsis.jsonl

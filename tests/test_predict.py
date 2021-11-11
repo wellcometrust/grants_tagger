@@ -127,8 +127,9 @@ def mesh_xlinear_path(tmp_path):
     label_binarizer_path = os.path.join(tmp_path, "label_binarizer.pkl")
     model_path = os.path.join(tmp_path, "mesh_xlinear")
     parameters = {
-        'tfidf__min_df': 1,
-        'tfidf__stop_words': None
+        'min_df': 1,
+        'stop_words': None,
+        'vectorizer_library': 'sklearn'
     }
     train(mesh_data_path, label_binarizer_path,
         approach="mesh-xlinear", model_path=model_path,
@@ -283,23 +284,26 @@ def test_predict_tags_mesh_cnn(mesh_cnn_path, mesh_label_binarizer_path):
 
 @pytest.mark.skipif(not MESH_XLINEAR_IMPORTED, reason="MeshXLinear missing")
 def test_predict_tags_mesh_xlinear(mesh_xlinear_path, mesh_label_binarizer_path):
+    # We need to pass parameters because the load function is different
+    # depending on the vectorizer library (pecos or sklearn)
+    parameters  = str({'vectorizer_library': 'sklearn'})
     tags = predict_tags(
         X, mesh_xlinear_path, mesh_label_binarizer_path,
-        approach="mesh-xlinear")
+        approach="mesh-xlinear", parameters=parameters)
     assert len(tags) == 5
     tags = predict_tags(
         X, mesh_xlinear_path, mesh_label_binarizer_path,
-        approach="mesh-xlinear", probabilities=True)
+        approach="mesh-xlinear", parameters=parameters, probabilities=True)
     for tags_ in tags:
         for tag, prob in tags_.items():
             assert 0 <= prob <= 1.0
     tags = predict_tags(
         X, mesh_xlinear_path, mesh_label_binarizer_path,
-        approach="mesh-xlinear", threshold=0)
+        approach="mesh-xlinear", threshold=0, parameters=parameters)
     for tags_ in tags:
         assert len(tags_) == 5000
     tags = predict_tags(
         X, mesh_xlinear_path, mesh_label_binarizer_path,
-        approach="mesh-xlinear", threshold=1)
+        approach="mesh-xlinear", threshold=1, parameters=parameters)
     for tags_ in tags:
         assert len(tags_) == 0

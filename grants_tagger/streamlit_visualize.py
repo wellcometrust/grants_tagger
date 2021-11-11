@@ -13,7 +13,7 @@ except ImportError:
     )
     SHAP_IMPORTED = False
 
-from grants_tagger.models import MeshCNN
+from grants_tagger.models.mesh_cnn import MeshCNN
 from grants_tagger.predict import predict_tags
 
 

@@ -45,14 +45,10 @@ def test_mesh_xlinear(tmp_path):
 
     Y_vec = label_binarizer.transform(Y_mesh)
    
-    model = MeshXLinear(max_features=2000, min_df=1)
+    model = MeshXLinear(max_features=2000, min_df=1, vectorizer_library='sklearn')
     assert model.max_features == 2000
     assert model.min_df == 1
     
-    params = {"tfidf__max_features": 1000}
-    model.set_params(**params)
-    assert model.vectorizer.max_features == 1000
-
     model.fit(X, Y_vec)
     model.save(tmp_path)
 

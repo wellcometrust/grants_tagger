@@ -218,11 +218,11 @@ def create_model(approach, parameters=None):
     return model
 
 
-def load_model(approach, model_path):
+def load_model(approach, model_path, parameters=None):
     if str(model_path).endswith(".pkl"):
         model = load_pickle(model_path)
     else:
-        model = create_model(approach)
+        model = create_model(approach, parameters=parameters)
         model.load(model_path)
 
     return model

@@ -17,20 +17,20 @@ from grants_tagger.models.create_model import load_model
 
 def predict_tags(
         X, model_path, label_binarizer_path,
-        approach, probabilities=False,
+        approach, parameters=None, probabilities=False,
         threshold=0.5):
     """
     X: list or numpy array of texts
     model_path: path to trained model
     label_binarizer_path: path to trained label_binarizer
     approach: approach used to train the model
+    params: any params required upon model creation
     probabilities: bool, default False. When true probabilities are returned along with tags
     threshold: float, default 0.5. Probability threshold to be used to assign tags.
     """
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
-
-    model = load_model(approach, model_path)
+    model = load_model(approach, model_path, parameters=parameters)
     Y_pred_proba = model.predict_proba(X)
 
     # TODO: Now that all models accept threshold, is that needed?

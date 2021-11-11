@@ -20,7 +20,7 @@ Version   | Approach    | Micro f1 in Pubs | Micro f1 in Grants | Model size | T
 2021.3.0  | cnn         | 0.63             | 0.68               | 765MB      | | same as 2020.09.0 but with transformers as tokenizers_library
 2021.6.0  | mesh-cnn    | 0.62             | 0.66               |            | | same as 2021.3.0 but with mesh 2021 data that contains COVID
 2021.9.0  | mesh-xlinear| 0.53             | 0.56 (disease mesh)| 4GB        | 2h50m | mesh-xlinear with cluster chain
-2021.10.0 | mesh-xlinear| 0.53             | 0.55 (disease mesh)| 6GB        | 1h19m | mesh-xlinear with parallel tf-idf
+2021.10.0 | mesh-xlinear| 0.53             | 0.57 (disease mesh)| 6GB        | 1h19m | mesh-xlinear with parallel tf-idf
 
 ## 2020.07.0
 

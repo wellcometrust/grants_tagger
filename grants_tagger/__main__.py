@@ -241,6 +241,7 @@ def model(
         mesh_tags_path: str = typer.Option(None, help="path to mesh subset to evaluate"),
         split_data: bool = typer.Option(True, help="flag on whether to split data in same way as was done in train"),
         grants: bool = typer.Option(False, help="flag on whether the data is grants data instead of publications to evaluate MeSH"),
+        parameters: bool = typer.Option(None, help="stringified parameters for model evaluation, if any"),
         config: Optional[Path] = typer.Option(None, help="path to config file that defines arguments")):
 
     if config:
@@ -267,7 +268,7 @@ def model(
     else:
         evaluate_model(approach, model_path, data_path,
             label_binarizer_path, threshold, split_data, 
-            results_path=results_path)
+            results_path=results_path, parameters=parameters)
 
 @evaluate_app.command()
 def human(data_path: Path, label_binarizer_path: Path):

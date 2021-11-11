@@ -25,7 +25,7 @@ def predict_sparse_probs(model, X_test, batch_size=256, cutoff_prob=0.01):
 
 def evaluate_model(approach, model_path, data_path, label_binarizer_path,
                    threshold, split_data=True, results_path=None,
-                   sparse_y=False):
+                   sparse_y=False, parameters=None):
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
 
@@ -34,8 +34,11 @@ def evaluate_model(approach, model_path, data_path, label_binarizer_path,
         _, X_test, _, Y_test = load_train_test_data(data_path, label_binarizer)
     else:
         X_test, Y_test, _ = load_data(data_path, label_binarizer)
+    
+    # Some models (e.g. MeshXLinear) need to know the parameters beforehand, to know which
+    # Load function to use
 
-    model = load_model(approach, model_path)
+    model = load_model(approach, model_path, parameters=parameters)
 
     if sparse_y:
         predict_sparse_probs(model, X_test)

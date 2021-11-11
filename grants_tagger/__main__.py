@@ -264,7 +264,7 @@ def model(
     if grants:
         evaluate_mesh_on_grants(approach, data_path,
             model_path, label_binarizer_path,
-            results_path=results_path, mesh_tags_path=mesh_tags_path)
+            results_path=results_path, mesh_tags_path=mesh_tags_path, parameters=parameters)
     else:
         evaluate_model(approach, model_path, data_path,
             label_binarizer_path, threshold, split_data, 

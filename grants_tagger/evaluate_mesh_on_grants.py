@@ -34,7 +34,7 @@ def get_texts(data):
 
 
 def evaluate_mesh_on_grants(approach, data_path, model_path, label_binarizer_path,
-        results_path="mesh_on_grants_results.json", mesh_tags_path=None):
+        results_path="mesh_on_grants_results.json", parameters=None, mesh_tags_path=None):
     data = pd.read_excel(data_path, engine="openpyxl")
 
     if mesh_tags_path:
@@ -55,7 +55,7 @@ def evaluate_mesh_on_grants(approach, data_path, model_path, label_binarizer_pat
 
     texts = get_texts(data)
 
-    model = load_model(approach, model_path)
+    model = load_model(approach, model_path, parameters=parameters)
     Y_pred = model.predict(texts)
  
     if mesh_tags_path:

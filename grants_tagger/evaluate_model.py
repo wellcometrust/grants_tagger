@@ -32,7 +32,7 @@ def evaluate_model(
     split_data=True,
     results_path=None,
     sparse_y=False,
-    parameters=None
+    parameters=None,
 ):
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
@@ -44,7 +44,7 @@ def evaluate_model(
         _, X_test, _, Y_test = load_train_test_data(data_path, label_binarizer)
     else:
         X_test, Y_test, _ = load_data(data_path, label_binarizer)
-    
+
     # Some models (e.g. MeshXLinear) need to know the parameters beforehand, to know which
     # Load function to use
 

@@ -307,8 +307,9 @@ def model(
         False,
         help="flag on whether the data is grants data instead of publications to evaluate MeSH",
     ),
-    parameters: bool = typer.Option(None,
-                                    help="stringified parameters for model evaluation, if any"),
+    parameters: bool = typer.Option(
+        None, help="stringified parameters for model evaluation, if any"
+    ),
     config: Optional[Path] = typer.Option(
         None, help="path to config file that defines arguments"
     ),
@@ -339,7 +340,7 @@ def model(
             label_binarizer_path,
             results_path=results_path,
             mesh_tags_path=mesh_tags_path,
-            parameters=parameters
+            parameters=parameters,
         )
     else:
         evaluate_model(
@@ -350,7 +351,7 @@ def model(
             threshold,
             split_data,
             results_path=results_path,
-            parameters=parameters
+            parameters=parameters,
         )
 
 

@@ -16,8 +16,13 @@ from grants_tagger.models.create_model import load_model
 
 
 def predict_tags(
-    X, model_path, label_binarizer_path, approach, probabilities=False, threshold=0.5,
-    parameters=None
+    X,
+    model_path,
+    label_binarizer_path,
+    approach,
+    probabilities=False,
+    threshold=0.5,
+    parameters=None,
 ):
     """
     X: list or numpy array of texts

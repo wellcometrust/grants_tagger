@@ -44,7 +44,7 @@ def optimise_params(data_path, label_binarizer_path, approach, params=None):
         label_binarizer = pickle.load(f)
 
     X, Y, _ = load_data(data_path, label_binarizer)
-    
+
     pipeline = create_model(approach)
 
     if approach in DEFAULT_PARAMS_SEARCH:
@@ -56,7 +56,9 @@ def optimise_params(data_path, label_binarizer_path, approach, params=None):
         print("Params not specified")
         return
 
-    search = GridSearchCV(pipeline, params, cv=3, scoring='f1_micro', verbose=1, n_jobs=-1)
+    search = GridSearchCV(
+        pipeline, params, cv=3, scoring="f1_micro", verbose=1, n_jobs=-1
+    )
 
     search.fit(X, Y)
 
@@ -69,8 +71,8 @@ def optimise_params(data_path, label_binarizer_path, approach, params=None):
 
     best_params_path = os.path.join(
         os.path.dirname(__file__),
-        '../models/',
-        '{approach}_best_params.json'.format(approach=approach)
+        "../models/",
+        "{approach}_best_params.json".format(approach=approach),
     )
     with open(best_params_path, "w") as f:
         json.dump(best_params, f)

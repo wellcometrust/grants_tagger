@@ -40,7 +40,7 @@ def evaluate_mesh_on_grants(
     label_binarizer_path,
     results_path="mesh_on_grants_results.json",
     mesh_tags_path=None,
-    parameters=None
+    parameters=None,
 ):
     data = pd.read_excel(data_path, engine="openpyxl")
 

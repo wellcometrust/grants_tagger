@@ -14,10 +14,20 @@ logger = logging.getLogger(__name__)
 
 
 class MeshXLinear(BaseEstimator, ClassifierMixin):
-    def __init__(self, stop_words="english", min_df=5, max_df=1.0,
-            max_features=400_000, ngram_range=(1, 1), lowercase=True,
-            cluster_chain=True, negative_sampling_scheme="tfn",
-            beam_size=10, only_topk=20, min_weight_value=0.1, imbalanced_ratio=0,
+    def __init__(
+            self,
+            stop_words="english",
+            min_df=5,
+            max_df=1.0,
+            max_features=400_000,
+            ngram_range=(1, 1),
+            lowercase=True,
+            cluster_chain=True,
+            negative_sampling_scheme="tfn",
+            beam_size=10,
+            only_topk=20,
+            min_weight_value=0.1,
+            imbalanced_ratio=0,
             vectorizer_library='pecos'):
         # Sklearn estimators need all arguments to be assigned to variables with the same name
 
@@ -31,6 +41,7 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
 
         # Those are XLinear params
         self.cluster_chain = cluster_chain
+
         self.negative_sampling_scheme = negative_sampling_scheme
         self.beam_size = beam_size
         self.only_topk = only_topk
@@ -74,6 +85,7 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
         Y = Y.astype("float32")
         
         logger.info("Creating cluster chain") 
+
         label_feat = LabelEmbeddingFactory.create(Y, X_vec, method="pifa")
         cluster_chain = Indexer.gen(label_feat, indexer_type="hierarchicalkmeans")
         xlinear_model = XLinearModel()

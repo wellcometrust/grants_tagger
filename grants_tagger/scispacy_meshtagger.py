@@ -13,7 +13,7 @@ import scispacy
 import spacy
 
 
-class SciSpacyMeshTagger():
+class SciSpacyMeshTagger:
     def __init__(self, mesh_tags, threshold=1):
         """
         mesh_tags: list of mesh UI descriptros e.g. [D00001]
@@ -25,7 +25,10 @@ class SciSpacyMeshTagger():
     def fit(self, *_):
         nlp = spacy.load("en_core_sci_sm")
         nlp.add_pipe("abbreviation_detector")
-        nlp.add_pipe("scispacy_linker", config={"resolve_abbreviations": True, "linker_name": "mesh"})
+        nlp.add_pipe(
+            "scispacy_linker",
+            config={"resolve_abbreviations": True, "linker_name": "mesh"},
+        )
         self.nlp = nlp
 
     def _get_tags(self, doc):
@@ -37,7 +40,11 @@ class SciSpacyMeshTagger():
                 mesh_ent_prob = mesh_ent[1]
                 mesh_ents[mesh_ent_ui] += mesh_ent_prob
         # maybe we want to normalise the p as different lengths might have different number of entities
-        tags = [t for t,p in sorted(mesh_ents.items(), key=lambda x: x[1], reverse=True) if p >= self.threshold]
+        tags = [
+            t
+            for t, p in sorted(mesh_ents.items(), key=lambda x: x[1], reverse=True)
+            if p >= self.threshold
+        ]
         return tags
 
     def _binarize_tags(self, tags):
@@ -54,5 +61,4 @@ class SciSpacyMeshTagger():
 
     def score(self, X, Y):
         Y_pred = self.predict(X)
-        return f1_score(Y, Y_pred, average='micro')
-
+        return f1_score(Y, Y_pred, average="micro")

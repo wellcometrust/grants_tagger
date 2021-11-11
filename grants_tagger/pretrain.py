@@ -17,7 +17,7 @@ def pretrain(data_path, model_path, model_name):
             vector_size=300,
             negative=10,
             sample=1e-4,
-            epochs=5
+            epochs=5,
         )
     else:
         raise NotImplementedError

@@ -10,6 +10,7 @@ import tensorflow as tf
 import pandas as pd
 import numpy as np
 
+
 def load_data(data_path, label_binarizer=None, X_format="List"):
     """Load data from the dataset."""
     print("Loading data...")
@@ -34,7 +35,8 @@ def load_data(data_path, label_binarizer=None, X_format="List"):
         return X, tags, meta
 
     return texts, tags, meta
- 
+
+
 def yield_texts(data_path):
     """Yields texts from JSONL with text field"""
     with open(data_path) as f:
@@ -42,21 +44,27 @@ def yield_texts(data_path):
             item = json.loads(line)
             yield item["text"]
 
+
 def yield_tags(data_path, label_binarizer=None):
     """Yields tags from JSONL with tags field. Transforms if label binarizer provided."""
     with open(data_path) as f:
         for line in f:
             item = json.loads(line)
-            
+
             if label_binarizer:
                 # TODO: Make more efficient by using a buffer
                 yield label_binarizer.transform([item["tags"]])[0]
             else:
                 yield item["tags"]
 
+
 def load_train_test_data(
-        train_data_path, label_binarizer, test_data_path=None,
-        test_size=None, data_format="list"):
+    train_data_path,
+    label_binarizer,
+    test_data_path=None,
+    test_size=None,
+    data_format="list",
+):
     """
     train_data_path: path. path to JSONL data that contains text and tags fields
     label_binarizer: MultiLabelBinarizer. multilabel binarizer instance used to transform tags
@@ -89,31 +97,34 @@ def load_train_test_data(
 
     return X_train, X_test, Y_train, Y_test
 
+
 # TODO: Move to common for cases where Y is a matrix
 def calc_performance_per_tag(Y_true, Y_pred, tags):
     metrics = []
     for tag_index in range(Y_true.shape[1]):
-        y_true_tag = Y_true[:,tag_index]
-        y_pred_tag = Y_pred[:,tag_index]
-        metrics.append({
-            'Tag': tags[tag_index],
-            'f1': f1_score(y_true_tag, y_pred_tag)
-        })
+        y_true_tag = Y_true[:, tag_index]
+        y_pred_tag = Y_pred[:, tag_index]
+        metrics.append({"Tag": tags[tag_index], "f1": f1_score(y_true_tag, y_pred_tag)})
     return pd.DataFrame(metrics)
+
 
 def get_ec2_instance_type():
     """Utility function to get ec2 instance name, or empty string if not possible to get name"""
 
-    instance_type_request = requests.get('http://169.254.169.254/latest/meta-data/instance-type')
+    instance_type_request = requests.get(
+        "http://169.254.169.254/latest/meta-data/instance-type"
+    )
 
     if instance_type_request.status_code == 200:
         return instance_type_request.content.decode()
     else:
         return ""
 
+
 def load_pickle(obj_path):
     with open(obj_path, "rb") as f:
         return pickle.loads(f.read())
+
 
 def save_pickle(obj_path, obj):
     with open(obj_path, "wb") as f:

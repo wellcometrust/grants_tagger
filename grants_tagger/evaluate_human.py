@@ -9,11 +9,11 @@ from grants_tagger.utils import load_data
 
 
 def evaluate_human(data_path, label_binarizer_path):
-    with open(label_binarizer_path, 'rb') as f:
+    with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.load(f)
 
     X, Y, meta = load_data(data_path, label_binarizer)
-    
+
     Y_tagger = label_binarizer.transform([m["Tagger1_tags"] for m in meta])
 
     human_f1 = f1_score(Y, Y_tagger, average="micro")

@@ -23,14 +23,24 @@ def predict_sparse_probs(model, X_test, batch_size=256, cutoff_prob=0.01):
     return Y_pred_proba
 
 
-def evaluate_model(approach, model_path, data_path, label_binarizer_path,
-                   threshold, split_data=True, results_path=None,
-                   sparse_y=False, parameters=None):
+def evaluate_model(
+    approach,
+    model_path,
+    data_path,
+    label_binarizer_path,
+    threshold,
+    split_data=True,
+    results_path=None,
+    sparse_y=False,
+    parameters=None
+):
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
 
     if split_data:
-        print("Warning: Data will be split in the same way as train. If you don't want that you set split_data=False")
+        print(
+            "Warning: Data will be split in the same way as train. If you don't want that you set split_data=False"
+        )
         _, X_test, _, Y_test = load_train_test_data(data_path, label_binarizer)
     else:
         X_test, Y_test, _ = load_data(data_path, label_binarizer)
@@ -60,11 +70,16 @@ def evaluate_model(approach, model_path, data_path, label_binarizer_path,
             "threshold": f"{th:.2f}",
             "precision": f"{p:.2f}",
             "recall": f"{r:.2f}",
-            "f1": f"{f1:.2f}"
+            "f1": f"{f1:.2f}",
         }
         results.append(result)
 
-        row_data = (result["threshold"], result["precision"], result["recall"], result["f1"])
+        row_data = (
+            result["threshold"],
+            result["precision"],
+            result["recall"],
+            result["f1"],
+        )
         print(row(row_data, widths=widths))
 
     if results_path:

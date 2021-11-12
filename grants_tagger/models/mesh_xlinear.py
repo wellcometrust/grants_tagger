@@ -28,7 +28,7 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
         only_topk=20,
         min_weight_value=0.1,
         imbalanced_ratio=0,
-        vectorizer_library="pecos",
+        vectorizer_library="sklearn",
     ):
         # Sklearn estimators need all arguments to be assigned to variables with the same name
 

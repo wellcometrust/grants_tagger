@@ -148,6 +148,17 @@ one grant.
 Parameters is a JSON like dump (essentially a stringified dict) with all params
 that the model expects in an sklearn fashion.
 
+#### Slack
+
+There is a small functionality to notify a Slack channel after you train. For this,
+you need to `chmod +x /train-slack-notify.sh`, set up the environement variables
+`SLACK_HOOK` and `SLACK_USER` and, when running your training command, run it in
+quotation marks like:
+
+```bash
+./train-slack-notify.sh 'grants_tagger train etc...' # Quotations needed!
+```
+
 ### 📈 Evaluate
 
 Evaluate enables evaluation of the performance of various approaches including

@@ -97,7 +97,6 @@ def train(
         parameters = params["train"].get(approach)
         parameters = convert_dvc_to_sklearn_params(parameters)
         parameters = str(parameters)
-        logger.info(parameters)
 
     # Note that config overwrites parameters for backwards compatibility
     if config:
@@ -138,6 +137,7 @@ def train(
     elif model_path and os.path.exists(model_path):
         print(f"{model_path} exists. Remove if you want to rerun.")
     else:
+        logger.info(parameters)
         train_model(
             data_path,
             label_binarizer_path,
@@ -307,6 +307,9 @@ def model(
         False,
         help="flag on whether the data is grants data instead of publications to evaluate MeSH",
     ),
+    parameters: bool = typer.Option(
+        None, help="stringified parameters for model evaluation, if any"
+    ),
     config: Optional[Path] = typer.Option(
         None, help="path to config file that defines arguments"
     ),
@@ -337,6 +340,7 @@ def model(
             label_binarizer_path,
             results_path=results_path,
             mesh_tags_path=mesh_tags_path,
+            parameters=parameters,
         )
     else:
         evaluate_model(
@@ -347,6 +351,7 @@ def model(
             threshold,
             split_data,
             results_path=results_path,
+            parameters=parameters,
         )
 
 

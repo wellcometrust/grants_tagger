@@ -4,16 +4,19 @@ preprocess_wellcome_science:
 preprocess_bioasq_mesh:
   mesh_tags_path: null
 train:
+  # 2020.05.2
   tfidf-svm:
     tfidf:
       min_df: 5
       ngram_range: [1,2]
     svm__estimator:
       class_weight: "balanced"
+  # 2020.05.5
   scibert:
     validation_split: 0.10
     learning_rate: 0.00002
     epochs: 10
+  # 2021.09.0
   mesh-xlinear:
     tfidf:
       stop_words: "english"

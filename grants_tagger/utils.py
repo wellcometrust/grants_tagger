@@ -111,9 +111,12 @@ def calc_performance_per_tag(Y_true, Y_pred, tags):
 def get_ec2_instance_type():
     """Utility function to get ec2 instance name, or empty string if not possible to get name"""
 
-    instance_type_request = requests.get(
-        "http://169.254.169.254/latest/meta-data/instance-type"
-    )
+    try:
+        instance_type_request = requests.get(
+            "http://169.254.169.254/latest/meta-data/instance-type", timeout=5
+        )
+    except (requests.exceptions.Timeout, ConnectionError):
+        return ""
 
     if instance_type_request.status_code == 200:
         return instance_type_request.content.decode()

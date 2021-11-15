@@ -3,8 +3,11 @@
 
 PRIVATE_PROJECT_BUCKET := $(PROJECTS_BUCKET)/$(PROJECT_NAME)
 PUBLIC_PROJECT_BUCKET := datalabs-public/$(PROJECT_NAME)
-MESH_MODEL := disease_mesh_cnn-2021.03.0
-MESH_LABEL_BINARIZER := disease_mesh_label_binarizer.pkl
+
+PACKAGE_VERSION := $(venv/bin/python -c "from grants_tagger import __version__;print(__version__)")
+MESH_MODEL_PACKAGE := xlinear-$(PACKAGE_VERSION).tar.gz
+MESH_MODEL := xlinear/model/
+MESH_LABEL_BINARIZER := xlinear/label_binarizer.pkl
 
 PYTHON := python3.7
 VIRTUALENV := venv
@@ -81,6 +84,7 @@ test: ## Run tests
 .PHONY: build
 build: ## Create wheel distribution
 	$(VIRTUALENV)/bin/python setup.py bdist_wheel
+	tar -c -z -v -f models/$(MESH_MODEL_PACKAGE) models/$(MESH_MODEL) models/$(MESH_LABEL_BINARIZER)
 
 .PHONY: deploy
 deploy: ## Deploy wheel to public s3 bucket
@@ -88,8 +92,10 @@ deploy: ## Deploy wheel to public s3 bucket
 	git tag v$(shell python setup.py --version)
 	git push --tags
 	$(VIRTUALENV)/bin/python -m twine upload --repository pypi dist/*
-	tar -c -z -v -f models/$(MESH_MODEL).tar.gz models/$(MESH_MODEL) models/$(MESH_LABEL_BINARIZER)
-	gh release upload v$(shell python setup.py --version) models/$(MESH_MODEL).tar.gz
+	aws s3 --acl public-read models/$(MESH_MODEL_PACKAGE) s3://datalabs-public/grants_tagger/models/$(MESH_MODEL_PACKAGE)
+ 	# XLinear model >2GB that GitHub accepts
+ 	# gh release upload v$(shell python setup.py --version) models/$(MESH_MODEL).tar.gz
+
 .PHONY: clean
 clean: ## Clean hidden and compiled files
 	find . -type f -name "*.py[co]" -delete

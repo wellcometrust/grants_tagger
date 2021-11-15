@@ -75,6 +75,7 @@ update-requirements: ## Updates requirement
 .PHONY: test
 test: ## Run tests
 	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov=grants_tagger
+	$(VIRTUALENV)/bin/tox
 
 
 .PHONY: build

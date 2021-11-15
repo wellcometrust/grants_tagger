@@ -4,10 +4,12 @@ import os
 from tqdm import tqdm
 import requests
 
+from grants_tagger import __version__ as version
+
 MODELS = {
-    "disease_mesh": {
-        "url": "https://github.com/wellcometrust/grants_tagger/releases/download/v0.1.3/disease_mesh_cnn-2021.03.1.tar.gz",
-        "path": "disease_mesh_cnn-2021.03.1.tar.gz",
+    "mesh": {
+        "url": f"https://datalabs-public.s3.eu-west-2.amazonaws.com/grants_tagger/models/xlinear-{version}.tar.gz",
+        "path": f"xlinear-{version}.tar.gz",
     }
 }
 
@@ -46,4 +48,4 @@ def download_model(model_name):
 
 
 if __name__ == "__main__":
-    download_model("disease_mesh")
+    download_model("mesh")

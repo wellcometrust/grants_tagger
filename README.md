@@ -376,7 +376,7 @@ Commands:
 
 Available models:
 
-* disease_mesh
+* mesh
 
 ### 🔍 Explain 
 

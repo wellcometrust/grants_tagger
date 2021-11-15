@@ -11,4 +11,4 @@ jobs:
       - name: Install flake8
         run: pip install flake8
       - name: Run flake8
-        run: flake8 --ignore E501,F401,W503,E203,F811 grants_tagger
+        run: flake8 --ignore E501,F401,W503,E203,F811,E402 grants_tagger

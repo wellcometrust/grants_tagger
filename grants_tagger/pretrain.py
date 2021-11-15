@@ -1,7 +1,11 @@
 """
 Pretrain a model on unlabeled data to improve feature extraction
 """
-from wellcomeml.ml import Doc2VecVectorizer
+import logging
+
+logger = logging.getLogger(__name__)
+
+from wellcomeml.ml.doc2vec_vectorizer import Doc2VecVectorizer
 import pandas as pd
 
 

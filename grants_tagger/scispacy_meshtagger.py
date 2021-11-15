@@ -4,13 +4,20 @@ tagging as a named entity recognition and linking step so
 the class also transforms the problem to multi label classification
 """
 from collections import defaultdict
+import logging
 
-from scispacy.linking import EntityLinker
-from scispacy.abbreviation import AbbreviationDetector
+logger = logging.getLogger(__name__)
+
+try:
+    from scispacy.linking import EntityLinker
+    from scispacy.abbreviation import AbbreviationDetector
+    import scispacy
+    import spacy
+except ModuleNotFoundError as e:
+    logger.warning("SciSpacy missing. SciSpacyMeshTagger is not working")
+    logger.debug(e)
 from sklearn.metrics import f1_score
 from scipy.sparse import csr_matrix
-import scispacy
-import spacy
 
 
 class SciSpacyMeshTagger:

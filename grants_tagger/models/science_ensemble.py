@@ -2,7 +2,8 @@ import pickle
 
 import numpy as np
 
-from wellcomeml.ml import BertClassifier, WellcomeVotingClassifier
+from wellcomeml.ml.bert_classifier import BertClassifier
+from wellcomeml.ml.voting_classifier import WellcomeVotingClassifier
 
 
 class ScienceEnsemble:

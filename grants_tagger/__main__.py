@@ -12,6 +12,8 @@ import time
 
 import typer
 
+logger = logging.getLogger(__name__)
+
 from grants_tagger.evaluate_mti import evaluate_mti
 from grants_tagger.evaluate_human import evaluate_human
 from grants_tagger.pretrain import pretrain as pretrain_model
@@ -22,16 +24,24 @@ from grants_tagger.preprocess_mesh import preprocess_mesh
 from grants_tagger.train import train as train_model
 from grants_tagger.tune_threshold import tune_threshold
 from grants_tagger.optimise_params import optimise_params
-from grants_tagger.train_with_sagemaker import train_with_sagemaker
+
+try:
+    from grants_tagger.train_with_sagemaker import train_with_sagemaker
+except ModuleNotFoundError as e:
+    logger.warning("Sagemaker missing so training with sagemaker not working.")
+    logger.debug(e)
 from grants_tagger.evaluate_mesh_on_grants import evaluate_mesh_on_grants
 from grants_tagger.download_epmc import download_epmc
 from grants_tagger.download_model import download_model
-from grants_tagger.explain import explain as explain_predictions
+
+try:
+    from grants_tagger.explain import explain as explain_predictions
+except ModuleNotFoundError as e:
+    logger.warning("SHAP missing so grants_tagger explain not working.")
+    logger.debug(e)
 from grants_tagger.utils import get_ec2_instance_type
 
 app = typer.Typer(add_completion=False)
-
-logger = logging.getLogger(__name__)
 
 
 def convert_dvc_to_sklearn_params(parameters):

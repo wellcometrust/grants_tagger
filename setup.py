@@ -19,20 +19,19 @@ setup(
         'xlrd',
         'scikit-learn==0.23.2',
         'matplotlib',
-        'wellcomeml[tensorflow]==1.2.0',
+        'wellcomeml[tensorflow,core,transformers,torch]==2.0.0',
         'docutils==0.15',
         'scipy==1.4.1',
         'wasabi',
         'typer',
-        'scispacy',
         'tqdm',
         'streamlit',
         'requests',
-        'pygtrie==2.3.3'
+        'pygtrie==2.3.3',
+        'openpyxl'
     ],
     tests_require=[
         'pytest',
-        'pytest-cov',
-        'openpyxl'
+        'tox'
     ]
 )

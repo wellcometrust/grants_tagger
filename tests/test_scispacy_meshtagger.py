@@ -1,6 +1,12 @@
 import pytest
 import numpy as np
 
+try:
+    import scispacy
+    SCISPACY_INSTALLED = True
+except ImportError:
+    SCISPACY_INSTALLED = False
+
 MESH_TAGS = [
     "D008288", # Malaria
     "D006678" # HIV
@@ -10,13 +16,13 @@ X = [
     "The human immunodeficiency viruses are two species of Lentivirus that infect humans. Without treatment, average survival time after infection with HIV is estimated to be 9 to 11 years, depending on the HIV subtype."
 ]
 
-@pytest.mark.scispacy
+@pytest.mark.skipif(not SCISPACY_INSTALLED, reason="scispacy missing")
 def test_fit():
     from grants_tagger.scispacy_meshtagger import SciSpacyMeshTagger
     scispacy_meshtagger = SciSpacyMeshTagger(mesh_tags = MESH_TAGS)
     scispacy_meshtagger.fit()
 
-@pytest.mark.scispacy
+@pytest.mark.skipif(not SCISPACY_INSTALLED, reason="scispacy missing")
 def test_predict():
     from grants_tagger.scispacy_meshtagger import SciSpacyMeshTagger
     scispacy_meshtagger = SciSpacyMeshTagger(mesh_tags = MESH_TAGS)
@@ -25,7 +31,7 @@ def test_predict():
     assert Y_pred[0, 0] == 1
     assert Y_pred[1, 1] == 1
 
-@pytest.mark.scispacy
+@pytest.mark.skipif(not SCISPACY_INSTALLED, reason="scispacy missing")
 def test_score():
     from grants_tagger.scispacy_meshtagger import SciSpacyMeshTagger
     scispacy_meshtagger = SciSpacyMeshTagger(mesh_tags = MESH_TAGS)

@@ -7,6 +7,12 @@ import csv
 from sklearn.preprocessing import MultiLabelBinarizer
 import pytest
 
+from grants_tagger.evaluate_scispacy_meshtagger import evaluate_scispacy_meshtagger
+try:
+    import scispacy
+    SCISPACY_INSTALLED = True
+except ModuleNotFoundError:
+    SCISPACY_INSTALLED = False
 
 MESH_TAGS = [
     {
@@ -32,9 +38,8 @@ DATA = [
 ]
 
 
-@pytest.mark.scispacy
+@pytest.mark.skipif(not SCISPACY_INSTALLED, reason="scispacy missing")
 def test_evaluate_scispacy_meshtagger():
-    from grants_tagger.evaluate_scispacy_meshtagger import evaluate_scispacy_meshtagger
     with tempfile.TemporaryDirectory() as tmp_dir:
         label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
         mesh_tags_path = os.path.join(tmp_dir, "mesh_tags.csv")

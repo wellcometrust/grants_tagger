@@ -3,7 +3,7 @@ from sklearn.multiclass import OneVsRestClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 
-from wellcomeml.ml import TransformersTokenizer
+from wellcomeml.ml.transformers_tokenizer import TransformersTokenizer
 
 
 class TfidfTransformersSVM:

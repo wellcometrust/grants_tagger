@@ -1,7 +1,11 @@
 import math
 import os
 
-from skmultilearn.problem_transform import ClassifierChain, BinaryRelevance, LabelPowerset
+try:
+    from skmultilearn.problem_transform import ClassifierChain, BinaryRelevance, LabelPowerset
+    SKMULTILEARN_INSTALLED = True
+except ModuleNotFoundError:
+    SKMULTILEARN_INSTALLED = False
 from sklearn.feature_extraction.text import HashingVectorizer, TfidfVectorizer
 from sklearn.ensemble import GradientBoostingClassifier, AdaBoostClassifier
 from sklearn.linear_model import SGDClassifier
@@ -11,7 +15,18 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, MultiLabelBinarizer
 import pytest
 
-from wellcomeml.ml import BertVectorizer, BertClassifier, BiLSTMClassifier, CNNClassifier, KerasVectorizer, Doc2VecVectorizer, Sent2VecVectorizer, SpacyClassifier
+from wellcomeml.ml.bert_vectorizer import BertVectorizer
+from wellcomeml.ml.bert_classifier import BertClassifier
+from wellcomeml.ml.bilstm import BiLSTMClassifier
+from wellcomeml.ml.cnn import CNNClassifier
+from wellcomeml.ml.keras_vectorizer import KerasVectorizer
+from wellcomeml.ml.doc2vec_vectorizer import Doc2VecVectorizer
+from wellcomeml.ml.sent2vec_vectorizer import Sent2VecVectorizer
+try:
+    from wellcomeml.ml.spacy_classifier import SpacyClassifier
+    SPACY_CLASSIFIER_IMPORTED = True
+except ImportError:
+    SPACY_CLASSIFIER_IMPORTED = False
 from grants_tagger.models.create_model import create_model, ApproachNotImplemented
 from grants_tagger.models.mesh_cnn import MeshCNN
 from grants_tagger.models.mesh_tfidf_svm import MeshTfidfSVM
@@ -220,6 +235,7 @@ def test_create_scibert():
     assert model.pretrained == 'scibert'
 
 
+@pytest.mark.skipif(not SKMULTILEARN_INSTALLED, reason="skmultilearn not installed")
 def test_create_classifierchain_tfidf_svm():
     model = create_model('classifierchain-tfidf-svm')
     vec = model.steps[0][1]
@@ -231,6 +247,7 @@ def test_create_classifierchain_tfidf_svm():
     assert isinstance(clf, SVC)
 
 
+@pytest.mark.skipif(not SKMULTILEARN_INSTALLED, reason="skmultilearn not installed")
 def test_create_labelpowerset_tfidf_svm():
     model = create_model('labelpowerset-tfidf-svm')
     vec = model.steps[0][1]
@@ -242,6 +259,7 @@ def test_create_labelpowerset_tfidf_svm():
     assert isinstance(clf, SVC)
 
 
+@pytest.mark.skipif(not SKMULTILEARN_INSTALLED, reason="skmultilearn not installed")
 def test_create_binaryrelevance_tfidf_svm():
     model = create_model('binaryrelevance-tfidf-svm')
     vec = model.steps[0][1]
@@ -253,6 +271,7 @@ def test_create_binaryrelevance_tfidf_svm():
     assert isinstance(clf, SVC)
 
 
+@pytest.mark.skipif(not SKMULTILEARN_INSTALLED, reason="skmultilearn not installed")
 def test_create_binaryrelevance_tfidf_knn():
     model = create_model('binaryrelevance-tfidf-knn')
     vec = model.steps[0][1]
@@ -324,6 +343,7 @@ def test_create_tfidf_gboost():
     assert isinstance(clf, GradientBoostingClassifier)
 
 
+@pytest.mark.skipif(not SPACY_CLASSIFIER_IMPORTED, reason="SpacyClassifier missing")
 def test_create_spacy_textclassifier():
     model = create_model("spacy-textclassifier")
     assert isinstance(model, SpacyClassifier)

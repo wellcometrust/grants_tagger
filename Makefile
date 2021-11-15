@@ -8,6 +8,9 @@ PACKAGE_VERSION := $(venv/bin/python -c "from grants_tagger import __version__;p
 MESH_MODEL_PACKAGE := xlinear-$(PACKAGE_VERSION).tar.gz
 MESH_MODEL := xlinear/model/
 MESH_LABEL_BINARIZER := xlinear/label_binarizer.pkl
+SCIENCE_TFIDF_SVM_MODEL:= tfidf-svm.pkl
+SCIENCE_SCIBERT_MODEL := scibert
+SCIENCE_LABEL_BINARIZER := label_binarizer.pkl
 
 PYTHON := python3.7
 VIRTUALENV := venv
@@ -93,7 +96,12 @@ deploy: ## Deploy wheel to public s3 bucket
 	git push --tags
 	$(VIRTUALENV)/bin/python -m twine upload --repository pypi dist/*
 	aws s3 --acl public-read models/$(MESH_MODEL_PACKAGE) s3://datalabs-public/grants_tagger/models/$(MESH_MODEL_PACKAGE)
- 	# XLinear model >2GB that GitHub accepts
+	aws s3 cp --recursive models/$(MESH_MODEL) s3://datalabs-data/grants_tagger/$(MESH_MODEL)
+	aws s3 cp models/$(MESH_LABEL_BINARIZER) s3://datalabs-data/grants_tagger/models/$(MESH_LABEL_BINARIZER)
+	aws s3 cp models/$(SCIENCE_TFIDF_SVM_MODEL) s3://datalabs-data/grants_tagger/$(SCIENCE_TFIDF_SVM_MODEL)
+	aws s3 cp --recursive models/$(SCIENCE_SCIBERT_MODEL) s3://datalabs-data/grants_tagger/$(SCIENCE_SCIBERT_MODEL)
+	aws se cp models/$(SCIENCE_LABEL_BINARIZER) s3://datalabs-data/grants_tagger/$(SCIENCE_LABEL_BINARIZER)
+	# XLinear model >2GB that GitHub accepts
  	# gh release upload v$(shell python setup.py --version) models/$(MESH_MODEL).tar.gz
 
 .PHONY: clean

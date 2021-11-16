@@ -37,9 +37,14 @@ def download_model(model_name):
     if model_name in MODELS:
         url = MODELS[model_name]["url"]
         path = MODELS[model_name]["path"]
-        models_path = os.path.join(os.path.dirname(__file__), "../")
+        models_path = "."  # model tarball contains models/
 
-        download_tar(url, path)
+        if os.path.exists(path):
+            print(f"{path} exists. skipping download.")
+        else:
+            print(f"download model in {path}")
+            download_tar(url, path)
+        print("untar model")
         untar(path, models_path)
     else:
         print(

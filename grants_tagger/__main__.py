@@ -483,12 +483,12 @@ def threshold(
 
 @tune_app.command()
 def params(
-    data_path: Path = typer.Argument(..., help=""),
-    label_binarizer_path: Path = typer.Argument(..., help=""),
-    approach: str = typer.Argument(..., help=""),
-    params: Optional[str] = typer.Option(None, help=""),
-):
-    optimise_params(data_path, label_binarizer_path, approach, params=None)
+        data_path: Path = typer.Argument(..., help="Path to training data jsonl"),
+        label_binarizer_path: Path = typer.Argument(..., help="path to label binarizer"),
+        approach: str = typer.Argument(..., help="modelling approach e.g. mesh-xlinear"),
+        results_path: Path = typer.Argument(..., help="Path to save the cross-val results"),
+        params: Optional[str] = typer.Option(None, help="Stringified json parameters")):
+    optimise_params(data_path, label_binarizer_path, approach, results_path, params=params)
 
 
 app.add_typer(tune_app, name="tune")

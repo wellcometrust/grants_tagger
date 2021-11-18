@@ -43,7 +43,7 @@ DEFAULT_PARAMS_SEARCH = {
 }
 
 
-def optimise_params(data_path, label_binarizer_path, approach,  results_path, params=None):
+def optimise_params(data_path, label_binarizer_path, approach, results_path, params=None):
     """Fine tunes parameters for certain models. Writes the grid search results into json lines """
     with open(label_binarizer_path, 'rb') as f:
         label_binarizer = pickle.load(f)

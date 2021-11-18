@@ -37,11 +37,10 @@ DEFAULT_PARAMS_SEARCH = {
         'dropout': [0.1, 0.2, 0.3]
     },
     'mesh-xlinear': {
-       # 'ngram_range': [(1, 1), (1, 2)],
-       # 'imbalanced_ratio': [0.0, 0.25],
-        'max_features': [400_000, 600_000],
+        'ngram_range': [(1, 1), (1, 2)],
+        'max_features': [400_000, 1_000_000],
         'negative_sampling_scheme': ["tfn", "man"],
-        'beam_size': [10, 20]
+        'beam_size': [10, 20] 
     }
 }
 
@@ -64,7 +63,7 @@ def optimise_params(data_path, label_binarizer_path, approach, results_path, par
         print("Params not specified")
         return
     search = GridSearchCV(
-        pipeline, params, cv=3, scoring="f1_micro", verbose=1, n_jobs=-1
+        pipeline, params, cv=3, scoring="f1_micro", verbose=2, n_jobs=-1
     )
 
     search.fit(X, Y)
@@ -81,10 +80,18 @@ def optimise_params(data_path, label_binarizer_path, approach, results_path, par
         old_results = (json.loads(old_results) if old_results else [])
         existing_params = [json_line['params'] for json_line in old_results]
 
-        for new_param, new_score, new_time in zip(
-                results['params'], results['mean_test_score'], results['mean_fit_time']
+        for new_param, new_score_train, new_score, new_time in zip(
+                results['params'],
+                results['mean_train_score'],
+                results['mean_test_score'],
+                results['mean_fit_time']
         ):
-            json_line = {'params': new_param, 'f1_score': new_score, 'time': new_time}
+            json_line = {
+                'params': new_param,
+                'f1_score': new_score,
+                'f1_score_train': new_score_train,
+                'time': new_time
+            }
 
             # If the parameter was already evaluated, replaces the results, if not appends
             for pos, old_param in enumerate(existing_params):
@@ -94,7 +101,7 @@ def optimise_params(data_path, label_binarizer_path, approach, results_path, par
                 old_results.append(json_line)
 
         # Sorts the parameters by score
-        old_results = sorted(old_results, key = lambda x: x['f1_score'], reverse=True)
+        old_results = sorted(old_results, key=lambda x: x['f1_score'], reverse=True)
 
         # Re-writes to the file
         f.seek(0)

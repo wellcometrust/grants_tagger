@@ -107,6 +107,7 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
             negative_sampling_scheme=self.negative_sampling_scheme,
             only_topk=self.only_topk,
             threshold=self.min_weight_value,
+            beam_size=self.beam_size
         )
         return self
 

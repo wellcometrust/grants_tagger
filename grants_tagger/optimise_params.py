@@ -38,8 +38,10 @@ DEFAULT_PARAMS_SEARCH = {
     },
     'mesh-xlinear': {
        # 'ngram_range': [(1, 1), (1, 2)],
-        'imbalanced_ratio': [0.0, 0.25],
-        'negative_sampling_scheme': ["tfn", "man", "tfn+man"]
+       # 'imbalanced_ratio': [0.0, 0.25],
+        'max_features': [400_000, 600_000],
+        'negative_sampling_scheme': ["tfn", "man"],
+        'beam_size': [10, 20]
     }
 }
 
@@ -51,9 +53,6 @@ def optimise_params(data_path, label_binarizer_path, approach, results_path, par
 
     X, Y, _ = load_data(data_path, label_binarizer)
     
-    X = X[:100]
-    Y = Y[:100]
-
     pipeline = create_model(approach)
 
     if approach in DEFAULT_PARAMS_SEARCH:
@@ -92,14 +91,14 @@ def optimise_params(data_path, label_binarizer_path, approach, results_path, par
                 if old_param == new_param:
                     old_results[pos] = json_line
             else:
-                old_results.appen(json_line)
+                old_results.append(json_line)
 
         # Sorts the parameters by score
         old_results = sorted(old_results, key = lambda x: x['f1_score'], reverse=True)
 
         # Re-writes to the file
         f.seek(0)
-        f.write(json.dumps(old_param, indent=4))
+        f.write(json.dumps(old_results, indent=4))
 
     best_params_path = os.path.join(
         os.path.dirname(__file__),

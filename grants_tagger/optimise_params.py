@@ -37,8 +37,9 @@ DEFAULT_PARAMS_SEARCH = {
         'dropout': [0.1, 0.2, 0.3]
     },
     'mesh-xlinear': {
-        'ngram_range': [(1, 1), (1, 2)],
-        'imbalanced_ratio': [0.0, 0.25]
+       # 'ngram_range': [(1, 1), (1, 2)],
+        'imbalanced_ratio': [0.0, 0.25],
+        'negative_sampling_scheme': ["tfn", "man", "tfn+man"]
     }
 }
 
@@ -49,6 +50,9 @@ def optimise_params(data_path, label_binarizer_path, approach, results_path, par
         label_binarizer = pickle.load(f)
 
     X, Y, _ = load_data(data_path, label_binarizer)
+    
+    X = X[:100]
+    Y = Y[:100]
 
     pipeline = create_model(approach)
 
@@ -60,7 +64,6 @@ def optimise_params(data_path, label_binarizer_path, approach, results_path, par
     else:
         print("Params not specified")
         return
-
     search = GridSearchCV(
         pipeline, params, cv=3, scoring="f1_micro", verbose=1, n_jobs=-1
     )

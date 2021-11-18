@@ -97,7 +97,7 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
         xlinear_model = XLinearModel()
 
         logger.info("Training model")
-
+        
         # Sklearn estimators need variables introduced during training to have a trailing underscore
         self.xlinear_model_ = xlinear_model.train(
             X_vec,

@@ -467,7 +467,9 @@ def threshold(
     init_threshold: Optional[float] = typer.Option(
         None, help="value to initialise threshold values"
     ),
-    split_data: bool = typer.Option(True, help="flag on whether to split data as was done for train")):
+    split_data: bool = typer.Option(
+        True, help="flag on whether to split data as was done for train"
+    ),
 ):
 
     tune_threshold(

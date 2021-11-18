@@ -14,6 +14,7 @@ import numpy as np
 
 from grants_tagger.models.create_model import load_model
 
+
 def predict_tags(
     X,
     model_path,

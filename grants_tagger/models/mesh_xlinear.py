@@ -29,7 +29,7 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
         min_weight_value=0.1,
         imbalanced_ratio=0,
         vectorizer_library="sklearn",
-        threshold=0.5
+        threshold=0.5,
     ):
         # Sklearn estimators need all arguments to be assigned to variables with the same name
 
@@ -50,7 +50,7 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
         self.min_weight_value = min_weight_value
         self.imbalanced_ratio = imbalanced_ratio
         self.vectorizer_library = vectorizer_library
-        
+
         # Those are MeshXLinear params
         self.threshold = threshold
 

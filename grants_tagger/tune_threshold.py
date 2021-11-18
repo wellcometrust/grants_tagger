@@ -126,7 +126,6 @@ def argmaxf1(
         new_tp = tp + candidate_tp - label_tp
         new_fp = fp + candidate_fp - label_fp
         new_fn = fn + candidate_fn - label_fn
-        new_tn = tn + candidate_tn - label_tn
         new_f1 = new_tp / (new_tp + (new_fp + new_fn) / 2)
 
         if new_f1 > max_f1:
@@ -242,21 +241,20 @@ def tune_threshold(
 
     X_val, Y_val, X_test, Y_test = val_test_split(X_test, Y_test, val_size)
 
-    Y_pred = predict(X_test, model_path, approach, threshold=0.2)
+    model = load_model(approach, model_path)
+    Y_pred_proba = model.predict_proba(X_val)
+    Y_pred = Y_pred_proba > 0.2
 
     f1 = f1_score(Y_test, Y_pred, average="micro")
     print("---Starting f1---")
     print(f"{f1:.3f}\n")
-
-    model = load_model(approach, model_path)
-    Y_pred_proba = model.predict_proba(X_val)
 
     optimal_thresholds = optimise_threshold(
         Y_val, Y_pred_proba, nb_thresholds, init_threshold
     )
 
     Y_pred_proba = model.predict_proba(X_test)
-    Y_test = Y_pred_proba > optimal_thresholds
+    Y_pred = Y_pred_proba > optimal_thresholds
 
     optimal_f1 = f1_score(Y_test, Y_pred, average="micro")
     print("---Optimal f1 in test set---")

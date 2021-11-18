@@ -245,7 +245,7 @@ def tune_threshold(
     Y_pred_proba = model.predict_proba(X_val)
     Y_pred = Y_pred_proba > 0.2
 
-    f1 = f1_score(Y_test, Y_pred, average="micro")
+    f1 = f1_score(Y_val, Y_pred, average="micro")
     print("---Starting f1---")
     print(f"{f1:.3f}\n")
 

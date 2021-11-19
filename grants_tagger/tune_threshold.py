@@ -8,25 +8,19 @@ There are currently two deviations from the paper
 * fixed number of thresholds to be tried instead of all values from Y_pred_proba for efficiency
 * initialisation of thresholds with 0.5 which seems to help convergence in large number of labels
 """
-from pathlib import Path
 from functools import partial
 import multiprocessing
-import argparse
 import pickle
 import random
 import logging
 import time
 import os
 
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import (
-    f1_score,
-    multilabel_confusion_matrix as sk_multilabel_confusion_matrix,
-)
-from scipy.sparse import csr_matrix, issparse, csc_matrix
+from sklearn.metrics import f1_score
+from scipy.sparse import issparse, csc_matrix
 from tqdm import tqdm
 import numpy as np
-import numba
+import typer
 
 from grants_tagger.models.create_model import load_model
 from grants_tagger.utils import load_train_test_data, load_data
@@ -228,9 +222,7 @@ def tune_threshold(
         label_binarizer = pickle.loads(f.read())
 
     if split_data:
-        print(
-            "Warning: Data will be split in the same way as train. If you don't want that you set split_data=False"
-        )
+        # To split in the same way train split in case split was done during train
         _, X_test, _, Y_test = load_train_test_data(data_path, label_binarizer)
     else:
         X_test, Y_test, _ = load_data(data_path, label_binarizer)
@@ -265,6 +257,4 @@ def tune_threshold(
 
 
 if __name__ == "__main__":
-    import typer
-
     typer.run(tune_threshold)

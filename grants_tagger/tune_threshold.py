@@ -132,17 +132,15 @@ def argmaxf1(
     return optimal_threshold
 
 
-def optimise_threshold(Y_test, Y_pred_proba, nb_thresholds=None, init_threshold=None):
-    if init_threshold:
-        optimal_thresholds = [init_threshold] * Y_pred_proba.shape[1]
-    else:
-        # start with lowest posible threshold per label
-        optimal_thresholds = Y_pred_proba.min(axis=0)
+def optimise_threshold(Y_test, Y_pred_proba, nb_thresholds=None):
+    # start with lowest posible threshold per label
+    optimal_thresholds = Y_pred_proba.min(axis=0)
 
-        if issparse(optimal_thresholds):
-            optimal_thresholds = np.array(optimal_thresholds.todense())
+    if issparse(optimal_thresholds):
+        optimal_thresholds = np.array(optimal_thresholds.todense())
 
-        optimal_thresholds = optimal_thresholds.ravel()
+    optimal_thresholds = optimal_thresholds.ravel()
+
     updated = True
 
     # Convert to CSC for fast column retrieval when asking for labels
@@ -214,8 +212,8 @@ def tune_threshold(
     thresholds_path,
     val_size: float = 0.8,
     nb_thresholds: int = None,
-    init_threshold=None,
-    split_data=False,
+    init_threshold: float = 0.2,
+    split_data: bool = False,
 ):
 
     with open(label_binarizer_path, "rb") as f:
@@ -235,15 +233,13 @@ def tune_threshold(
 
     model = load_model(approach, model_path)
     Y_pred_proba = model.predict_proba(X_val)
-    Y_pred = Y_pred_proba > 0.2
+    Y_pred = Y_pred_proba > init_threshold
 
     f1 = f1_score(Y_val, Y_pred, average="micro")
     print("---Starting f1---")
     print(f"{f1:.3f}\n")
 
-    optimal_thresholds = optimise_threshold(
-        Y_val, Y_pred_proba, nb_thresholds, init_threshold
-    )
+    optimal_thresholds = optimise_threshold(Y_val, Y_pred_proba, nb_thresholds)
 
     Y_pred_proba = model.predict_proba(X_test)
     Y_pred = Y_pred_proba > optimal_thresholds

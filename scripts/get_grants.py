@@ -9,6 +9,7 @@ forty_two = FortyTwo()
 df = pd.DataFrame(forty_two.get_grants())
 
 columns_of_interest = [
+    'Grant ID',
     'Cost Centre Division Name',
     'Master Grant Type Name',
     'Reference',

@@ -120,6 +120,7 @@ def create_label_binarizer(label_binarizer_path, data, sparse_labels=False):
     write_pickle(label_binarizer_path, label_binarizer)
 
 
+@pytest.mark.train_command
 def test_train_command():
     with tempfile.TemporaryDirectory() as tmp_dir:
         data_path = os.path.join(tmp_dir, "data.jsonl")

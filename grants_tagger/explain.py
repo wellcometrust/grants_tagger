@@ -1,7 +1,12 @@
 import pickle
+import logging
 
-import shap
-
+logger = logging.getLogger(__name__)
+try:
+    import shap
+except ModuleNotFoundError as e:
+    logger.warning("shap missing. explain will not work")
+    logger.debug(e)
 from grants_tagger.models.mesh_cnn import MeshCNN
 
 

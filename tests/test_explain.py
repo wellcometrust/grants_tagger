@@ -5,6 +5,11 @@ import pytest
 
 from grants_tagger.train import train, create_label_binarizer
 from grants_tagger.explain import explain
+try:
+    import shap
+    SHAP_INSTALLED = True
+except ModuleNotFoundError as e:
+    SHAP_INSTALLED = False
 
 X = [
     "all",
@@ -67,6 +72,7 @@ def texts_path(tmp_path):
 def explanations_path(tmp_path):
     return os.path.join(tmp_path, "explanations.html")
 
+@pytest.mark.skipif(not SHAP_INSTALLED, reason="shap missing")
 def test_explain(mesh_cnn_path, mesh_label_binarizer_path, texts_path,
         explanations_path):
     approach = "mesh-cnn"
@@ -75,6 +81,7 @@ def test_explain(mesh_cnn_path, mesh_label_binarizer_path, texts_path,
             explanations_path, label="1")
     assert os.path.exists(explanations_path)
 
+@pytest.mark.skipif(not SHAP_INSTALLED, reason="shap missing")
 def test_explain_local_explanations(mesh_cnn_path, mesh_label_binarizer_path,
         texts_path, explanations_path):
     approach = "mesh-cnn"

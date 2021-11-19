@@ -2,12 +2,20 @@ from pathlib import Path
 import logging
 import ast
 
-from skmultilearn.problem_transform import (
-    ClassifierChain,
-    LabelPowerset,
-    BinaryRelevance,
-)
-from skmultilearn.adapt import BRkNNaClassifier, MLkNN
+logger = logging.getLogger(__name__)
+
+try:
+    from skmultilearn.problem_transform import (
+        ClassifierChain,
+        LabelPowerset,
+        BinaryRelevance,
+    )
+    from skmultilearn.adapt import BRkNNaClassifier, MLkNN
+except ModuleNotFoundError as e:
+    logger.warning(
+        "skmultilearn not installed. laber powerset, classifier chain and binary relevance approaches not working"
+    )
+    logger.debug(e)
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.multiclass import OneVsRestClassifier
@@ -33,20 +41,21 @@ from grants_tagger.models.tfidf_transformers_svm import TfidfTransformersSVM
 from grants_tagger.models.science_ensemble import ScienceEnsemble
 from grants_tagger.models.mesh_tfidf_svm import MeshTfidfSVM
 from grants_tagger.utils import save_pickle, load_pickle
-from wellcomeml.ml import (
-    BiLSTMClassifier,
-    CNNClassifier,
-    KerasVectorizer,
-    SpacyClassifier,
-    BertVectorizer,
-    BertClassifier,
-    Doc2VecVectorizer,
-    Sent2VecVectorizer,
-    WellcomeVotingClassifier,
-    TransformersTokenizer,
-)
+from wellcomeml.ml.bilstm import BiLSTMClassifier
+from wellcomeml.ml.cnn import CNNClassifier
+from wellcomeml.ml.keras_vectorizer import KerasVectorizer
+from wellcomeml.ml.bert_classifier import BertClassifier
+from wellcomeml.ml.voting_classifier import WellcomeVotingClassifier
+from wellcomeml.ml.transformers_tokenizer import TransformersTokenizer
+from wellcomeml.ml.sent2vec_vectorizer import Sent2VecVectorizer
+from wellcomeml.ml.doc2vec_vectorizer import Doc2VecVectorizer
+from wellcomeml.ml.bert_vectorizer import BertVectorizer
 
-logger = logging.getLogger(__name__)
+try:
+    from wellcomeml.ml.spacy_classifier import SpacyClassifier
+except ImportError as e:
+    logger.warning("SpacyClassifier missing. Approach spacy-classifier not working")
+    logger.debug(e)
 try:
     from grants_tagger.models.mesh_xlinear import MeshXLinear
 except ImportError:

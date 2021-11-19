@@ -25,6 +25,7 @@ models/**
 *.swp
 .python-version
 .envrc
+.tox
 
 # Build, venv and dist
 build/**

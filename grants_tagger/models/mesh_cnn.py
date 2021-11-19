@@ -5,7 +5,8 @@ import tensorflow as tf
 import numpy as np
 import scipy.sparse as sp
 
-from wellcomeml.ml import CNNClassifier, KerasVectorizer
+from wellcomeml.ml.cnn import CNNClassifier
+from wellcomeml.ml.keras_vectorizer import KerasVectorizer
 from grants_tagger.models.utils import get_params_for_component
 from grants_tagger.utils import save_pickle, load_pickle
 

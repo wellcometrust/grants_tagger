@@ -1,3 +1,9 @@
+## v0.2.1
+
+Bug fixes:
+- Fix download_model to download version specific mesh model
+- #152 Fix grants_tagger package which was failing due to missing dependencies 
+
 ## v0.2.0
 
 Improvements:

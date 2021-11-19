@@ -1,6 +1,3 @@
-vars:
-  - version: 0.2.0 
-
 stages:
   preprocess_wellcome_science:
     cmd: grants_tagger preprocess wellcome-science data/raw/science_tags_full_version.xlsx
@@ -15,7 +12,7 @@ stages:
     - data/processed/science_grants_tagged_title_synopsis.jsonl
   train_tfidf_svm:
     cmd: grants_tagger train data/processed/science_grants_tagged_title_synopsis.jsonl
-      models/label_binarizer-${version}.pkl models/tfidf-svm-${version}.pkl --approach tfidf-svm --train-info results/tfidf_svm_train_info.json
+      models/label_binarizer.pkl models/tfidf-svm.pkl --approach tfidf-svm --train-info results/tfidf_svm_train_info.json
     deps:
     - data/processed/science_grants_tagged_title_synopsis.jsonl
     - grants_tagger/train.py
@@ -24,24 +21,24 @@ stages:
     - train.tfidf-svm.svm__estimator.class_weight
     - train.tfidf-svm.tfidf.ngram_range
     outs:
-    - models/label_binarizer-${version}.pkl
-    - models/tfidf-svm-${version}.pkl
+    - models/label_binarizer.pkl
+    - models/tfidf-svm.pkl
     metrics:
       - results/tfidf_svm_train_info.json:
           cache: false
   evaluate_tfidf_svm:
-    cmd: grants_tagger evaluate model tfidf-svm models/tfidf-svm-${version}.pkl data/processed/science_grants_tagged_title_synopsis.jsonl
-      models/label_binarizer-${version}.pkl --results-path results/tfidf_svm.json
+    cmd: grants_tagger evaluate model tfidf-svm models/tfidf-svm.pkl data/processed/science_grants_tagged_title_synopsis.jsonl
+      models/label_binarizer.pkl --results-path results/tfidf_svm.json
     deps:
     - grants_tagger/evaluate_model.py
-    - models/label_binarizer-${version}.pkl
-    - models/tfidf-svm-${version}.pkl
+    - models/label_binarizer.pkl
+    - models/tfidf-svm.pkl
     metrics:
     - results/tfidf_svm.json:
         cache: false
   train_scibert:
     cmd: grants_tagger train data/processed/science_grants_tagged_title_synopsis.jsonl
-      models/label_binarizer-${version}.pkl models/scibert-${version} --approach scibert --train-info results/scibert_train_info.json
+      models/label_binarizer.pkl models/scibert --approach scibert --train-info results/scibert_train_info.json
     deps:
     - data/processed/science_grants_tagged_title_synopsis.jsonl
     - grants_tagger/train.py
@@ -50,14 +47,14 @@ stages:
     - train.scibert.learning_rate
     - train.scibert.epochs
     outs:
-    - models/scibert-${version}
+    - models/scibert
   evaluate_scibert:
-    cmd: grants_tagger evaluate model scibert models/scibert-${version} data/processed/science_grants_tagged_title_synopsis.jsonl
-      models/label_binarizer-${version}.pkl --results-path results/scibert.json
+    cmd: grants_tagger evaluate model scibert models/scibert data/processed/science_grants_tagged_title_synopsis.jsonl
+      models/label_binarizer.pkl --results-path results/scibert.json
     deps:
     - grants_tagger/evaluate_model.py
-    - models/label_binarizer-${version}.pkl
-    - models/scibert-${version}
+    - models/label_binarizer.pkl
+    - models/scibert
     metrics:
     - results/scibert.json:
         cache: false
@@ -77,14 +74,14 @@ stages:
 #    outs:
 #    - models/science_ensemble-2021.04.0
   evaluate_science_ensemble:
-    cmd: grants_tagger evaluate model science-ensemble models/tfidf-svm-${version}.pkl,models/scibert-${version}
-      data/processed/science_grants_tagged_title_synopsis.jsonl models/label_binarizer-${version}.pkl
+    cmd: grants_tagger evaluate model science-ensemble models/tfidf-svm.pkl,models/scibert
+      data/processed/science_grants_tagged_title_synopsis.jsonl models/label_binarizer.pkl
       --results-path results/science_ensemble.json
     deps:
     - grants_tagger/evaluate_model.py
-    - models/tfidf-svm-${version}.pkl
-    - models/scibert-${version}
-    - models/label_binarizer-${version}.pkl
+    - models/tfidf-svm.pkl
+    - models/scibert
+    - models/label_binarizer.pkl
     #- models/label_binarizer-2021.04.0.pkl
     #- models/science_ensemble-2021.04.0
     metrics:
@@ -100,7 +97,7 @@ stages:
     - data/processed/test_mesh2021.jsonl
   train_mesh_xlinear:
     cmd: grants_tagger train data/processed/train_mesh2021.jsonl
-      models/xlinear/label_binarizer-${version}.pkl models/xlinear/model-${version}
+      models/xlinear/label_binarizer.pkl models/xlinear/model
       --approach mesh-xlinear --sparse-labels --train-info results/mesh_xlinear_train_info.json
     deps:
     - data/processed/test_mesh2021.jsonl
@@ -119,16 +116,16 @@ stages:
     - train.mesh-xlinear.xlinear.only_topk
     - train.mesh-xlinear.xlinear.min_weight_value
     outs:
-    - models/xlinear/label_binarizer-${version}.pkl
-    - models/xlinear/model-${version}
+    - models/xlinear/label_binarizer.pkl
+    - models/xlinear/model
   evaluate_mesh_xlinear:
-    cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model-${version}
-      data/processed/test_mesh2021.jsonl models/xlinear/label_binarizer-${version}.pkl
+    cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model
+      data/processed/test_mesh2021.jsonl models/xlinear/label_binarizer.pkl
       --results-path results/mesh_xlinear.json --no-split-data
     deps:
     - grants_tagger/evaluate_model.py
-    - models/xlinear/model-${version}
-    - models/xlinear/label_binarizer-${version}.pkl
+    - models/xlinear/model
+    - models/xlinear/label_binarizer.pkl
     metrics:
     - results/mesh_xlinear.json:
         cache: false
@@ -139,16 +136,16 @@ stages:
     outs:
     - data/processed/mesh_disease_tags.csv
   evaluate_mesh_xlinear_on_grants:
-    cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model-${version}
-      data/raw/disease_tags_validation_grants.xlsx models/xlinear/label_binarizer-${version}.pkl
+    cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model
+      data/raw/disease_tags_validation_grants.xlsx models/xlinear/label_binarizer.pkl
       --results-path results/mesh_xlinear_on_grants.json --grants
       --mesh-tags-path data/processed/mesh_disease_tags.csv
     deps:
     - data/raw/disease_tags_validation_grants.xlsx
     - data/processed/mesh_disease_tags.csv
     - grants_tagger/evaluate_mesh_on_grants.py
-    - models/xlinear/model-${version}
-    - models/xlinear/label_binarizer-${version}.pkl
+    - models/xlinear/model
+    - models/xlinear/label_binarizer.pkl
     metrics:
     - results/mesh_xlinear_on_grants.json:
         cache: false

@@ -132,6 +132,12 @@ build-streamlit-docker: ## Builds Docker with streamlit and models
 	aws s3 cp s3://datalabs-data/grants_tagger/models/label_binarizer.pkl models/
 	docker build -t streamlitapp -f Dockerfile.streamlit .
 
+.PHONY: install-private-requirements
+install-private-requirements: ## Install the private datascience utils
+	pip install pyodbc psycopg2
+	pip install -e git+ssh://git@github.com/wellcometrust/datascience.git#egg=wellcome-datascience-common
+ 
+
 help: ## Show help message
 	@IFS=$$'\n' ; \
 	help_lines=(`fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##/:/'`); \

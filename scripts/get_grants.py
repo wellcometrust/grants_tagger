@@ -8,7 +8,7 @@ try:
 except ImportError as e:
     raise ImportError(f"Error importing {e.name }. "
                       f"To use this script you need to install Wellcome's datascience internal "
-                      f"utils.")
+                      f"utils, for example with `make install-private-requirements`")
 
 forty_two = FortyTwo()
 df = pd.DataFrame(forty_two.get_grants())

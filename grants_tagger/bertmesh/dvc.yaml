@@ -1,0 +1,18 @@
+stages:
+    prepare_data:
+        cmd: python prepare_data.py ../../data/processed/mesh2021.jsonl ../../data/processed/bertmesh/X.npy ../../data/processed/bertmesh/Y.npz models/bertmesh/label_binarizer.pkl
+        deps:
+        - prepare_data.py
+        outs:
+        - ../../data/processed/bertmesh/X.npy
+        - ../../data/processed/bertmesh/Y.npz
+        - ../../models/bertmesh/label_binarizer.pkl
+    train:
+        cmd: python train.py ../../data/processed/bertmesh/X.npy ../../data/processed/bertmesh/Y.npz ../../models/bertmesh
+        deps:
+        - train.py
+        - ../../data/processed/bertmesh/X.npy
+        - ../../data/processed/bertmesh/Y.npz
+        - ../../models/bertmesh/label_binarizer.pkl
+        outs:
+        - ../../models/bertmesh/

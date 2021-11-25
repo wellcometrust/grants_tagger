@@ -1,18 +1,32 @@
+vars:
+    - data: "../../data/"
+    - models: "../../models/"
+
 stages:
     prepare_data:
-        cmd: python prepare_data.py ../../data/processed/mesh2021.jsonl ../../data/processed/bertmesh/X.npy ../../data/processed/bertmesh/Y.npz models/bertmesh/label_binarizer.pkl
+        cmd: python prepare_data.py ${data}/processed/mesh2021.jsonl ${data}/processed/bertmesh/X.npy 
+            ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/label_binarizer.pkl --years ${prepare_data.years}
         deps:
         - prepare_data.py
+        params:
+        - prepare_data.years
         outs:
-        - ../../data/processed/bertmesh/X.npy
-        - ../../data/processed/bertmesh/Y.npz
-        - ../../models/bertmesh/label_binarizer.pkl
+        - ${data}/processed/bertmesh/X.npy
+        - ${data}/processed/bertmesh/Y.npz
+        - ${models}/bertmesh/label_binarizer.pkl
     train:
-        cmd: python train.py ../../data/processed/bertmesh/X.npy ../../data/processed/bertmesh/Y.npz ../../models/bertmesh
+        cmd: python train.py ${data}/processed/bertmesh/X.npy ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/model/
+            --learning-rate ${train.learning_rate} --batch-size ${train.batch_size} --epochs ${train.epochs} 
+            --pretrained-model ${train.pretrained_model}
         deps:
         - train.py
-        - ../../data/processed/bertmesh/X.npy
-        - ../../data/processed/bertmesh/Y.npz
-        - ../../models/bertmesh/label_binarizer.pkl
+        - ${data}/processed/bertmesh/X.npy
+        - ${data}/processed/bertmesh/Y.npz
+        - ${models}/bertmesh/label_binarizer.pkl
+        params:
+        - train.learning_rate
+        - train.epochs
+        - train.batch_size
+        - train.pretrained_model
         outs:
-        - ../../models/bertmesh/
+        - ${models}/bertmesh/model/

@@ -1,5 +1,6 @@
 import random
 import math
+import os
 
 from transformers import TFBertModel, AutoModel
 import tensorflow_addons as tfa
@@ -30,7 +31,8 @@ class MultiLabelAttention(tf.keras.layers.Layer):
         return tf.matmul(attention_weights, inputs, transpose_a=True) # (batch_size, labels, emb_dim)
 
 def train_bertmesh(x_path, y_path, model_path, multilabel_attention:bool=False,
-        batch_size: int=256, learning_rate: float =1e-4, epochs: int=5, pretrained_model="bert-base-uncased"):
+        batch_size: int=256, learning_rate: float=1e-4,
+        epochs: int=5, pretrained_model="bert-base-uncased"):
     X = np.load(x_path)
     Y = sp.load_npz(y_path)
 

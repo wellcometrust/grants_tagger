@@ -1,0 +1,9 @@
+prepare_data:
+    years: 2018,2019
+
+train:
+    learning_rate: 1e-4
+    batch_size: 32
+    epochs: 5
+    pretrained_model: bert-base-uncased
+    multilabel_attention: False

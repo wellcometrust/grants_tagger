@@ -9,6 +9,7 @@ import typer
 
 from grants_tagger.utils import load_data
 
+
 def load_pickle(obj_path):
     with open(obj_path, "rb") as f:
         return pickle.loads(f.read())
@@ -24,7 +25,7 @@ def prepare_bertmesh(data_path, x_path, y_path, label_binarizer_path, tokenizer_
         print("filtering data")
         min_year, max_year = [int(year) for year in years.split(",")]
         print("   calculating sample size")
-        sample_indices = [i for i, m in enumerate(meta) if m["year"] and (min_year <= int(m["year"]) <= max_year)]
+        sample_indices = [i for i, m in enumerate(meta) if m["year"] and (min_year <= int(m["year"]) < max_year)]
         print(f"   sample_size {len(sample_indices)}")
         X = [X[i] for i in sample_indices]
         Y = [Y[i] for i in sample_indices]

@@ -42,9 +42,9 @@ def train_bertmesh(x_path, y_path, model_path, multilabel_attention:bool=False,
         bert = TFBertModel.from_pretrained(pretrained_model)
 
         # TODO: Optionally concatenate vectors from 4 last layers
-        cls = bert(inputs)[0]
+        hidden_states = bert(inputs)[0]
         if multilabel_attention:
-            attention_outs = MultiLabelAttention(Y.shape[1])(cls)
+            attention_outs = MultiLabelAttention(Y.shape[1])(hidden_states)
             dense = tf.keras.layers.Dense(512, activation="relu")(attention_outs) # this will return one dense per attention label
             out = tf.keras.layers.Dense(1, activation="sigmoid")(dense) # 1 output per label
             out = tf.keras.layers.Flatten()(out)

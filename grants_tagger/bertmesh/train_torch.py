@@ -57,9 +57,12 @@ class MeshDataset(Dataset):
 def train_bertmesh(x_path, y_path, model_path, multilabel_attention:bool=False,
         batch_size: int=256, learning_rate: float=1e-4,
         epochs: int=5, pretrained_model="bert-base-uncased"):
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
     dataset = MeshDataset(x_path, y_path)
 
     model = BertMesh(pretrained_model, num_labels=dataset.num_labels)
+    model.to(device)
 
     train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=16) # ignored at the moment
 
@@ -68,7 +71,7 @@ def train_bertmesh(x_path, y_path, model_path, multilabel_attention:bool=False,
 
     for epoch in range(epochs):
         for data in tqdm(train_loader):
-            inputs, labels = data
+            inputs, labels = data[0].to(device), data[1].to(device)
 
             optimizer.zero_grad()
 

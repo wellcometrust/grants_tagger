@@ -150,3 +150,18 @@ stages:
     metrics:
     - results/mesh_xlinear_on_grants.json:
         cache: false
+
+  get_grants:
+    cmd: python scripts/get_grants.py
+    deps:
+    - scripts/get_grants.py
+    outs:
+    - data/raw/grants.csv
+  generate_validation_data_xlinear:
+    cmd: python scripts/generate_validation_data_xlinear.py
+    deps:
+    - scripts/generate_validation_data_xlinear.py
+    - data/raw/grants.csv
+    - data/interim/mesh_pipeline_result.csv
+    outs:
+    - data/processed/merged_mesh_predictions_mesh_xlinear_for_validation.csv

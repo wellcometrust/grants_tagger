@@ -32,11 +32,17 @@ at the moment.
 
 # 💻 Install and use
 
-In the near future you will be able to find official releases
-in Github, PyPi and through AWS. Until then the easiest way
-to install and use Grants tagger is through a
-manual installation. You need to git clone and pip install
-the code in your environment of choice.
+Easiest way to install is with pip.
+The project is available in the PyPI repository at https://pypi.org/project/grants-tagger/.
+
+```
+pip install grants-tagger
+```
+
+Alternatively you can clone this repository and manually install with
+```
+pip install setup.py
+```
 
 Grants tagger comes with a nice CLI with the following commands
 
@@ -559,8 +565,7 @@ science and `docs/mesh_results.md` for bioasq mesh.
 To package the code run `make build`. This will create a wheel in
 dist that you can distribute and `pip install`. `make deploy` pushes
 that wheel in a public Wellcome bucket that you can use if you have
-access to write into it. We plan to migrate towards Github releases
-and PyPi soon.
+access to write into it.
 
 Packaged models are produced through dvc by running `dvc repro` and
 stored in s3 by running `make sync_artifacts`. This might soon change to
@@ -599,3 +604,28 @@ deploy               Deploy wheel to public s3 bucket
 clean                Clean hidden and compiled files
 help                 Show help message
 ```
+
+## 🔌 How to use production models
+
+We'll go through an example on how to download data and models, and use them for prediction and training using the cli commands.
+
+Data can be downloaded from here after you make an account: http://participants-area.bioasq.org/datasets/
+Download from the `Datasets for task a` section, the latest available txt format dataset. This will result in a zip file what you can unzip, preferably in the `data\raw` folder. 
+You can download the mesh pretrained model using:
+```
+grants_tagger download model mesh
+```
+Or, you can download some pretrained models from the releases section of this repository. 
+
+Unzip this in the `models` folder. This will contain the mesh model and the label-binarizer.
+
+After that, you can predict a text's tag using:
+```
+grants_tagger predict "Global health pandemics, such as coronavirus disease 2019 (COVID-19), require efficient and well-conducted trials to determine effective interventions" models/disease_mesh_cnn-2021.03.1/ models/disease_mesh_label_binarizer.pkl mesh-cnn
+```
+
+You will get a list of tags that are above the given threshold (default 0.5). For the example above we get:
+```
+['Coronavirus Infections']
+```
+

@@ -18,7 +18,7 @@ from sklearn.metrics import f1_score, multilabel_confusion_matrix, confusion_mat
 from scipy.sparse import csr_matrix, issparse
 import numpy as np
 
-from grants_tagger.utils import load_train_test_data
+from grants_tagger.split_data import load_train_test_data
 from grants_tagger.models.create_model import load_model
 
 

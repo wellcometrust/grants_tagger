@@ -24,6 +24,7 @@ from grants_tagger.preprocess_mesh import preprocess_mesh
 from grants_tagger.train import train as train_model
 from grants_tagger.tune_threshold import tune_threshold
 from grants_tagger.optimise_params import optimise_params
+from grants_tagger.split_data import split_data
 
 try:
     from grants_tagger.train_with_sagemaker import train_with_sagemaker
@@ -205,6 +206,12 @@ def bioasq_mesh(
         test_split = cfg["preprocess"].getfloat("test_split")
 
     # TODO: Refactor with preprocess_mesh
+    if os.path.exists(output_path):
+        print(f"{output_path} exists. Remove if you want to rerun.")
+        return
+
+    preprocess_mesh(input_path, output_path, mesh_tags_path=mesh_tags_path)
+
     if test_split:
         data_dir, data_name = os.path.split(output_path)
         train_output_path = os.path.join(data_dir, "train_" + data_name)
@@ -215,14 +222,8 @@ def bioasq_mesh(
                 f"{train_output_path} and {test_output_path} exists. Remove them if you want to rerun."
             )
             return
-    else:
-        if os.path.exists(output_path):
-            print(f"{output_path} exists. Remove if you want to rerun.")
-            return
 
-    preprocess_mesh(
-        input_path, output_path, mesh_tags_path=mesh_tags_path, test_split=test_split
-    )
+        split_data(output_path, train_output_path, test_output_path, test_split)
 
 
 @preprocess_app.command()
@@ -238,6 +239,9 @@ def wellcome_science(
     ),
     meta_cols: Optional[str] = typer.Option(
         None, help="comma delimited column names to include in the meta"
+    ),
+    test_split: Optional[float] = typer.Option(
+        None, help="split percentage for test data. if None no split."
     ),
     config: Path = typer.Option(
         None, help="path to config file that defines the arguments"
@@ -272,6 +276,19 @@ def wellcome_science(
         print(f"{output_path} exists. Remove if you want to rerun.")
     else:
         preprocess(input_path, output_path, text_cols, meta_cols)
+
+    if test_split:
+        data_dir, data_name = os.path.split(output_path)
+        train_output_path = os.path.join(data_dir, "train_" + data_name)
+        test_output_path = os.path.join(data_dir, "test_" + data_name)
+
+        if os.path.exists(train_output_path) and os.path.exists(test_output_path):
+            print(
+                f"{train_output_path} and {test_output_path} exists. Remove them if you want to rerun."
+            )
+            return
+
+        split_data(output_path, train_output_path, test_output_path, test_split)
 
 
 app.add_typer(preprocess_app, name="preprocess")

@@ -8,7 +8,7 @@ from sklearn.metrics import precision_recall_fscore_support
 from wasabi import table, row
 import scipy.sparse as sp
 
-from grants_tagger.utils import load_train_test_data, load_data
+from grants_tagger.split_data import load_train_test_data, load_data
 from grants_tagger.models.create_model import load_model
 
 

@@ -78,10 +78,11 @@ Arguments:
   [LABEL_BINARIZER_PATH] path to pickle file that will contain the label binarizer
 
 Options:
-  --text-cols TEXT  comma delimited column names to concatenate to text
-  --meta-cols TEXT  comma delimited column names to include in the meta
-  --config PATH     path to config file that defines the arguments
-  --help            Show this message and exit.
+  --text-cols TEXT    comma delimited column names to concatenate to text
+  --meta-cols TEXT    comma delimited column names to include in the meta
+  --test-split FLOAT  split percentage for test data. if None no split.
+  --config PATH       path to config file that defines the arguments
+  --help              Show this message and exit.
 ```
 
 #### bioasq-mesh

@@ -12,8 +12,8 @@ import json
 import ast
 
 from sklearn.metrics import f1_score, classification_report
-from sklearn.preprocessing import MultiLabelBinarizer
 
+from grants_tagger.label_binarizer import create_label_binarizer
 from grants_tagger.models.create_model import create_model
 from grants_tagger.utils import load_train_test_data, yield_tags
 
@@ -22,18 +22,6 @@ from tensorflow.random import set_seed
 # TODO: Remove when WellcomeML implements setting random_seed inside models
 # replace with param in configs then
 set_seed(41)
-
-
-def create_label_binarizer(data_path, label_binarizer_path, sparse=False):
-    """Creates, saves and returns a multilabel binarizer for targets Y"""
-    label_binarizer = MultiLabelBinarizer(sparse_output=sparse)
-    # TODO: pass Y_train here which can be generator or list
-    label_binarizer.fit(yield_tags(data_path))
-
-    with open(label_binarizer_path, "wb") as f:
-        f.write(pickle.dumps(label_binarizer))
-
-    return label_binarizer
 
 
 def train(

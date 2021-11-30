@@ -15,7 +15,7 @@ from sklearn.metrics import f1_score, classification_report
 
 from grants_tagger.label_binarizer import create_label_binarizer
 from grants_tagger.models.create_model import create_model
-from grants_tagger.split_data import load_train_test_data, yield_tags
+from grants_tagger.utils import load_train_test_data, yield_tags
 
 from tensorflow.random import set_seed
 

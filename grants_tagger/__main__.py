@@ -12,10 +12,12 @@ import time
 
 import typer
 
+
 logger = logging.getLogger(__name__)
 
 from grants_tagger.evaluate_mti import evaluate_mti
 from grants_tagger.evaluate_human import evaluate_human
+from grants_tagger.label_binarizer import create_label_binarizer
 from grants_tagger.pretrain import pretrain as pretrain_model
 from grants_tagger.evaluate_model import evaluate_model
 from grants_tagger.predict import predict_tags
@@ -177,6 +179,9 @@ preprocess_app = typer.Typer()
 def bioasq_mesh(
     input_path: Optional[str] = typer.Argument(None, help="path to BioASQ JSON data"),
     output_path: Optional[str] = typer.Argument(None, help="path to output JSONL data"),
+    label_binarizer_path: Optional[Path] = typer.Argument(
+        None, help="path to pickle file that will contain the label binarizer"
+    ),
     mesh_tags_path: Optional[str] = typer.Option(
         None, help="path to mesh tags to filter"
     ),
@@ -212,6 +217,8 @@ def bioasq_mesh(
 
     preprocess_mesh(input_path, output_path, mesh_tags_path=mesh_tags_path)
 
+    create_label_binarizer(output_path, label_binarizer_path)
+
     if test_split:
         data_dir, data_name = os.path.split(output_path)
         train_output_path = os.path.join(data_dir, "train_" + data_name)
@@ -233,6 +240,9 @@ def wellcome_science(
     ),
     output_path: Optional[Path] = typer.Argument(
         None, help="path to JSONL output file that will be generated"
+    ),
+    label_binarizer_path: Optional[Path] = typer.Argument(
+        None, help="path to pickle file that will contain the label binarizer"
     ),
     text_cols: Optional[str] = typer.Option(
         None, help="comma delimited column names to concatenate to text"
@@ -276,6 +286,11 @@ def wellcome_science(
         print(f"{output_path} exists. Remove if you want to rerun.")
     else:
         preprocess(input_path, output_path, text_cols, meta_cols)
+
+    if os.path.exists(label_binarizer_path):
+        print(f"{label_binarizer_path} exists. Remove if you want to rerun.")
+    else:
+        create_label_binarizer(output_path, label_binarizer_path)
 
     if test_split:
         data_dir, data_name = os.path.split(output_path)

@@ -141,6 +141,7 @@ def write_jsonl(f, data):
         f.write(json.dumps(item))
         f.write("\n")
 
+
 def verify_if_paths_exist(paths):
     exist = 0
     for path in paths:

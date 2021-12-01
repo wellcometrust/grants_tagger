@@ -175,6 +175,7 @@ def train(
 
 preprocess_app = typer.Typer()
 
+
 @preprocess_app.command()
 def bioasq_mesh(
     input_path: Optional[str] = typer.Argument(None, help="path to BioASQ JSON data"),
@@ -211,17 +212,18 @@ def bioasq_mesh(
         cfg.read(config)
 
         input_path = cfg["preprocess"]["input"]
-        output_path = cfg["preprocess"]["output"]
+        train_output_path = cfg["preprocess"]["output"]
         mesh_tags_path = cfg["filter_mesh"].get("mesh_tags_path")
         test_split = cfg["preprocess"].getfloat("test_split")
 
     if verify_if_paths_exist(
         [
-            input_path, 
-            train_output_path, 
+            input_path,
+            train_output_path,
             label_binarizer_path,
             test_output_path,
-        ]):
+        ]
+    ):
         return
 
     temporary_output_path = train_output_path + ".tmp"
@@ -232,7 +234,9 @@ def bioasq_mesh(
         if test_output_path is None:
             print("test_output_path must be provided if test_split is provided")
             return
-        split_data(temporary_output_path, train_output_path, test_output_path, test_split)
+        split_data(
+            temporary_output_path, train_output_path, test_output_path, test_split
+        )
         shutil.rm(temporary_output_path)
     else:
         shutil.move(temporary_output_path, train_output_path)
@@ -293,16 +297,16 @@ def wellcome_science(
 
     if verify_if_paths_exist(
         [
-            input_path, 
-            train_output_path, 
+            input_path,
+            train_output_path,
             label_binarizer_path,
             test_output_path,
-        ]):
+        ]
+    ):
         return
 
     temporary_output_path = train_output_path + ".tmp"
-    
-    
+
     preprocess(input_path, temporary_output_path, text_cols, meta_cols)
     create_label_binarizer(temporary_output_path, label_binarizer_path)
 
@@ -310,7 +314,9 @@ def wellcome_science(
         if test_output_path is None:
             print("test_output_path must be provided if test_split is provided")
             return
-        split_data(temporary_output_path, train_output_path, test_output_path, test_split)
+        split_data(
+            temporary_output_path, train_output_path, test_output_path, test_split
+        )
         shutil.rm(temporary_output_path)
     else:
         shutil.move(temporary_output_path, train_output_path)

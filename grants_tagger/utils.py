@@ -1,15 +1,16 @@
 # encoding: utf-8
+from functools import partial
 import pickle
 import json
+import os
 
 import requests
+from sklearn.model_selection import train_test_split
+
 from sklearn.metrics import f1_score
 import tensorflow as tf
 import pandas as pd
 import numpy as np
-from functools import partial
-from scipy.sparse import data
-from sklearn.model_selection import train_test_split
 
 
 def load_data(data_path, label_binarizer=None, X_format="List"):
@@ -139,3 +140,13 @@ def write_jsonl(f, data):
     for item in data:
         f.write(json.dumps(item))
         f.write("\n")
+
+def verify_if_paths_exist(paths):
+    exist = 0
+    for path in paths:
+        if path and os.path.exists(path):
+            print(f"{path} exists. Remove if you want to rerun.")
+            exist += 1
+    if exist > 0:
+        return False
+    return True

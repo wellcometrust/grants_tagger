@@ -9,6 +9,7 @@ import yaml
 import json
 import os
 import time
+import shutil
 
 import typer
 
@@ -42,7 +43,7 @@ try:
 except ModuleNotFoundError as e:
     logger.warning("SHAP missing so grants_tagger explain not working.")
     logger.debug(e)
-from grants_tagger.utils import get_ec2_instance_type
+from grants_tagger.utils import get_ec2_instance_type, verify_if_paths_exist
 
 app = typer.Typer(add_completion=False)
 
@@ -174,13 +175,17 @@ def train(
 
 preprocess_app = typer.Typer()
 
-
 @preprocess_app.command()
 def bioasq_mesh(
     input_path: Optional[str] = typer.Argument(None, help="path to BioASQ JSON data"),
-    output_path: Optional[str] = typer.Argument(None, help="path to output JSONL data"),
+    train_output_path: Optional[Path] = typer.Argument(
+        None, help="path to JSONL output file that will be generated for the train set"
+    ),
     label_binarizer_path: Optional[Path] = typer.Argument(
         None, help="path to pickle file that will contain the label binarizer"
+    ),
+    test_output_path: Optional[str] = typer.Option(
+        None, help="path to JSONL output file that will be generated for the test set"
     ),
     mesh_tags_path: Optional[str] = typer.Option(
         None, help="path to mesh tags to filter"
@@ -210,27 +215,27 @@ def bioasq_mesh(
         mesh_tags_path = cfg["filter_mesh"].get("mesh_tags_path")
         test_split = cfg["preprocess"].getfloat("test_split")
 
-    # TODO: Refactor with preprocess_mesh
-    if os.path.exists(output_path):
-        print(f"{output_path} exists. Remove if you want to rerun.")
+    if verify_if_paths_exist(
+        [
+            input_path, 
+            train_output_path, 
+            label_binarizer_path,
+            test_output_path,
+        ]):
         return
 
-    preprocess_mesh(input_path, output_path, mesh_tags_path=mesh_tags_path)
-
-    create_label_binarizer(output_path, label_binarizer_path)
+    temporary_output_path = train_output_path + ".tmp"
+    preprocess_mesh(input_path, temporary_output_path, mesh_tags_path=mesh_tags_path)
+    create_label_binarizer(temporary_output_path, label_binarizer_path)
 
     if test_split:
-        data_dir, data_name = os.path.split(output_path)
-        train_output_path = os.path.join(data_dir, "train_" + data_name)
-        test_output_path = os.path.join(data_dir, "test_" + data_name)
-
-        if os.path.exists(train_output_path) and os.path.exists(test_output_path):
-            print(
-                f"{train_output_path} and {test_output_path} exists. Remove them if you want to rerun."
-            )
+        if test_output_path is None:
+            print("test_output_path must be provided if test_split is provided")
             return
-
-        split_data(output_path, train_output_path, test_output_path, test_split)
+        split_data(temporary_output_path, train_output_path, test_output_path, test_split)
+        shutil.rm(temporary_output_path)
+    else:
+        shutil.move(temporary_output_path, train_output_path)
 
 
 @preprocess_app.command()
@@ -238,11 +243,14 @@ def wellcome_science(
     input_path: Optional[Path] = typer.Argument(
         None, help="path to raw Excel file with tagged or untagged grant data"
     ),
-    output_path: Optional[Path] = typer.Argument(
-        None, help="path to JSONL output file that will be generated"
+    train_output_path: Optional[Path] = typer.Argument(
+        None, help="path to JSONL output file that will be generated for the train set"
     ),
     label_binarizer_path: Optional[Path] = typer.Argument(
         None, help="path to pickle file that will contain the label binarizer"
+    ),
+    test_output_path: Optional[str] = typer.Option(
+        None, help="path to JSONL output file that will be generated for the test set"
     ),
     text_cols: Optional[str] = typer.Option(
         None, help="comma delimited column names to concatenate to text"
@@ -274,7 +282,7 @@ def wellcome_science(
         cfg.read(config)
 
         input_path = cfg["preprocess"]["input"]
-        output_path = cfg["preprocess"]["output"]
+        train_output_path = cfg["preprocess"]["output"]
         text_cols = cfg["preprocess"]["text_cols"]
         if not text_cols:
             text_cols = "Title,Synopsis"
@@ -282,28 +290,30 @@ def wellcome_science(
 
     text_cols = text_cols.split(",")
     meta_cols = meta_cols.split(",")
-    if os.path.exists(output_path):
-        print(f"{output_path} exists. Remove if you want to rerun.")
-    else:
-        preprocess(input_path, output_path, text_cols, meta_cols)
 
-    if os.path.exists(label_binarizer_path):
-        print(f"{label_binarizer_path} exists. Remove if you want to rerun.")
-    else:
-        create_label_binarizer(output_path, label_binarizer_path)
+    if verify_if_paths_exist(
+        [
+            input_path, 
+            train_output_path, 
+            label_binarizer_path,
+            test_output_path,
+        ]):
+        return
+
+    temporary_output_path = train_output_path + ".tmp"
+    
+    
+    preprocess(input_path, temporary_output_path, text_cols, meta_cols)
+    create_label_binarizer(temporary_output_path, label_binarizer_path)
 
     if test_split:
-        data_dir, data_name = os.path.split(output_path)
-        train_output_path = os.path.join(data_dir, "train_" + data_name)
-        test_output_path = os.path.join(data_dir, "test_" + data_name)
-
-        if os.path.exists(train_output_path) and os.path.exists(test_output_path):
-            print(
-                f"{train_output_path} and {test_output_path} exists. Remove them if you want to rerun."
-            )
+        if test_output_path is None:
+            print("test_output_path must be provided if test_split is provided")
             return
-
-        split_data(output_path, train_output_path, test_output_path, test_split)
+        split_data(temporary_output_path, train_output_path, test_output_path, test_split)
+        shutil.rm(temporary_output_path)
+    else:
+        shutil.move(temporary_output_path, train_output_path)
 
 
 app.add_typer(preprocess_app, name="preprocess")

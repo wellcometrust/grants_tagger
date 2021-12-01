@@ -74,15 +74,16 @@ Usage: grants_tagger preprocess wellcome-science [OPTIONS] [INPUT_PATH]
 
 Arguments:
   [INPUT_PATH]   path to raw Excel file with tagged or untagged grant data
-  [OUTPUT_PATH]  path to JSONL output file that will be generated
+  [TRAIN_OUTPUT_PATH]  path to JSONL output file that will be generated for the train set
   [LABEL_BINARIZER_PATH] path to pickle file that will contain the label binarizer
 
 Options:
-  --text-cols TEXT    comma delimited column names to concatenate to text
-  --meta-cols TEXT    comma delimited column names to include in the meta
-  --test-split FLOAT  split percentage for test data. if None no split.
-  --config PATH       path to config file that defines the arguments
-  --help              Show this message and exit.
+  --test-output-path PATH   path to JSONL output file that will be generated for the test set
+  --text-cols TEXT          comma delimited column names to concatenate to text
+  --meta-cols TEXT          comma delimited column names to include in the meta
+  --test-split FLOAT        split percentage for test data. if None no split.
+  --config PATH             path to config file that defines the arguments
+  --help                    Show this message and exit.
 ```
 
 #### bioasq-mesh
@@ -93,10 +94,11 @@ Usage: grants_tagger preprocess bioasq-mesh [OPTIONS] [INPUT_PATH]
 
 Arguments:
   [INPUT_PATH]   path to BioASQ JSON data
-  [OUTPUT_PATH]  path to output JSONL data
+  [TRAIN_OUTPUT_PATH]  path to JSONL output file that will be generated for the train set
   [LABEL_BINARIZER_PATH] path to pickle file that will contain the label binarizer
 
 Options:
+  --test-output-path PATH    path to JSONL output file that will be generated for the test set
   --mesh-tags-path TEXT      path to mesh tags to filter
   --test-split FLOAT         split percentage for test data. if None no split.
   --config PATH              path to config files that defines arguments

@@ -164,4 +164,4 @@ stages:
     - data/raw/grants.csv
     - data/interim/mesh_pipeline_result.csv
     outs:
-    - data/processed/merged_mesh_predictions_mesh_xlinear_for_validation.csv
+    - data/processed/merged_mesh_predictions_mesh_xlinear_for_validation.xlsx

@@ -192,7 +192,7 @@ def bioasq_mesh(
         None, help="path to mesh tags to filter"
     ),
     test_split: Optional[float] = typer.Option(
-        None, help="split percentage for test data. if None no split."
+        0.01, help="split percentage for test data. if None no split."
     ),
     config: Optional[Path] = typer.Option(
         None, help="path to config files that defines arguments"
@@ -218,7 +218,6 @@ def bioasq_mesh(
 
     if verify_if_paths_exist(
         [
-            input_path,
             train_output_path,
             label_binarizer_path,
             test_output_path,
@@ -230,10 +229,7 @@ def bioasq_mesh(
     preprocess_mesh(input_path, temporary_output_path, mesh_tags_path=mesh_tags_path)
     create_label_binarizer(temporary_output_path, label_binarizer_path)
 
-    if test_split:
-        if test_output_path is None:
-            print("test_output_path must be provided if test_split is provided")
-            return
+    if test_output_path:
         split_data(
             temporary_output_path, train_output_path, test_output_path, test_split
         )
@@ -263,7 +259,7 @@ def wellcome_science(
         None, help="comma delimited column names to include in the meta"
     ),
     test_split: Optional[float] = typer.Option(
-        None, help="split percentage for test data. if None no split."
+        0.1, help="split percentage for test data. if None no split."
     ),
     config: Path = typer.Option(
         None, help="path to config file that defines the arguments"
@@ -297,7 +293,6 @@ def wellcome_science(
 
     if verify_if_paths_exist(
         [
-            input_path,
             train_output_path,
             label_binarizer_path,
             test_output_path,
@@ -310,10 +305,7 @@ def wellcome_science(
     preprocess(input_path, temporary_output_path, text_cols, meta_cols)
     create_label_binarizer(temporary_output_path, label_binarizer_path)
 
-    if test_split:
-        if test_output_path is None:
-            print("test_output_path must be provided if test_split is provided")
-            return
+    if test_output_path:
         split_data(
             temporary_output_path, train_output_path, test_output_path, test_split
         )

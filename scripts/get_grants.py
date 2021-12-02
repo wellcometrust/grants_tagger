@@ -1,3 +1,4 @@
+
 #!/bin/bash
 import pandas as pd
 
@@ -15,11 +16,14 @@ df = pd.DataFrame(forty_two.get_grants())
 
 columns_of_interest = [
     'Grant ID',
+    'Reference',
     'Cost Centre Division Name',
     'Master Grant Type Name',
-    'Reference',
+    'Funding Area',
     'Start Date',
+    'End Date',
     'Title',
+    'Is Awarded?',
     'Synopsis',
     'Lay Summary',
     'Research Question',

@@ -4,6 +4,7 @@ import os
 import pandas as pd
 
 try:
+    from datascience.warehouse.warehouse import FortyTwo
     from datascience.grants.cleaning import clean_grants
 except ImportError as e:
     raise ImportError(f"Error importing {e.name }. "
@@ -21,10 +22,26 @@ here = os.path.abspath(os.path.dirname(__file__))
 grants = pd.read_csv(os.path.join(here, '../data/raw/grants.csv'), index_col=0)
 grants = clean_grants(grants).fillna('')
 
+## Query FortyTwo to obtain the MeSH descriptors (could query the raw XML too?)
+descriptor_query = """
+SELECT [MeSH Lowest Level Classification], [MeSH Classification Description]
+FROM FortyTwo.dbo.MeSHClassificationHierarchy 
+"""
+
+forty_two = FortyTwo()
+descriptors = {
+    row['MeSH Lowest Level Classification']: (
+	row['MeSH Classification Description'].replace("\n", "") 
+        if row['MeSH Classification Description'] else ""
+    )
+    for row in forty_two.execute_query(descriptor_query)
+}
+
 predictions = pd.read_csv(os.path.join(here, f'../data/interim/{predictions_file}'))
 predictions.rename({'Grant id': 'Grant ID'}, axis=1, inplace=True)
 
 merged_predictions_metadata = pd.merge(left=predictions, right=grants, how='left', on='Grant ID')
+merged_predictions_metadata['MeSH Classification Description'] = merged_predictions_metadata['Tag'].apply(lambda x: descriptors.get(x, ""))
 merged_predictions_metadata = \
     merged_predictions_metadata[merged_predictions_metadata['Start Date'] > '2012']
 merged_predictions_metadata.to_csv(

@@ -21,44 +21,7 @@ def test_preprocess_mesh():
         "tags": ["T1", "T2"],
         "meta": {}
     }
-    assert output_tmp.read() == json.dumps(expected_processed_item) + "\n"
-
-def test_preprocess_mesh_test_split():
-    items = [
-        {
-            "abstractText": "This is an abstract",
-            "meshMajor": [f"T{i}", "T20"]
-        }
-        for i in range(10)
-    ]
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        input_path = os.path.join(tmp_dir, "data.json")
-        output_path = os.path.join(tmp_dir, "processed_data.jsonl")
-        
-        with open(input_path, "w") as f:
-            f.write("\n")
-            for item in items:
-                f.write(json.dumps(item)+",")
-                f.write("\n")
-
-        preprocess_mesh(input_path, output_path, test_split=0.1)
-        
-        train_output_path = os.path.join(tmp_dir, "train_processed_data.jsonl")
-        test_output_path = os.path.join(tmp_dir, "test_processed_data.jsonl")
-        assert os.path.exists(train_output_path)
-        assert os.path.exists(test_output_path)
-
-        examples = 0
-        with open(train_output_path) as f:
-            for line in f:
-                examples += 1
-        assert examples == 9
-
-        examples = 0
-        with open(test_output_path) as f:
-            for line in f:
-                examples += 1
-        assert examples == 1   
+    assert output_tmp.read() == json.dumps(expected_processed_item) + "\n" 
 
 def test_process_data():
     item = {

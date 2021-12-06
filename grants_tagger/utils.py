@@ -2,9 +2,11 @@
 from functools import partial
 import pickle
 import json
+import os
 
 import requests
 from sklearn.model_selection import train_test_split
+
 from sklearn.metrics import f1_score
 import tensorflow as tf
 import pandas as pd
@@ -132,3 +134,20 @@ def load_pickle(obj_path):
 def save_pickle(obj_path, obj):
     with open(obj_path, "wb") as f:
         f.write(pickle.dumps(obj))
+
+
+def write_jsonl(f, data):
+    for item in data:
+        f.write(json.dumps(item))
+        f.write("\n")
+
+
+def verify_if_paths_exist(paths):
+    exist = 0
+    for path in paths:
+        if path and os.path.exists(path):
+            print(f"{path} exists. Remove if you want to rerun.")
+            exist += 1
+    if exist > 0:
+        return True
+    return False

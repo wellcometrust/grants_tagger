@@ -149,5 +149,5 @@ def verify_if_paths_exist(paths):
             print(f"{path} exists. Remove if you want to rerun.")
             exist += 1
     if exist > 0:
-        return False
-    return True
+        return True
+    return False

@@ -88,13 +88,15 @@ stages:
     - results/science_ensemble.json:
         cache: false
   preprocess_bioasq_mesh:
-    cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/mesh2021.jsonl --test-split 0.01
+    cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/train_mesh2021.jsonl
+        models/xlinear/label_binarizer.pkl --test-split 0.01 --test-output-path data/processed/test_mesh2021.jsonl
     deps:
     - data/raw/allMeSH_2021.json
     - grants_tagger/preprocess_mesh.py
     outs:
     - data/processed/train_mesh2021.jsonl
     - data/processed/test_mesh2021.jsonl
+    - models/xlinear/label_binarizer.pkl
   train_mesh_xlinear:
     cmd: grants_tagger train data/processed/train_mesh2021.jsonl
       models/xlinear/label_binarizer.pkl models/xlinear/model
@@ -104,19 +106,18 @@ stages:
     - grants_tagger/train.py
     - grants_tagger/models/mesh_xlinear.py
     params:
-    - train.mesh-xlinear.tfidf.stop_words
-    - train.mesh-xlinear.tfidf.min_df
-    - train.mesh-xlinear.tfidf.max_df
-    - train.mesh-xlinear.tfidf.max_features
-    - train.mesh-xlinear.tfidf.ngram_range
-    - train.mesh-xlinear.tfidf.lowercase
-    - train.mesh-xlinear.xlinear.cluster_chain
-    - train.mesh-xlinear.xlinear.negative_sampling_scheme
-    - train.mesh-xlinear.xlinear.beam_size
-    - train.mesh-xlinear.xlinear.only_topk
-    - train.mesh-xlinear.xlinear.min_weight_value
+    - train.mesh-xlinear.stop_words
+    - train.mesh-xlinear.min_df
+    - train.mesh-xlinear.max_df
+    - train.mesh-xlinear.max_features
+    - train.mesh-xlinear.ngram_range
+    - train.mesh-xlinear.lowercase
+    - train.mesh-xlinear.cluster_chain
+    - train.mesh-xlinear.negative_sampling_scheme
+    - train.mesh-xlinear.beam_size
+    - train.mesh-xlinear.only_topk
+    - train.mesh-xlinear.min_weight_value
     outs:
-    - models/xlinear/label_binarizer.pkl
     - models/xlinear/model
   evaluate_mesh_xlinear:
     cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model

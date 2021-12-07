@@ -1,0 +1,36 @@
+vars:
+- data: ../../data/processed/xtransformer
+- models: ../../models/xtransformer
+
+stages:
+    preprocess:
+        cmd: |
+            python ../preprocess_mesh.py ../../data/raw/allMeSH_2021.json ${data}/mesh2021.jsonl
+            python ../split_data.py --data_path ${data}/mesh2021.jsonl --train_data_path ${data}/train_mesh2021.jsonl --test_data_path ${data}/test_mesh2021.jsonl --test_split 0.01
+            python prepare_data.py ${data}/train_mesh2021.jsonl ${data}/X.npz ${data}/Y.npz ${models}/tfidf_vectorizer.pkl ${models}/label_binarizer.pkl --x-txt-path ${data}/X.txt
+            python prepare_data.py ${data}/test_mesh2021.jsonl ${data}/X_test.npz ${data}/Y_test.npz ${models}/tfidf_vectorizer.pkl ${models}/label_binarizer.pkl --x-txt-path ${data}/X_test.txt
+        deps:
+        - ../../data/raw/allMeSH_2021.json
+        outs:
+        - ${data}/X.npz
+        - ${data}/Y.npz
+        - ${data}/X.txt
+        - ${data}/X_test.npz
+        - ${data}/Y_test.npz
+        - ${data}/X_test.txt
+    train:
+        cmd: python -m pecos.xmc.xtransformer.train --trn-text-path ${data}/X.txt --trn-feat-path ${data}/X.npz --trn-label-path ${data}/Y.npz --model-dir ${models}
+        deps:
+        - ${data}/X.txt
+        - ${data}/X.npz
+        - ${data}/Y.npz
+        outs:
+        - ${models}
+    evaluate:
+        cmd: |
+            python -m pecos.xmc.xtransformer.predict --text-path ${data}/X_test.txt --feat-path ${data}/X_test.npz --label-path ${data}/Y.npz --model-folder ${models} --output-dir ${data}
+            python evaluate.py ${data}/Y_test.npz ${data}/P.npz
+        deps:
+        - ${data}/X_test.txt
+        - ${data}/X_test.npz
+        - ${data}/Y_test.npz

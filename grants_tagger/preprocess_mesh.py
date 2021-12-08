@@ -44,12 +44,16 @@ def process_data(item, filter_tags=None):
     return data
 
 
-def yield_data(input_path, filter_tags, buffer_size=10_000):
+def yield_data(input_path, filter_tags, filter_years, buffer_size=10_000):
+    min_year, max_year = filter_years
+
     data_batch = []
     for item in tqdm(yield_raw_data(input_path), total=15_000_000):  # approx 15M docs
         processed_item = process_data(item, filter_tags)
-        if processed_item:
-            data_batch.append(processed_item)
+
+        if filter_years and (min_year < processed_item["year"] <= max_year):
+            if processed_item:
+                data_batch.append(processed_item)
 
         if len(data_batch) >= buffer_size:
             yield data_batch
@@ -59,7 +63,9 @@ def yield_data(input_path, filter_tags, buffer_size=10_000):
         yield data_batch
 
 
-def preprocess_mesh(raw_data_path, processed_data_path, mesh_tags_path=None):
+def preprocess_mesh(
+    raw_data_path, processed_data_path, mesh_tags_path=None, filter_years=None
+):
     if mesh_tags_path:
         filter_tags_data = pd.read_csv(mesh_tags_path)
         filter_tags = filter_tags_data["DescriptorName"].tolist()
@@ -67,8 +73,12 @@ def preprocess_mesh(raw_data_path, processed_data_path, mesh_tags_path=None):
     else:
         filter_tags = None
 
+    if filter_years:
+        min_year, max_year = filter_years.split(",")
+        filter_years = [int(min_year), int(max_year)]
+
     with open(processed_data_path, "w") as f:
-        for data_batch in yield_data(raw_data_path, filter_tags):
+        for data_batch in yield_data(raw_data_path, filter_tags, filter_years):
             write_jsonl(f, data_batch)
 
 

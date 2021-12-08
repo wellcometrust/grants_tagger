@@ -18,16 +18,16 @@ train:
     epochs: 10
   # 2021.09.0
   mesh-xlinear:
-    tfidf:
-      stop_words: "english"
-      min_df: 5
-      max_df: 1.0
-      max_features: 400_000
-      ngram_range: [1,1]
-      lowercase: True
-    xlinear:
-      cluster_chain: True
-      negative_sampling_scheme: "tfn"
-      beam_size: 10
-      only_topk: 20
-      min_weight_value: 0.1
+    #tfidf params
+    stop_words: "english"
+    min_df: 5
+    max_df: 1.0
+    max_features: 400_000
+    ngram_range: [1,1]
+    lowercase: True
+    #xlinear params
+    cluster_chain: True
+    negative_sampling_scheme: "tfn"
+    beam_size: 10
+    only_topk: 20
+    min_weight_value: 0.1

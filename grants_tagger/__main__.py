@@ -179,7 +179,7 @@ preprocess_app = typer.Typer()
 @preprocess_app.command()
 def bioasq_mesh(
     input_path: Optional[str] = typer.Argument(None, help="path to BioASQ JSON data"),
-    train_output_path: Optional[Path] = typer.Argument(
+    train_output_path: Optional[str] = typer.Argument(
         None, help="path to JSONL output file that will be generated for the train set"
     ),
     label_binarizer_path: Optional[Path] = typer.Argument(
@@ -227,13 +227,13 @@ def bioasq_mesh(
 
     temporary_output_path = train_output_path + ".tmp"
     preprocess_mesh(input_path, temporary_output_path, mesh_tags_path=mesh_tags_path)
-    create_label_binarizer(temporary_output_path, label_binarizer_path)
+    create_label_binarizer(temporary_output_path, label_binarizer_path, sparse=True)
 
     if test_output_path:
         split_data(
             temporary_output_path, train_output_path, test_output_path, test_split
         )
-        shutil.rm(temporary_output_path)
+        os.remove(temporary_output_path)
     else:
         shutil.move(temporary_output_path, train_output_path)
 

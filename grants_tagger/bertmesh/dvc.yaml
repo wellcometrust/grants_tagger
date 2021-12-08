@@ -4,18 +4,23 @@ vars:
 
 stages:
     prepare_data:
-        cmd: python prepare_data.py ${data}/processed/mesh2021.jsonl ${data}/processed/bertmesh/X.npy 
-            ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/label_binarizer.pkl --years ${prepare_data.years}
+        cmd: |
+            python ../../grants_tagger/preprocess_mesh.py ${data}/raw/allMeSH_2021.json ${data}/processed/mesh2021.jsonl
+            python prepare_data.py ${data}/processed/mesh2021.jsonl ${data}/processed/bertmesh/X.npy ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/label_binarizer.pkl --years ${prepare_data.years} --pretrained-model ${train.pretrained_model}
+            python prepare_data.py ${data}/processed/mesh2021.jsonl ${data}/processed/bertmesh/X_test.npy ${data}/processed/bertmesh/Y_test.npz ${models}/bertmesh/label_binarizer.pkl --years ${prepare_data.test_years} --pretrained-model ${train.pretrained_model}
         deps:
         - prepare_data.py
         params:
         - prepare_data.years
+        - train.pretrained_model
         outs:
         - ${data}/processed/bertmesh/X.npy
         - ${data}/processed/bertmesh/Y.npz
+        - ${data}/processed/bertmesh/X_test.npy
+        - ${data}/processed/bertmesh/Y_test.npz
         - ${models}/bertmesh/label_binarizer.pkl
     train:
-        cmd: python train.py ${data}/processed/bertmesh/X.npy ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/model/
+        cmd: python train_torch.py ${data}/processed/bertmesh/X.npy ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/model.pt
             --learning-rate ${train.learning_rate} --batch-size ${train.batch_size} --epochs ${train.epochs} 
             --pretrained-model ${train.pretrained_model}
         deps:
@@ -29,4 +34,14 @@ stages:
         - train.batch_size
         - train.pretrained_model
         outs:
-        - ${models}/bertmesh/model/
+        - ${models}/bertmesh/model.pt
+    evaluate:
+        cmd: python evaluate.py ${data}/processed/bertmesh/X_test.npy ${data}/processed/bertmesh/Y_test.npz ${models}/bertmesh/model.pt
+        deps:
+        - evaluate.py
+        - ${data}/processed/bertmesh/X_test.npy
+        - ${data}/processed/bertmesh/Y_test.npz
+        - ${models}/bertmesh/model.pt
+        metrics:
+        - results.json:
+            cache: false

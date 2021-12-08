@@ -18,7 +18,8 @@ def save_pickle(obj_path, obj):
     with open(obj_path, "wb") as f:
         f.write(pickle.dumps(obj))
 
-def prepare_bertmesh(data_path, x_path, y_path, label_binarizer_path, tokenizer_path=None, years=None):
+def prepare_bertmesh(data_path, x_path, y_path, label_binarizer_path,
+        pretrained_model="bert-base-uncased", tokenizer_path=None, years=None):
     X, Y, meta = load_data(data_path)
 
     if years:

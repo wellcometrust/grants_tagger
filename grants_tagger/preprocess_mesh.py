@@ -31,7 +31,7 @@ def yield_raw_data(input_path):
             yield item
 
 
-def process_data(item, filter_tags=None):
+def process_data(item, filter_tags=None, filter_years=None):
     text = item["abstractText"]
     tags = item["meshMajor"]
     journal = item["journal"]
@@ -40,20 +40,23 @@ def process_data(item, filter_tags=None):
         tags = list(set(tags).intersection(filter_tags))
     if not tags:
         return
+    if filter_years:
+        min_year, max_year = filter_years.split(",")
+        if year > int(max_year):
+            return
+        if year < int(min_year):
+            return
     data = {"text": text, "tags": tags, "meta": {"journal": journal, "year": year}}
     return data
 
 
 def yield_data(input_path, filter_tags, filter_years, buffer_size=10_000):
-    min_year, max_year = filter_years
-
     data_batch = []
     for item in tqdm(yield_raw_data(input_path), total=15_000_000):  # approx 15M docs
-        processed_item = process_data(item, filter_tags)
+        processed_item = process_data(item, filter_tags, filter_years)
 
-        if filter_years and (min_year < processed_item["year"] <= max_year):
-            if processed_item:
-                data_batch.append(processed_item)
+        if processed_item:
+            data_batch.append(processed_item)
 
         if len(data_batch) >= buffer_size:
             yield data_batch

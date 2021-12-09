@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-from grants_tagger import __version__
+from grants_tagger.__version__ import __version__
 
 
 setup(

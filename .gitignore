@@ -34,6 +34,9 @@ venv/**
 *egg-info/**
 *.tar.gz
 
+# Tests
+.tox
+
 # Logs
 logs/
 

@@ -83,3 +83,14 @@ def test_process_data_with_filter_years():
     }
     processed_item = process_data(item, filter_years="2019,2020")
     assert processed_item == None
+    item["year"] = 2020
+    expected_processed_item = {
+        "text": "This is an abstract",
+        "tags": ["T1", "T2"],
+        "meta": {
+            "journal": "Journal",
+            "year": 2020
+        }
+    }
+    processed_item = process_data(item, filter_years="2019,2020")
+    assert processed_item == expected_processed_item

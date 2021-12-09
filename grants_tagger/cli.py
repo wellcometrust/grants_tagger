@@ -115,7 +115,7 @@ evaluate_app.command("model")(evaluate_model_cli)
 evaluate_app.command("mti")(evaluate_mti_cli)
 evaluate_app.command("human")(evaluate_human_cli)
 evaluate_app.command("scispacy")(evaluate_scispacy_cli)
-app.add_typer(preprocess_app, name="evaluate")
+app.add_typer(evaluate_app, name="evaluate")
 
 app.command("pretrain")(pretrain_cli)
 

@@ -12,7 +12,8 @@ from sklearn.svm import SVC
 from typer.testing import CliRunner
 import pytest
 
-from grants_tagger.cli import app, convert_dvc_to_sklearn_params
+from grants_tagger.cli import app
+from grants_tagger.utils import convert_dvc_to_sklearn_params
 from grants_tagger.models.mesh_cnn import MeshCNN
 
 runner = CliRunner()
@@ -139,7 +140,6 @@ def test_train_command():
             "tfidf-svm",
             "--parameters",
             "{'tfidf__min_df': 1, 'tfidf__stop_words': None}",
-            "--train-info"
         ])
         assert result.exit_code == 0
         assert os.path.isfile(model_path)

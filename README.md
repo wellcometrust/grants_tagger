@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.com/wellcometrust/grants_tagger.svg?branch=master)](https://travis-ci.com/wellcometrust/grants_tagger)
-[![codecov](https://codecov.io/gh/wellcometrust/grants_tagger/branch/master/graph/badge.svg)](https://codecov.io/gh/wellcometrust/grants_tagger)
+[![Build Status](https://travis-ci.com/wellcometrust/grants_tagger.svg?branch=main)](https://travis-ci.com/wellcometrust/grants_tagger)
+[![codecov](https://codecov.io/gh/wellcometrust/grants_tagger/branch/main/graph/badge.svg)](https://codecov.io/gh/wellcometrust/grants_tagger)
 ![GitHub](https://img.shields.io/github/license/wellcometrust/grants_tagger)
 
 # Grants tagger 🔖

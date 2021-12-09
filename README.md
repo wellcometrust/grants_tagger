@@ -606,3 +606,9 @@ deploy               Deploy wheel to public s3 bucket
 clean                Clean hidden and compiled files
 help                 Show help message
 ```
+
+## ✍️ Scripts
+
+Additional scripts, mostly related to Wellcome Trust-specific code can be
+found in `/scripts`. Please refer to the [readme](scripts/README.md) therein for more info
+on how to run those.

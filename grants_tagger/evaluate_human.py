@@ -30,7 +30,7 @@ evaluate_human_app = typer.Typer()
 
 
 @evaluate_human_app.command()
-def human(data_path: Path, label_binarizer_path: Path):
+def evaluate_human_cli(data_path: Path, label_binarizer_path: Path):
     evaluate_human(data_path, label_binarizer_path)
 
 

@@ -18,20 +18,20 @@ except ModuleNotFoundError as e:
     logger.warning("Sagemaker missing so training with sagemaker not working.")
     logger.debug(e)
 
-from grants_tagger.preprocess_mesh import preprocess_mesh_app
-from grants_tagger.preprocess_wellcome import preprocess_wellcome_app
-from grants_tagger.predict import predict_app
-from grants_tagger.evaluate_human import evaluate_human_app
-from grants_tagger.evaluate_mesh_on_grants import evaluate_mesh_on_grants_app
-from grants_tagger.evaluate_model import evaluate_model_app
-from grants_tagger.evaluate_mti import evaluate_mti_app
-from grants_tagger.evaluate_scispacy_meshtagger import evaluate_scispacy_app
-from grants_tagger.pretrain import pretrain_app
-from grants_tagger.tune_threshold import tune_threshold_app
-from grants_tagger.optimise_params import tune_params_app
-from grants_tagger.download_epmc import download_epmc_app
-from grants_tagger.download_model import download_model_app
-from grants_tagger.explain import explain_app
+from grants_tagger.preprocess_mesh import preprocess_mesh_cli
+from grants_tagger.preprocess_wellcome import preprocess_wellcome_cli
+from grants_tagger.predict import predict_cli
+from grants_tagger.evaluate_human import evaluate_human_cli
+from grants_tagger.evaluate_mesh_on_grants import evaluate_mesh_on_grants_cli
+from grants_tagger.evaluate_model import evaluate_model_cli
+from grants_tagger.evaluate_mti import evaluate_mti_cli
+from grants_tagger.evaluate_scispacy_meshtagger import evaluate_scispacy_cli
+from grants_tagger.pretrain import pretrain_cli
+from grants_tagger.tune_threshold import tune_threshold_cli
+from grants_tagger.optimise_params import tune_params_cli
+from grants_tagger.download_epmc import download_epmc_cli
+from grants_tagger.download_model import download_model_cli
+from grants_tagger.explain import explain_cli
 
 app = typer.Typer(add_completion=False)
 
@@ -103,33 +103,33 @@ def train(
 
 
 preprocess_app = typer.Typer()
-preprocess_app.add_typer(preprocess_mesh_app, name="bioasq-mesh")
-preprocess_app.add_typer(preprocess_wellcome_app, name="wellcome-science")
+preprocess_app.command("bioasq-mesh")(preprocess_mesh_cli)
+preprocess_app.command("wellcome-science")(preprocess_wellcome_cli)
 app.add_typer(preprocess_app, name="preprocess")
 
-app.add_typer(predict_app, name="predict")
+app.command("predict")(predict_cli)
 
 evaluate_app = typer.Typer()
-evaluate_app.add_typer(evaluate_mesh_on_grants_app, name="mesh")
-evaluate_app.add_typer(evaluate_model_app, name="model")
-evaluate_app.add_typer(evaluate_mti_app, name="mti")
-evaluate_app.add_typer(evaluate_human_app, name="human")
-evaluate_app.add_typer(evaluate_scispacy_app, name="scispacy")
+evaluate_app.command("mesh")(evaluate_mesh_on_grants_cli)
+evaluate_app.command("model")(evaluate_model_cli)
+evaluate_app.command("mti")(evaluate_mti_cli)
+evaluate_app.command("human")(evaluate_human_cli)
+evaluate_app.command("scispacy")(evaluate_scispacy_cli)
 app.add_typer(preprocess_app, name="evaluate")
 
-app.add_typer(pretrain_app, name="pretrain")
+app.command("pretrain")(pretrain_cli)
 
 tune_app = typer.Typer()
-tune_app.add_typer(tune_threshold_app, name="threshold")
-tune_app.add_typer(tune_params_app, name="params")
+tune_app.command("threshold")(tune_threshold_cli)
+tune_app.command("params")(tune_params_cli)
 app.add_typer(tune_app, name="tune")
 
 download_app = typer.Typer()
-download_app.add_typer(download_epmc_app, name="epmc-mesh")
-download_app.add_typer(download_model_app, name="model")
+download_app.command("epmc-mesh")(download_epmc_cli)
+download_app.command("model")(download_model_cli)
 app.add_typer(download_app, name="download")
 
-app.add_typer(explain_app, name="explain")
+app.command("explain")(explain_cli)
 
 
 @app.command()

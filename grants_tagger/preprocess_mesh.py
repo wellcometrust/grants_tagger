@@ -72,7 +72,7 @@ preprocess_mesh_app = typer.Typer()
 
 
 @preprocess_mesh_app.command()
-def bioasq_mesh(
+def preprocess_mesh_cli(
     input_path: Optional[str] = typer.Argument(None, help="path to BioASQ JSON data"),
     train_output_path: Optional[Path] = typer.Argument(
         None, help="path to JSONL output file that will be generated for the train set"

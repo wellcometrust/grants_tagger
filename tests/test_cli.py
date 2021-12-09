@@ -133,19 +133,17 @@ def test_train_command():
         result = runner.invoke(app, [
             "train",
             data_path,
-            model_path,
             label_binarizer_path,
+            model_path,
             "--approach",
             "tfidf-svm",
             "--parameters",
             "{'tfidf__min_df': 1, 'tfidf__stop_words': None}",
-            "--train-info",
-            train_info_path
+            "--train-info"
         ])
         assert result.exit_code == 0
         assert os.path.isfile(model_path)
         assert os.path.isfile(label_binarizer_path)
-        assert os.path.isfile(train_info_path)
 
 
 def test_preprocess_bioasq_mesh_command():

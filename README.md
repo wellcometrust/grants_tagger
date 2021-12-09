@@ -345,12 +345,17 @@ Arguments:
   THRESHOLDS_PATH       path to save threshold values  [required]
 
 Options:
-  --sample-size INTEGER    sample size of text data to use for tuning
-  --nb-thresholds INTEGER  number of thresholds to be tried divided evenly
-                           between 0 and 1
+  --val-size FLOAT                validation size of text data to use for
+                                  tuning  [default: 0.8]
 
-  --init-threshold FLOAT   value to initialise threshold values
-  --help                   Show this message and exit.
+  --nb-thresholds INTEGER         number of thresholds to be tried divided
+                                  evenly between 0 and 1
+
+  --init-threshold FLOAT          value to initialise threshold values
+  --split-data / --no-split-data  flag on whether to split data as was done
+                                  for train  [default: True]
+
+  --help                          Show this message and exit.
 ```
 
 ### 📚 Pretrain

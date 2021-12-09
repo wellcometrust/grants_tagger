@@ -279,7 +279,7 @@ def tune_threshold_cli(
         0.2, help="initial threshold value to compare against"
     ),
     split_data: bool = typer.Option(
-        True, help="flag on whether to split data as was done for train"
+        False, help="flag on whether to split data as was done for train"
     ),
 ):
 

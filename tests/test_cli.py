@@ -301,6 +301,7 @@ def test_evaluate_mti_command():
 
 def test_tune_threshold_command():
     with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_dir = "tmp_dir"
         data_path = os.path.join(tmp_dir, "data.jsonl")
         model_path = os.path.join(tmp_dir)
         label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
@@ -317,7 +318,7 @@ def test_tune_threshold_command():
             data_path,
             model_path,
             label_binarizer_path,
-            thresholds_path
+            thresholds_path,
         ])
         assert result.exit_code == 0
         assert os.path.isfile(thresholds_path)

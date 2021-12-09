@@ -4,14 +4,21 @@ Preprocess JSON Mesh data from BioASQ to JSONL
 from configparser import ConfigParser
 from pathlib import Path
 import argparse
+import configparser
 import random
 import json
 import sys
 import os
+import typer
+import yaml
+import shutil
 
 from tqdm import tqdm
+from typing import List, Optional
 import pandas as pd
-from grants_tagger.utils import write_jsonl
+from grants_tagger.utils import write_jsonl, verify_if_paths_exist
+from grants_tagger.label_binarizer import create_label_binarizer
+from grants_tagger.split_data import split_data
 
 
 def yield_raw_data(input_path):
@@ -59,3 +66,72 @@ def preprocess_mesh(raw_data_path, processed_data_path, mesh_tags_path=None):
     with open(processed_data_path, "w") as f:
         for data_batch in yield_data(raw_data_path, filter_tags):
             write_jsonl(f, data_batch)
+
+
+preprocess_mesh_app = typer.Typer()
+
+
+@preprocess_mesh_app.command()
+def bioasq_mesh(
+    input_path: Optional[str] = typer.Argument(None, help="path to BioASQ JSON data"),
+    train_output_path: Optional[Path] = typer.Argument(
+        None, help="path to JSONL output file that will be generated for the train set"
+    ),
+    label_binarizer_path: Optional[Path] = typer.Argument(
+        None, help="path to pickle file that will contain the label binarizer"
+    ),
+    test_output_path: Optional[str] = typer.Option(
+        None, help="path to JSONL output file that will be generated for the test set"
+    ),
+    mesh_tags_path: Optional[str] = typer.Option(
+        None, help="path to mesh tags to filter"
+    ),
+    test_split: Optional[float] = typer.Option(
+        0.01, help="split percentage for test data. if None no split."
+    ),
+    config: Optional[Path] = typer.Option(
+        None, help="path to config files that defines arguments"
+    ),
+):
+
+    params_path = os.path.join(os.path.dirname(__file__), "../params.yaml")
+    with open(params_path) as f:
+        params = yaml.safe_load(f)
+
+    # Default values from params
+    if not mesh_tags_path:
+        mesh_tags_path = params["preprocess_bioasq_mesh"].get("mesh_tags_path")
+
+    if config:
+        cfg = configparser.ConfigParser()
+        cfg.read(config)
+
+        input_path = cfg["preprocess"]["input"]
+        train_output_path = cfg["preprocess"]["output"]
+        mesh_tags_path = cfg["filter_mesh"].get("mesh_tags_path")
+        test_split = cfg["preprocess"].getfloat("test_split")
+
+    if verify_if_paths_exist(
+        [
+            train_output_path,
+            label_binarizer_path,
+            test_output_path,
+        ]
+    ):
+        return
+
+    temporary_output_path = train_output_path + ".tmp"
+    preprocess_mesh(input_path, temporary_output_path, mesh_tags_path=mesh_tags_path)
+    create_label_binarizer(temporary_output_path, label_binarizer_path)
+
+    if test_output_path:
+        split_data(
+            temporary_output_path, train_output_path, test_output_path, test_split
+        )
+        shutil.rm(temporary_output_path)
+    else:
+        shutil.move(temporary_output_path, train_output_path)
+
+
+if __name__ == "__main__":
+    preprocess_mesh_app()

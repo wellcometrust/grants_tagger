@@ -8,11 +8,13 @@ from pathlib import Path
 import argparse
 import pickle
 import os
+import typer
 
 import scipy.sparse as sp
 import numpy as np
 
 from grants_tagger.models.create_model import load_model
+from typing import List, Optional
 
 
 def predict_tags(
@@ -57,3 +59,25 @@ def predict_tags(
             ]
         tags.append(tags_i)
     return tags
+
+
+predict_app = typer.Typer()
+
+
+@predict_app.command()
+def predict_cli(
+    text: str,
+    model_path: Path,
+    label_binarizer_path: Path,
+    approach: str,
+    probabilities: Optional[bool] = typer.Option(False),
+    threshold: Optional[float] = typer.Option(0.5),
+):
+    tags = predict_tags(
+        [text], model_path, label_binarizer_path, approach, probabilities, threshold
+    )
+    print(tags[0])
+
+
+if __name__ == "__main__":
+    predict_app()

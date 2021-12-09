@@ -12,7 +12,9 @@ from pathlib import Path
 import argparse
 import pickle
 import random
+import typer
 
+from typing import List, Optional
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, multilabel_confusion_matrix, confusion_matrix
 from scipy.sparse import csr_matrix, issparse
@@ -137,3 +139,44 @@ def tune_threshold(
 
     with open(thresholds_path, "wb") as f:
         f.write(pickle.dumps(optimal_thresholds))
+
+
+tune_threshold_app = typer.Typer()
+
+
+@tune_threshold_app.command()
+def tune_threshold_cli(
+    approach: str = typer.Argument(..., help="modelling approach e.g. mesh-cnn"),
+    data_path: Path = typer.Argument(
+        ..., help="path to data in jsonl to train and test model"
+    ),
+    model_path: Path = typer.Argument(
+        ..., help="path to data in jsonl to train and test model"
+    ),
+    label_binarizer_path: Path = typer.Argument(..., help="path to label binarizer"),
+    thresholds_path: Path = typer.Argument(..., help="path to save threshold values"),
+    sample_size: Optional[int] = typer.Option(
+        None, help="sample size of text data to use for tuning"
+    ),
+    nb_thresholds: Optional[int] = typer.Option(
+        None, help="number of thresholds to be tried divided evenly between 0 and 1"
+    ),
+    init_threshold: Optional[float] = typer.Option(
+        None, help="value to initialise threshold values"
+    ),
+):
+
+    tune_threshold(
+        approach,
+        data_path,
+        model_path,
+        label_binarizer_path,
+        thresholds_path,
+        sample_size,
+        nb_thresholds,
+        init_threshold,
+    )
+
+
+if __name__ == "__main__":
+    tune_threshold_app()

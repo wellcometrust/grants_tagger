@@ -150,3 +150,21 @@ def verify_if_paths_exist(paths):
     if exist > 0:
         return True
     return False
+
+
+def convert_dvc_to_sklearn_params(parameters):
+    """converts dvc key value params to sklearn nested params if needed"""
+    # converts None to empty dict
+    if not parameters:
+        return {}
+
+    # indication of sklearn pipeline
+    has_nested_params = any([v for v in parameters.values() if type(v) is dict])
+    if has_nested_params:
+        return {
+            f"{pipeline_name}__{param_name}": param_value
+            for pipeline_name, params in parameters.items()
+            for param_name, param_value in params.items()
+        }
+    else:
+        return parameters

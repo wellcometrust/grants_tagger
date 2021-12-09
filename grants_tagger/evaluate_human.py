@@ -2,7 +2,9 @@
 Evaluate human accuracy if you have annotated some data with humans
 """
 import pickle
+import typer
 
+from pathlib import Path
 from sklearn.metrics import classification_report, f1_score
 
 from grants_tagger.utils import load_data
@@ -22,3 +24,15 @@ def evaluate_human(data_path, label_binarizer_path):
     print(report)
 
     return human_f1
+
+
+evaluate_human_app = typer.Typer()
+
+
+@evaluate_human_app.command()
+def human(data_path: Path, label_binarizer_path: Path):
+    evaluate_human(data_path, label_binarizer_path)
+
+
+if __name__ == "__main__":
+    evaluate_human_app()

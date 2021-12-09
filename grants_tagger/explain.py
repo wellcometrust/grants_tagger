@@ -1,5 +1,9 @@
 import pickle
 import logging
+import typer
+
+from pathlib import Path
+from typing import List, Optional
 
 logger = logging.getLogger(__name__)
 try:
@@ -48,3 +52,42 @@ def explain(
                 f.write(html)
     else:
         raise NotImplementedError
+
+
+explain_app = typer.Typer()
+
+
+@explain_app.command()
+def explain_cli(
+    texts_path: Path = typer.Argument(
+        ..., help="path to txt file with one text in every line"
+    ),
+    label: str = typer.Argument(
+        ..., help="label to explain with local or global explanations"
+    ),
+    approach: str = typer.Argument(..., help="model approach e.g. mesh-cnn"),
+    model_path: Path = typer.Argument(..., help="path to model to explain"),
+    label_binarizer_path: Path = typer.Argument(
+        ..., help="path to label binarizer associated with mode"
+    ),
+    explanations_path: Path = typer.Argument(
+        ..., help="path to save explanations html"
+    ),
+    global_explanations: bool = typer.Option(
+        True, help="flag on whether global or local explanations should be produced"
+    ),
+):
+
+    explain(
+        approach,
+        texts_path,
+        model_path,
+        label_binarizer_path,
+        explanations_path,
+        label,
+        global_explanations,
+    )
+
+
+if __name__ == "__main__":
+    explain_app()

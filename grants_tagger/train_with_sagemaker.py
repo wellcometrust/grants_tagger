@@ -174,7 +174,6 @@ def train_with_sagemaker_cli(
         "list",
         help="format that will be used when loading the data. One of list,generator",
     ),
-    train_info: str = typer.Option(None, help="path to train times and instance"),
     sparse_labels: bool = typer.Option(
         False, help="flat about whether labels should be sparse when binarized"
     ),
@@ -236,11 +235,6 @@ def train_with_sagemaker_cli(
 
     duration = time.time() - start
     print(f"Took {duration:.2f} to train")
-    if train_info:
-        with open(train_info, "w") as f:
-            json.dump(
-                {"duration": duration, "ec2_instance": get_ec2_instance_type()}, f
-            )
 
 
 if __name__ == "__main__":

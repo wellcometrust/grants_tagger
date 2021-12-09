@@ -80,7 +80,6 @@ def train(
             parameters=parameters,
             threshold=threshold,
             data_format=data_format,
-            train_info=train_info,
             sparse_labels=sparse_labels,
             cache_path=cache_path,
             config=config,

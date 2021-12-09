@@ -89,20 +89,31 @@ Options:
 #### bioasq-mesh
 ```
 Usage: grants_tagger preprocess bioasq-mesh [OPTIONS] [INPUT_PATH]
-                                            [OUTPUT_PATH]
+                                            [TRAIN_OUTPUT_PATH]
                                             [LABEL_BINARIZER_PATH]
 
 Arguments:
-  [INPUT_PATH]   path to BioASQ JSON data
-  [TRAIN_OUTPUT_PATH]  path to JSONL output file that will be generated for the train set
-  [LABEL_BINARIZER_PATH] path to pickle file that will contain the label binarizer
+  [INPUT_PATH]            path to BioASQ JSON data
+  [TRAIN_OUTPUT_PATH]     path to JSONL output file that will be generated for
+                          the train set
+
+  [LABEL_BINARIZER_PATH]  path to pickle file that will contain the label
+                          binarizer
+
 
 Options:
-  --test-output-path PATH    path to JSONL output file that will be generated for the test set
-  --mesh-tags-path TEXT      path to mesh tags to filter
-  --test-split FLOAT         split percentage for test data. if None no split.
-  --config PATH              path to config files that defines arguments
-  --help                     Show this message and exit.
+  --test-output-path TEXT  path to JSONL output file that will be generated
+                           for the test set
+
+  --mesh-tags-path TEXT    path to mesh tags to filter
+  --test-split FLOAT       split percentage for test data. if None no split.
+                           [default: 0.01]
+
+  --filter-years TEXT      years to keep in form min_year,max_year with both
+                           inclusive
+
+  --config PATH            path to config files that defines arguments
+  --help                   Show this message and exit.
 ```
 
 ### 🔥 Train

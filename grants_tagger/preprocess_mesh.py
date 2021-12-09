@@ -106,6 +106,9 @@ def preprocess_mesh_cli(
     test_split: Optional[float] = typer.Option(
         0.01, help="split percentage for test data. if None no split."
     ),
+    filter_years: Optional[str] = typer.Option(
+        None, help="years to keep in form min_year,max_year with both inclusive"
+    ),
     config: Optional[Path] = typer.Option(
         None, help="path to config files that defines arguments"
     ),
@@ -119,6 +122,10 @@ def preprocess_mesh_cli(
     if not mesh_tags_path:
         mesh_tags_path = params["preprocess_bioasq_mesh"].get("mesh_tags_path")
 
+    # Default value from params
+    if not filter_years:
+        filter_years = params["preprocess_bioasq_mesh"].get("filter_years")
+
     if config:
         cfg = configparser.ConfigParser()
         cfg.read(config)
@@ -127,6 +134,7 @@ def preprocess_mesh_cli(
         train_output_path = cfg["preprocess"]["output"]
         mesh_tags_path = cfg["filter_mesh"].get("mesh_tags_path")
         test_split = cfg["preprocess"].getfloat("test_split")
+        filter_years = cfg["preprocess"].get("filter_years")
 
     if verify_if_paths_exist(
         [
@@ -138,7 +146,12 @@ def preprocess_mesh_cli(
         return
 
     temporary_output_path = train_output_path + ".tmp"
-    preprocess_mesh(input_path, temporary_output_path, mesh_tags_path=mesh_tags_path)
+    preprocess_mesh(
+        input_path,
+        temporary_output_path,
+        mesh_tags_path=mesh_tags_path,
+        filter_years=filter_years,
+    )
     create_label_binarizer(temporary_output_path, label_binarizer_path, sparse=True)
 
     if test_output_path:

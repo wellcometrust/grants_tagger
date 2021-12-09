@@ -21,6 +21,9 @@ from scipy.sparse import issparse, csc_matrix
 from tqdm import tqdm
 import numpy as np
 import typer
+from typing import List, Optional
+from pathlib import Path
+
 
 from grants_tagger.models.create_model import load_model
 from grants_tagger.utils import load_train_test_data, load_data
@@ -289,7 +292,7 @@ def tune_threshold_cli(
         val_size,
         nb_thresholds,
         init_threshold,
-        split_data
+        split_data,
     )
 
 

@@ -169,9 +169,7 @@ def train_cli(
     print(f"Took {duration:.2f} to train")
     if train_info:
         with open(train_info, "w") as f:
-            json.dump(
-                {"duration": duration}, f
-            )
+            json.dump({"duration": duration}, f)
 
 
 if __name__ == "__main__":

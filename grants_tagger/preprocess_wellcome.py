@@ -102,11 +102,11 @@ def preprocess(input_path, output_path, text_cols, meta_cols):
             tags.append(chunk["tags"])
 
 
-preprocess_welcome_app = typer.Typer()
+preprocess_wellcome_app = typer.Typer()
 
 
-@preprocess_welcome_app.command()
-def preprocess_welcome_cli(
+@preprocess_wellcome_app.command()
+def preprocess_wellcome_cli(
     input_path: Optional[Path] = typer.Argument(
         None, help="path to raw Excel file with tagged or untagged grant data"
     ),
@@ -182,4 +182,4 @@ def preprocess_welcome_cli(
 
 
 if __name__ == "__main__":
-    preprocess_welcome_app()
+    preprocess_wellcome_app()

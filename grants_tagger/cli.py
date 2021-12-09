@@ -25,7 +25,7 @@ from grants_tagger.evaluate_human import evaluate_human_app
 from grants_tagger.evaluate_mesh_on_grants import evaluate_mesh_on_grants_app
 from grants_tagger.evaluate_model import evaluate_model_app
 from grants_tagger.evaluate_mti import evaluate_mti_app
-from grants_tagger.evaluate_scispacy_meshtagger import evaluate_scispacy_meshtagger_app
+from grants_tagger.evaluate_scispacy_meshtagger import evaluate_scispacy_app
 from grants_tagger.pretrain import pretrain_app
 from grants_tagger.tune_threshold import tune_threshold_app
 from grants_tagger.optimise_params import tune_params_app
@@ -114,7 +114,7 @@ evaluate_app.add_typer(evaluate_mesh_on_grants_app, name="mesh")
 evaluate_app.add_typer(evaluate_model_app, name="model")
 evaluate_app.add_typer(evaluate_mti_app, name="mti")
 evaluate_app.add_typer(evaluate_human_app, name="human")
-evaluate_app.add_typer(evaluate_scispacy_meshtagger_app, name="scispacy")
+evaluate_app.add_typer(evaluate_scispacy_app, name="scispacy")
 app.add_typer(preprocess_app, name="evaluate")
 
 app.add_typer(pretrain_app, name="pretrain")

@@ -33,7 +33,7 @@ from grants_tagger.download_epmc import download_epmc_cli
 from grants_tagger.download_model import download_model_cli
 from grants_tagger.explain import explain_cli
 
-app = typer.Typer(add_completion=False)
+app = typer.Typer()
 
 
 # Move to train and import from there

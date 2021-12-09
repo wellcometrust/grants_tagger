@@ -1,7 +1,7 @@
 stages:
   preprocess_wellcome_science:
     cmd: grants_tagger preprocess wellcome-science data/raw/science_tags_full_version.xlsx
-      data/processed/science_grants_tagged_title_synopsis.jsonl
+      data/processed/science_grants_tagged_title_synopsis.jsonl models/label_binarizer.pkl
     deps:
     - data/raw/science_tags_full_version.xlsx
     - grants_tagger/preprocess.py
@@ -10,6 +10,7 @@ stages:
     - preprocess_wellcome_science.meta_cols
     outs:
     - data/processed/science_grants_tagged_title_synopsis.jsonl
+    - models/label_binarizer.pkl
   train_tfidf_svm:
     cmd: grants_tagger train data/processed/science_grants_tagged_title_synopsis.jsonl
       models/label_binarizer.pkl models/tfidf-svm.pkl --approach tfidf-svm --train-info results/tfidf_svm_train_info.json

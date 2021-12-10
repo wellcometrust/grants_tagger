@@ -4,7 +4,7 @@ stages:
       data/processed/science_grants_tagged_title_synopsis.jsonl models/label_binarizer.pkl
     deps:
     - data/raw/science_tags_full_version.xlsx
-    - grants_tagger/preprocess.py
+    - grants_tagger/preprocess_wellcome.py
     params:
     - preprocess_wellcome_science.text_cols
     - preprocess_wellcome_science.meta_cols
@@ -22,7 +22,6 @@ stages:
     - train.tfidf-svm.svm__estimator.class_weight
     - train.tfidf-svm.tfidf.ngram_range
     outs:
-    - models/label_binarizer.pkl
     - models/tfidf-svm.pkl
     metrics:
       - results/tfidf_svm_train_info.json:
@@ -138,9 +137,9 @@ stages:
     outs:
     - data/processed/mesh_disease_tags.csv
   evaluate_mesh_xlinear_on_grants:
-    cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model
+    cmd: grants_tagger evaluate grants mesh-xlinear models/xlinear/model
       data/raw/disease_tags_validation_grants.xlsx models/xlinear/label_binarizer.pkl
-      --results-path results/mesh_xlinear_on_grants.json --grants
+      --results-path results/mesh_xlinear_on_grants.json
       --mesh-tags-path data/processed/mesh_disease_tags.csv
     deps:
     - data/raw/disease_tags_validation_grants.xlsx

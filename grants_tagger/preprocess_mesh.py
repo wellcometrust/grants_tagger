@@ -46,14 +46,7 @@ def process_data(item, filter_tags=None, filter_years=None):
             return
         if year < int(min_year):
             return
-    data = {
-        "text": text,
-        "tags": tags,
-        "meta": {
-            "journal": journal,
-            "year": year
-        }
-    }
+    data = {"text": text, "tags": tags, "meta": {"journal": journal, "year": year}}
     return data
 
 

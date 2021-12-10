@@ -7,11 +7,8 @@ import scipy.sparse as sp
 import torch
 import typer
 
-from grants_tagger.bertmesh.train_torch import (
-    BertMesh,
-    MultiLabelAttention,
-    MeshDataset,
-)
+from grants_tagger.bertmesh.model import BertMesh, MultiLabelAttention
+from grants_tagger.bertmesh.data import MeshDataset
 
 
 def evaluate(

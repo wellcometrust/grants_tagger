@@ -110,7 +110,7 @@ def preprocess_wellcome_cli(
     input_path: Optional[Path] = typer.Argument(
         None, help="path to raw Excel file with tagged or untagged grant data"
     ),
-    train_output_path: Optional[Path] = typer.Argument(
+    train_output_path: Optional[str] = typer.Argument(
         None, help="path to JSONL output file that will be generated for the train set"
     ),
     label_binarizer_path: Optional[Path] = typer.Argument(

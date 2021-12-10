@@ -110,7 +110,7 @@ app.add_typer(preprocess_app, name="preprocess")
 app.command("predict")(predict_cli)
 
 evaluate_app = typer.Typer()
-evaluate_app.command("mesh")(evaluate_mesh_on_grants_cli)
+evaluate_app.command("grants")(evaluate_mesh_on_grants_cli)
 evaluate_app.command("model")(evaluate_model_cli)
 evaluate_app.command("mti")(evaluate_mti_cli)
 evaluate_app.command("human")(evaluate_human_cli)

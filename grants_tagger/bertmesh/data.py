@@ -1,4 +1,6 @@
-from torch.utils.dataset import Dataset
+from torch.utils.data import Dataset
+import scipy.sparse as sp
+import numpy as np
 import torch
 
 

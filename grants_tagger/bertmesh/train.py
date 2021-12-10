@@ -65,8 +65,8 @@ def train_bertmesh(
             )  # 1 output per label
             out = tf.keras.layers.Flatten()(out)
         else:
-            cls = tf.keras.layers.GlobalMaxPooling1D()(cls)
-            dense = tf.keras.layers.Dense(512, activation="relu")(cls)
+            pool_out = tf.keras.layers.GlobalMaxPooling1D()(hidden_states)
+            dense = tf.keras.layers.Dense(512, activation="relu")(pool_out)
             out = tf.keras.layers.Dense(Y.shape[1], activation="sigmoid")(dense)
         model = tf.keras.Model(inputs=inputs, outputs=out)
 

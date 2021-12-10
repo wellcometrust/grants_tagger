@@ -1,82 +1,80 @@
 schema: '2.0'
 stages:
   prepare_data:
-    cmd: "python ../../grants_tagger/preprocess_mesh.py ../../data//raw/allMeSH_2021.json\
-      \ ../../data//processed/mesh2021.jsonl\npython prepare_data.py ../../data//processed/mesh2021.jsonl\
-      \ ../../data//processed/bertmesh/X.npy ../../data//processed/bertmesh/Y.npz\
-      \ ../../models//bertmesh/label_binarizer.pkl --years 2018,2019 --pretrained-model\
-      \ microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract\npython prepare_data.py\
-      \ ../../data//processed/mesh2021.jsonl ../../data//processed/bertmesh/X_test.npy\
+    cmd: "python prepare_data.py ../../data//processed/train_mesh2021.jsonl ../../data//processed/bertmesh/X.npy\
+      \ ../../data//processed/bertmesh/Y.npz ../../models//bertmesh/label_binarizer.pkl\
+      \ --years 2018,2019 --pretrained-model microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract\n\
+      python prepare_data.py ../../data//processed/train_mesh2021.jsonl ../../data//processed/bertmesh/X_test.npy\
       \ ../../data//processed/bertmesh/Y_test.npz ../../models//bertmesh/label_binarizer.pkl\
       \ --years 2020,2021 --pretrained-model microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract\n"
     deps:
     - path: prepare_data.py
-      md5: f292f199825f4259d9bb0b284c4aedb6
-      size: 1938
+      md5: f5d5aacd720fdcbb60d7608147f52036
+      size: 2006
     params:
       params.yaml:
         prepare_data.years: 2018,2019
         train.pretrained_model: microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract
     outs:
     - path: ../../data//processed/bertmesh/X.npy
-      md5: d654e14121acbeff1e341f6712f62f66
-      size: 2573693056
+      md5: 68bc1e86940cfafca960fa756680eea3
+      size: 2547982464
     - path: ../../data//processed/bertmesh/X_test.npy
-      md5: ed2b38b53b09006cf50c64c21d6563e2
-      size: 919191680
+      md5: 25c4bd0b21cedcf5cfdd3d5d67f64053
+      size: 909930624
     - path: ../../data//processed/bertmesh/Y.npz
-      md5: d8a39d215d4640a5798966d6afec6447
-      size: 15707424
+      md5: 945f6126714c622cef351e9fd9f7f252
+      size: 15758882
     - path: ../../data//processed/bertmesh/Y_test.npz
-      md5: b3967a6470d8deab7ab4c913f7fcc53a
-      size: 5342410
+      md5: 58b050351390cb111c6e434e2a7a0499
+      size: 5344521
     - path: ../../models//bertmesh/label_binarizer.pkl
-      md5: bc2bf24f5cf98e8f720bb4ed95e01a25
-      size: 986823
+      md5: 3491ee5cab1f01d04d3f7aaa4ff35ef1
+      size: 986160
   train:
     cmd: python train_torch.py ../../data//processed/bertmesh/X.npy ../../data//processed/bertmesh/Y.npz
-      ../../models//bertmesh/model.pt --learning-rate 0.0001 --batch-size 64 --epochs
+      ../../models//bertmesh/model.pt --learning-rate 1e-05 --batch-size 64 --epochs
       1 --pretrained-model microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract
     deps:
     - path: ../../data//processed/bertmesh/X.npy
-      md5: d654e14121acbeff1e341f6712f62f66
-      size: 2573693056
+      md5: 68bc1e86940cfafca960fa756680eea3
+      size: 2547982464
     - path: ../../data//processed/bertmesh/Y.npz
-      md5: d8a39d215d4640a5798966d6afec6447
-      size: 15707424
+      md5: 945f6126714c622cef351e9fd9f7f252
+      size: 15758882
     - path: ../../models//bertmesh/label_binarizer.pkl
-      md5: bc2bf24f5cf98e8f720bb4ed95e01a25
-      size: 986823
+      md5: 3491ee5cab1f01d04d3f7aaa4ff35ef1
+      size: 986160
     - path: train.py
-      md5: a9409ae462aa82d5a2d0a4562516c688
-      size: 3291
+      md5: 54e8be459c2b194b7318919f754eef37
+      size: 3479
     params:
       params.yaml:
         train.batch_size: 64
         train.epochs: 1
-        train.learning_rate: 0.0001
+        train.learning_rate: 1e-05
         train.pretrained_model: microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract
     outs:
     - path: ../../models//bertmesh/model.pt
-      md5: 2496ea8f0fcb465d1ef1f68fde81752d
-      size: 579942177
+      md5: 8cb75d1f429cab33507b15cc193a71da
+      size: 579850017
   evaluate:
     cmd: python evaluate.py ../../data//processed/bertmesh/X_test.npy ../../data//processed/bertmesh/Y_test.npz
       ../../models//bertmesh/model.pt
     deps:
     - path: ../../data//processed/bertmesh/X_test.npy
-      md5: ed2b38b53b09006cf50c64c21d6563e2
-      size: 919191680
+      md5: 25c4bd0b21cedcf5cfdd3d5d67f64053
+      size: 909930624
     - path: ../../data//processed/bertmesh/Y_test.npz
-      md5: b3967a6470d8deab7ab4c913f7fcc53a
-      size: 5342410
+      md5: 58b050351390cb111c6e434e2a7a0499
+      size: 5344521
     - path: ../../models//bertmesh/model.pt
-      md5: 2496ea8f0fcb465d1ef1f68fde81752d
-      size: 579942177
+      md5: 8cb75d1f429cab33507b15cc193a71da
+      size: 579850017
     - path: evaluate.py
-      md5: 5d11222a4c9fa75de4694184285f3816
-      size: 1109
+      md5: cd379cda9666c27bd55d76f192acf81c
+      size: 1167
     outs:
     - path: results.json
-      md5: 431a19966fb6a2d319bd4de8b745bcd3
-      size: 31
+      md5: 563d301957d33cce77719c7407676c92
+      size: 78

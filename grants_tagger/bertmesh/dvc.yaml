@@ -5,9 +5,8 @@ vars:
 stages:
     prepare_data:
         cmd: |
-            python ../../grants_tagger/preprocess_mesh.py ${data}/raw/allMeSH_2021.json ${data}/processed/mesh2021.jsonl
-            python prepare_data.py ${data}/processed/mesh2021.jsonl ${data}/processed/bertmesh/X.npy ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/label_binarizer.pkl --years ${prepare_data.years} --pretrained-model ${train.pretrained_model}
-            python prepare_data.py ${data}/processed/mesh2021.jsonl ${data}/processed/bertmesh/X_test.npy ${data}/processed/bertmesh/Y_test.npz ${models}/bertmesh/label_binarizer.pkl --years ${prepare_data.test_years} --pretrained-model ${train.pretrained_model}
+            python prepare_data.py ${data}/processed/train_mesh2021.jsonl ${data}/processed/bertmesh/X.npy ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/label_binarizer.pkl --years ${prepare_data.years} --pretrained-model ${train.pretrained_model}
+            python prepare_data.py ${data}/processed/train_mesh2021.jsonl ${data}/processed/bertmesh/X_test.npy ${data}/processed/bertmesh/Y_test.npz ${models}/bertmesh/label_binarizer.pkl --years ${prepare_data.test_years} --pretrained-model ${train.pretrained_model}
         deps:
         - prepare_data.py
         params:

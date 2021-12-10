@@ -13,8 +13,8 @@ def train_bertmesh(
     y_path,
     model_path,
     multilabel_attention: bool = False,
-    batch_size: int = 256,
-    learning_rate: float = 1e-4,
+    batch_size: int = 64,
+    learning_rate: float = 1e-5,
     epochs: int = 5,
     pretrained_model="bert-base-uncased",
 ):
@@ -30,7 +30,7 @@ def train_bertmesh(
     model = torch.nn.DataParallel(model)
     model.to(device)
 
-    train_loader = DataLoader(
+    data = DataLoader(
         dataset, batch_size=batch_size, shuffle=True, num_workers=16
     )  # ignored at the moment
 
@@ -39,10 +39,10 @@ def train_bertmesh(
 
     for epoch in range(epochs):
         batches = tqdm(
-            train_loader, desc="Epoch {:1d}".format(epoch), leave=False, disable=False
+                data, desc="Epoch {:2d}/{len(epochs):2d}".format(epoch), leave=False, disable=False
         )
-        for data in batches:
-            inputs, labels = data[0].to(device), data[1].to(device)
+        for batch in batches:
+            inputs, labels = batch[0].to(device), batch[1].to(device)
 
             optimizer.zero_grad()
 
@@ -52,7 +52,7 @@ def train_bertmesh(
             optimizer.step()
 
             batches.set_postfix(
-                {"training_loss": "{:.3f}".format(loss.item() / len(batch))}
+                {"loss": "{:.5f}".format(loss.item() / len(batch))}
             )
 
     torch.save(model, model_path)

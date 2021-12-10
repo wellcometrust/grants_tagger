@@ -21,6 +21,9 @@ from scipy.sparse import issparse, csc_matrix
 from tqdm import tqdm
 import numpy as np
 import typer
+from typing import List, Optional
+from pathlib import Path
+
 
 from grants_tagger.models.create_model import load_model
 from grants_tagger.utils import load_train_test_data, load_data
@@ -252,5 +255,46 @@ def tune_threshold(
         f.write(pickle.dumps(optimal_thresholds))
 
 
+tune_threshold_app = typer.Typer()
+
+
+@tune_threshold_app.command()
+def tune_threshold_cli(
+    approach: str = typer.Argument(..., help="modelling approach e.g. mesh-cnn"),
+    data_path: Path = typer.Argument(
+        ..., help="path to data in jsonl to train and test model"
+    ),
+    model_path: Path = typer.Argument(
+        ..., help="path to data in jsonl to train and test model"
+    ),
+    label_binarizer_path: Path = typer.Argument(..., help="path to label binarizer"),
+    thresholds_path: Path = typer.Argument(..., help="path to save threshold values"),
+    val_size: Optional[float] = typer.Option(
+        0.8, help="validation size of text data to use for tuning"
+    ),
+    nb_thresholds: Optional[int] = typer.Option(
+        None, help="number of thresholds to be tried divided evenly between 0 and 1"
+    ),
+    init_threshold: Optional[float] = typer.Option(
+        0.2, help="initial threshold value to compare against"
+    ),
+    split_data: bool = typer.Option(
+        False, help="flag on whether to split data as was done for train"
+    ),
+):
+
+    tune_threshold(
+        approach,
+        data_path,
+        model_path,
+        label_binarizer_path,
+        thresholds_path,
+        val_size,
+        nb_thresholds,
+        init_threshold,
+        split_data,
+    )
+
+
 if __name__ == "__main__":
-    typer.run(tune_threshold)
+    tune_threshold_app()

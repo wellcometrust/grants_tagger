@@ -3,7 +3,11 @@ Evaluate model performance on test set
 """
 import pickle
 import json
+import configparser
+import typer
 
+from typing import List, Optional
+from pathlib import Path
 from sklearn.metrics import precision_recall_fscore_support
 from wasabi import table, row
 import scipy.sparse as sp
@@ -85,3 +89,64 @@ def evaluate_model(
     if results_path:
         with open(results_path, "w") as f:
             f.write(json.dumps(results))
+
+
+evaluate_model_app = typer.Typer()
+
+
+@evaluate_model_app.command()
+def evaluate_model_cli(
+    approach: str = typer.Argument(..., help="model approach e.g.mesh-cnn"),
+    model_path: str = typer.Argument(
+        ..., help="comma separated paths to pretrained models"
+    ),
+    data_path: Path = typer.Argument(
+        ..., help="path to data that was used for training"
+    ),
+    label_binarizer_path: Path = typer.Argument(..., help="path to label binarize"),
+    threshold: Optional[str] = typer.Option(
+        "0.5", help="threshold or comma separated thresholds used to assign tags"
+    ),
+    results_path: Optional[str] = typer.Option(None, help="path to save results"),
+    split_data: bool = typer.Option(
+        True, help="flag on whether to split data in same way as was done in train"
+    ),
+    parameters: bool = typer.Option(
+        None, help="stringified parameters for model evaluation, if any"
+    ),
+    config: Optional[Path] = typer.Option(
+        None, help="path to config file that defines arguments"
+    ),
+):
+
+    if config:
+        cfg = configparser.ConfigParser(allow_no_value=True)
+        cfg.read(config)
+
+        approach = cfg["ensemble"]["approach"]
+        model_path = cfg["ensemble"]["models"]
+        data_path = cfg["ensemble"]["data"]
+        label_binarizer_path = cfg["ensemble"]["label_binarizer"]
+        threshold = cfg["ensemble"]["threshold"]
+        split_data = cfg["ensemble"]["split_data"]  # needs convert to bool
+        results_path = cfg["ensemble"].get("results_path", "results.json")
+
+    if "," in threshold:
+        threshold = [float(t) for t in threshold.split(",")]
+    else:
+        threshold = float(threshold)
+
+    evaluate_model(
+        approach,
+        model_path,
+        data_path,
+        label_binarizer_path,
+        threshold,
+        split_data,
+        results_path=results_path,
+        parameters=parameters,
+    )
+
+
+if __name__ == "__main__":
+    evaluate_model_app()

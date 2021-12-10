@@ -7,9 +7,12 @@ Disease MeSH#TAG_INDEX (ANNOTATOR)
 """
 from argparse import ArgumentParser
 from pathlib import Path
+import configparser
 import pickle
 import json
+import typer
 
+from typing import List, Optional
 from sklearn.metrics import f1_score
 import pandas as pd
 
@@ -81,18 +84,58 @@ def evaluate_mesh_on_grants(
     print(f"Gold dataset contains examples from {unique_tags} tags out of {all_tags}")
 
 
-if __name__ == "__main__":
-    argparser = ArgumentParser()
-    argparser.add_argument(
-        "--approach", type=str, help="approach used to train model e.g. mesh-cnn"
-    )
-    argparser.add_argument("--data_path", type=Path, help="path to validation data")
-    argparser.add_argument("--model_path", type=Path, help="path to model")
-    argparser.add_argument(
-        "--label_binarizer_path", type=Path, help="path to disease label binarizer"
-    )
-    args = argparser.parse_args()
+evaluate_mesh_on_grants_app = typer.Typer()
+
+
+@evaluate_mesh_on_grants_app.command()
+def evaluate_mesh_on_grants_cli(
+    approach: str = typer.Argument(..., help="model approach e.g.mesh-cnn"),
+    model_path: str = typer.Argument(
+        ..., help="comma separated paths to pretrained models"
+    ),
+    data_path: Path = typer.Argument(
+        ..., help="path to data that was used for training"
+    ),
+    label_binarizer_path: Path = typer.Argument(..., help="path to label binarize"),
+    threshold: Optional[str] = typer.Option(
+        "0.5", help="threshold or comma separated thresholds used to assign tags"
+    ),
+    results_path: Optional[str] = typer.Option(None, help="path to save results"),
+    mesh_tags_path: str = typer.Option(None, help="path to mesh subset to evaluate"),
+    parameters: bool = typer.Option(
+        None, help="stringified parameters for model evaluation, if any"
+    ),
+    config: Optional[Path] = typer.Option(
+        None, help="path to config file that defines arguments"
+    ),
+):
+
+    if config:
+        cfg = configparser.ConfigParser(allow_no_value=True)
+        cfg.read(config)
+
+        approach = cfg["ensemble"]["approach"]
+        model_path = cfg["ensemble"]["models"]
+        data_path = cfg["ensemble"]["data"]
+        label_binarizer_path = cfg["ensemble"]["label_binarizer"]
+        threshold = cfg["ensemble"]["threshold"]
+        results_path = cfg["ensemble"].get("results_path", "results.json")
+
+    if "," in threshold:
+        threshold = [float(t) for t in threshold.split(",")]
+    else:
+        threshold = float(threshold)
 
     evaluate_mesh_on_grants(
-        args.approach, args.data_path, args.model_path, args.label_binarizer_path
+        approach,
+        data_path,
+        model_path,
+        label_binarizer_path,
+        results_path=results_path,
+        mesh_tags_path=mesh_tags_path,
+        parameters=parameters,
     )
+
+
+if __name__ == "__main__":
+    evaluate_mesh_on_grants_app()

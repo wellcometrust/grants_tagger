@@ -1,5 +1,6 @@
 import tarfile
 import os
+import typer
 
 from tqdm import tqdm
 import requests
@@ -52,5 +53,17 @@ def download_model(model_name):
         )
 
 
+download_model_app = typer.Typer()
+
+
+@download_model_app.command()
+def download_model_cli(
+    model_name: str = typer.Argument(
+        ..., help="model name to download e.g. disease_mesh"
+    )
+):
+    download_model(model_name)
+
+
 if __name__ == "__main__":
-    download_model("mesh")
+    download_model_app()

@@ -2,14 +2,14 @@ schema: '2.0'
 stages:
   preprocess_wellcome_science:
     cmd: grants_tagger preprocess wellcome-science data/raw/science_tags_full_version.xlsx
-      data/processed/science_grants_tagged_title_synopsis.jsonl
+      data/processed/science_grants_tagged_title_synopsis.jsonl models/label_binarizer.pkl
     deps:
     - path: data/raw/science_tags_full_version.xlsx
       md5: 74da2bf7a507e52b8b677ddce19156a9
       size: 2638299
-    - path: grants_tagger/preprocess.py
-      md5: 3ac6ca701ed8246ae473df642a059235
-      size: 3617
+    - path: grants_tagger/preprocess_wellcome.py
+      md5: 738ccb78c7ee261c7e934cd4196e9b46
+      size: 6654
     params:
       params.yaml:
         preprocess_wellcome_science.meta_cols: Grant_ID,Title
@@ -18,6 +18,9 @@ stages:
     - path: data/processed/science_grants_tagged_title_synopsis.jsonl
       md5: 2fb37d57daeece50a0190e16e229647a
       size: 2809039
+    - path: models/label_binarizer.pkl
+      md5: 220319a004a60bd6475e2fb617c2c1f3
+      size: 1067
   train:
     cmd: grants_tagger train data/processed/science_grants_tagged_title_synopsis.jsonl
       models/label_binarizer.pkl models/tfidf-svm-2020.05.2.pkl --approach tfidf-svm
@@ -51,8 +54,8 @@ stages:
       md5: 2fb37d57daeece50a0190e16e229647a
       size: 2809039
     - path: grants_tagger/train.py
-      md5: 5a2ae9638918554d043864c7c9111c61
-      size: 3547
+      md5: b43b3d12a59afff02b344082039fe4e0
+      size: 5908
     params:
       params.yaml:
         train.tfidf-svm.svm__estimator.class_weight: balanced
@@ -61,15 +64,12 @@ stages:
         - 1
         - 2
     outs:
-    - path: models/label_binarizer.pkl
-      md5: 220319a004a60bd6475e2fb617c2c1f3
-      size: 1067
     - path: models/tfidf-svm.pkl
-      md5: 01ae46fb54d2e6e17d93a955620ccfe4
+      md5: fb7e7b95240330b8a8976336f31e7bce
       size: 17768857
     - path: results/tfidf_svm_train_info.json
-      md5: 3794d12fcd18f949b601b88ad75afdd0
-      size: 61
+      md5: 113b3940028bdebb9b1f7800d0c05c82
+      size: 31
   evaluate:
     cmd: grants_tagger evaluate model tfidf-svm models/tfidf-svm-2020.05.2.pkl data/processed/science_grants_tagged_title_synopsis.jsonl
       models/label_binarizer.pkl
@@ -92,17 +92,17 @@ stages:
       models/label_binarizer.pkl --results-path results/tfidf_svm.json
     deps:
     - path: grants_tagger/evaluate_model.py
-      md5: 87d51afca534164173fb774b869ac773
-      size: 2553
+      md5: f7ccdb7f90153a4c7258c586998f1bc9
+      size: 4606
     - path: models/label_binarizer.pkl
       md5: 220319a004a60bd6475e2fb617c2c1f3
       size: 1067
     - path: models/tfidf-svm.pkl
-      md5: 01ae46fb54d2e6e17d93a955620ccfe4
+      md5: fb7e7b95240330b8a8976336f31e7bce
       size: 17768857
     outs:
     - path: results/tfidf_svm.json
-      md5: f4a61e7af633056482e7d035e75cb658
+      md5: 45d09c717c170cfbe14bddc17965511c
       size: 76
   train_scibert:
     cmd: grants_tagger train data/processed/science_grants_tagged_title_synopsis.jsonl
@@ -112,8 +112,8 @@ stages:
       md5: 2fb37d57daeece50a0190e16e229647a
       size: 2809039
     - path: grants_tagger/train.py
-      md5: 5a2ae9638918554d043864c7c9111c61
-      size: 3547
+      md5: b43b3d12a59afff02b344082039fe4e0
+      size: 5908
     params:
       params.yaml:
         train.scibert.epochs: 10
@@ -121,7 +121,7 @@ stages:
         train.scibert.validation_split: 0.1
     outs:
     - path: models/scibert
-      md5: 2cabfb835af5ffec9c0e8821a5849941.dir
+      md5: 3fe73a519aabacf8c72501f8cd0c4ffc.dir
       size: 440020006
       nfiles: 2
   evaluate_scibert:
@@ -129,13 +129,13 @@ stages:
       models/label_binarizer.pkl --results-path results/scibert.json
     deps:
     - path: grants_tagger/evaluate_model.py
-      md5: 87d51afca534164173fb774b869ac773
-      size: 2553
+      md5: f7ccdb7f90153a4c7258c586998f1bc9
+      size: 4606
     - path: models/label_binarizer.pkl
       md5: 220319a004a60bd6475e2fb617c2c1f3
       size: 1067
     - path: models/scibert
-      md5: 2cabfb835af5ffec9c0e8821a5849941.dir
+      md5: 3fe73a519aabacf8c72501f8cd0c4ffc.dir
       size: 440020006
       nfiles: 2
     outs:
@@ -150,8 +150,8 @@ stages:
       md5: e827a6b8062d1312664dcf075c12d89f
       size: 27547042745
     - path: grants_tagger/preprocess_mesh.py
-      md5: b91015f27f4eb88e8fec06a7e7038a7e
-      size: 1721
+      md5: 0a57c8ec31d0518ae350c9d856718d48
+      size: 4228
     outs:
     - path: data/processed/test_mesh2021.jsonl
       md5: 9de03e6c3768c6918421a46fc908bb9b
@@ -168,21 +168,21 @@ stages:
       --results-path results/science_ensemble.json
     deps:
     - path: grants_tagger/evaluate_model.py
-      md5: 87d51afca534164173fb774b869ac773
-      size: 2553
+      md5: f7ccdb7f90153a4c7258c586998f1bc9
+      size: 4606
     - path: models/label_binarizer.pkl
       md5: 220319a004a60bd6475e2fb617c2c1f3
       size: 1067
     - path: models/scibert
-      md5: 2cabfb835af5ffec9c0e8821a5849941.dir
+      md5: 3fe73a519aabacf8c72501f8cd0c4ffc.dir
       size: 440020006
       nfiles: 2
     - path: models/tfidf-svm.pkl
-      md5: 01ae46fb54d2e6e17d93a955620ccfe4
+      md5: fb7e7b95240330b8a8976336f31e7bce
       size: 17768857
     outs:
     - path: results/science_ensemble.json
-      md5: 0fe33f09efa340fefd307de9d778cb4c
+      md5: 9e4eddea3f996c92d0fd4208bf0d4117
       size: 76
   train_mesh_cnn:
     cmd: grants_tagger train data/processed/disease_mesh.jsonl models/disease_mesh_label_binarizer-2021.06.0.pkl
@@ -238,11 +238,11 @@ stages:
       md5: 9de03e6c3768c6918421a46fc908bb9b
       size: 247324489
     - path: grants_tagger/models/mesh_xlinear.py
-      md5: c5d351a154a01a70b94391b59767a54a
-      size: 5031
+      md5: 5bac8a0913d841a6cfc146577805cb34
+      size: 5140
     - path: grants_tagger/train.py
-      md5: 5a2ae9638918554d043864c7c9111c61
-      size: 3547
+      md5: b43b3d12a59afff02b344082039fe4e0
+      size: 5908
     params:
       params.yaml:
         train.mesh-xlinear.beam_size: 10
@@ -260,13 +260,13 @@ stages:
         train.mesh-xlinear.stop_words: english
     outs:
     - path: models/xlinear/model
-      md5: 3d813079a3b4f3a066648e7d95589984.dir
+      md5: ed93cb6c7cb412f5126c631bd25cdc49.dir
       size: 3740297256
       nfiles: 33
   evaluate_mesh_xlinear_on_grants:
-    cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model data/raw/disease_tags_validation_grants.xlsx
+    cmd: grants_tagger evaluate grants mesh-xlinear models/xlinear/model data/raw/disease_tags_validation_grants.xlsx
       models/xlinear/label_binarizer.pkl --results-path results/mesh_xlinear_on_grants.json
-      --grants --mesh-tags-path data/processed/mesh_disease_tags.csv
+      --mesh-tags-path data/processed/mesh_disease_tags.csv
     deps:
     - path: data/processed/mesh_disease_tags.csv
       md5: 4311b12fb4f381ffab1d76f55069683d
@@ -275,13 +275,13 @@ stages:
       md5: 71554cf90758773fb996351000384d4f
       size: 615751
     - path: grants_tagger/evaluate_mesh_on_grants.py
-      md5: 9afa54e0ab9e73c0691f9b9f77a3165a
-      size: 2797
+      md5: 3ed963696ba23e55310f84579be6c3ec
+      size: 4143
     - path: models/xlinear/label_binarizer.pkl
       md5: 67d759ed4142feab2e575dc9bd3d5f54
       size: 827793
     - path: models/xlinear/model
-      md5: 3d813079a3b4f3a066648e7d95589984.dir
+      md5: ed93cb6c7cb412f5126c631bd25cdc49.dir
       size: 3740297256
       nfiles: 33
     outs:
@@ -294,13 +294,13 @@ stages:
       --no-split-data
     deps:
     - path: grants_tagger/evaluate_model.py
-      md5: 87d51afca534164173fb774b869ac773
-      size: 2553
+      md5: f7ccdb7f90153a4c7258c586998f1bc9
+      size: 4606
     - path: models/xlinear/label_binarizer.pkl
       md5: 67d759ed4142feab2e575dc9bd3d5f54
       size: 827793
     - path: models/xlinear/model
-      md5: 3d813079a3b4f3a066648e7d95589984.dir
+      md5: ed93cb6c7cb412f5126c631bd25cdc49.dir
       size: 3740297256
       nfiles: 33
     outs:

@@ -4,6 +4,7 @@ from tqdm import tqdm
 import requests
 import json
 import os
+import typer
 
 
 RETRY_PARAMETERS = {
@@ -74,3 +75,21 @@ def download_epmc(download_path, year=2020):
                 f.write(json.dumps(result))
                 f.write("\n")
         os.rename(tmp_month_path, month_path)
+
+
+download_epmc_app = typer.Typer()
+
+
+@download_epmc_app.command()
+def download_epmc_cli(
+    download_path: str = typer.Argument(
+        ..., help="path to directory where to download EPMC data"
+    ),
+    year: int = typer.Option(2020, help="year to download epmc publications"),
+):
+
+    download_epmc(download_path, year)
+
+
+if __name__ == "__main__":
+    download_epmc_app()

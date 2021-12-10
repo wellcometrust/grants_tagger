@@ -8,6 +8,7 @@ from pathlib import Path
 import pickle
 import json
 import csv
+import typer
 
 from sklearn.metrics import classification_report, f1_score
 
@@ -60,21 +61,20 @@ def evaluate_mti(
     return f1
 
 
-if __name__ == "__main__":
-    argparser = ArgumentParser(description=__doc__.strip())
-    argparser.add_argument(
-        "--mesh_label_binarizer_path",
-        type=Path,
-        help="path to pickled mesh label binarizer",
-    )
-    argparser.add_argument(
-        "--mesh_sample_data_path", type=Path, help="path to sample JSONL mesh data"
-    )
-    argparser.add_argument(
-        "--mti_output_path", type=Path, help="path to mti output txt"
-    )
-    args = argparser.parse_args()
+evaluate_mti_app = typer.Typer()
 
-    evaluate_mti(
-        args.mesh_label_binarizer_path, args.mesh_sample_data_path, args.mti_output_path
-    )
+
+@evaluate_mti_app.command()
+def evaluate_mti_cli(
+    data_path: Path = typer.Argument(..., help="path to sample JSONL mesh data"),
+    label_binarizer_path: Path = typer.Argument(
+        ..., help="path to pickled mesh label binarizer"
+    ),
+    mti_output_path: Path = typer.Argument(..., help="path to mti output txt"),
+):
+
+    evaluate_mti(label_binarizer_path, data_path, mti_output_path)
+
+
+if __name__ == "__main__":
+    evaluate_mti_app()

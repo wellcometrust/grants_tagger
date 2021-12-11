@@ -39,7 +39,7 @@ def train_bertmesh(
 
     for epoch in range(epochs):
         batches = tqdm(
-                data, desc="Epoch {:2d}/{len(epochs):2d}".format(epoch), leave=False, disable=False
+                data, desc=f"Epoch {epoch:2d}/{epochs:2d}", leave=False, disable=False
         )
         for batch in batches:
             inputs, labels = batch[0].to(device), batch[1].to(device)

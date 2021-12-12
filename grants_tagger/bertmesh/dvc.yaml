@@ -21,7 +21,7 @@ stages:
     train:
         cmd: python train_torch.py ${data}/processed/bertmesh/X.npy ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/model.pt
             --learning-rate ${train.learning_rate} --batch-size ${train.batch_size} --epochs ${train.epochs} 
-            --pretrained-model ${train.pretrained_model}
+            --pretrained-model ${train.pretrained_model} --multilabel-attention
         deps:
         - train.py
         - ${data}/processed/bertmesh/X.npy

@@ -34,7 +34,7 @@ stages:
   train:
     cmd: python train_torch.py ../../data//processed/bertmesh/X.npy ../../data//processed/bertmesh/Y.npz
       ../../models//bertmesh/model.pt --learning-rate 1e-05 --batch-size 64 --epochs
-      5 --pretrained-model microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract
+      5 --pretrained-model microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract --multilabel-attention
     deps:
     - path: ../../data//processed/bertmesh/X.npy
       md5: 68bc1e86940cfafca960fa756680eea3
@@ -56,7 +56,7 @@ stages:
         train.pretrained_model: microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract
     outs:
     - path: ../../models//bertmesh/model.pt
-      md5: a30709476dbed18acba24be006620058
+      md5: efed1224ff7f6a590dcd82ec8a30a94b
       size: 579850017
   evaluate:
     cmd: python evaluate.py ../../data//processed/bertmesh/X_test.npy ../../data//processed/bertmesh/Y_test.npz
@@ -69,12 +69,12 @@ stages:
       md5: 58b050351390cb111c6e434e2a7a0499
       size: 5344521
     - path: ../../models//bertmesh/model.pt
-      md5: a30709476dbed18acba24be006620058
+      md5: efed1224ff7f6a590dcd82ec8a30a94b
       size: 579850017
     - path: evaluate.py
       md5: cd379cda9666c27bd55d76f192acf81c
       size: 1167
     outs:
     - path: results.json
-      md5: 3d174af51b22edd5b2677d3d765f5c9f
-      size: 78
+      md5: 6798d60c9818c597b0136d6212ce9ad1
+      size: 77

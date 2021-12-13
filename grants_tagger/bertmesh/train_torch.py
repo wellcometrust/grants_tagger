@@ -21,6 +21,7 @@ def train_bertmesh(
     y_path,
     model_path,
     hidden_size: int = 512,
+    dropout: float = 0,
     multilabel_attention: bool = False,
     batch_size: int = 64,
     learning_rate: float = 1e-5,
@@ -38,6 +39,7 @@ def train_bertmesh(
         pretrained_model,
         num_labels=dataset.num_labels,
         hidden_size=hidden_size,
+        dropout=dropout,
         multilabel_attention=multilabel_attention,
     )
     model = torch.nn.DataParallel(model)

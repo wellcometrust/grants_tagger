@@ -22,7 +22,7 @@ stages:
         cmd: python train_torch.py ${data}/processed/bertmesh/X.npy ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/model.pt
             --learning-rate ${train.learning_rate} --batch-size ${train.batch_size} --epochs ${train.epochs} 
             --pretrained-model ${train.pretrained_model} --multilabel-attention --hidden-size ${train.hidden_size}
-            --clip-norm ${train.clip_norm} --dropout ${train.dropout}
+            --clip-norm ${train.clip_norm} --dropout ${train.dropout} --train-metrics-path train_metrics.json
         deps:
         - train.py
         - ${data}/processed/bertmesh/X.npy
@@ -38,6 +38,9 @@ stages:
         - train.dropout
         outs:
         - ${models}/bertmesh/model.pt
+        plots:
+        - train_metrics.json:
+            cache: false
     evaluate:
         cmd: python evaluate.py ${data}/processed/bertmesh/X_test.npy ${data}/processed/bertmesh/Y_test.npz ${models}/bertmesh/model.pt --results-path results.json
         deps:

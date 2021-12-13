@@ -17,7 +17,12 @@ class MultiLabelAttention(torch.nn.Module):
 
 class BertMesh(torch.nn.Module):
     def __init__(
-        self, pretrained_model, num_labels, hidden_size=512, dropout=0, multilabel_attention=False
+        self,
+        pretrained_model,
+        num_labels,
+        hidden_size=512,
+        dropout=0,
+        multilabel_attention=False,
     ):
         super().__init__()
         self.pretrained_model = pretrained_model

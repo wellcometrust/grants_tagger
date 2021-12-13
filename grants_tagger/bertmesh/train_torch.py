@@ -1,5 +1,6 @@
 from typing import Optional
 import yaml
+import json
 
 from sklearn.metrics import precision_recall_fscore_support
 from torch.utils.data import DataLoader
@@ -26,8 +27,9 @@ def train_bertmesh(
     batch_size: int = 64,
     learning_rate: float = 1e-5,
     epochs: int = 5,
-    pretrained_model = "bert-base-uncased",
-    clip_norm: Optional[float] = None
+    pretrained_model="bert-base-uncased",
+    clip_norm: Optional[float] = None,
+    train_metrics_path: Optional[str] = None,
 ):
     wandb.config.update({"multilabel_attention": multilabel_attention})
 
@@ -52,6 +54,7 @@ def train_bertmesh(
     criterion = torch.nn.BCELoss()
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
 
+    metrics = []
     for epoch in range(epochs):
         batches = tqdm(
             data, desc=f"Epoch {epoch:2d}/{epochs:2d}", leave=False, disable=False
@@ -67,10 +70,17 @@ def train_bertmesh(
             optimizer.step()
 
             if clip_norm:
-                torch.nn.utils.clip_grad_norm(parameters=model.parameters(), max_norm=clip_norm)
+                torch.nn.utils.clip_grad_norm(
+                    parameters=model.parameters(), max_norm=clip_norm
+                )
 
             batches.set_postfix({"loss": "{:.5f}".format(loss.item() / len(batch))})
             wandb.log({"loss": loss.item()})
+            metrics.append({"loss": loss.item()})
+
+    if train_metrics_path:
+        with open(train_metrics_path):
+            f.write(json.dumps({"metrics": metrics}))
 
     torch.save(model, model_path)
 

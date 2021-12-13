@@ -26,7 +26,7 @@ class BertMesh(torch.nn.Module):
         self.multilabel_attention = multilabel_attention
 
         self.bert = AutoModel.from_pretrained(pretrained_model)  # 768
-        self.multilabel_attention = MultiLabelAttention(
+        self.multilabel_attention_layer = MultiLabelAttention(
             768, num_labels
         )  # num_labels, 768
         self.linear_1 = torch.nn.Linear(768, hidden_size)  # num_labels, 512
@@ -36,7 +36,7 @@ class BertMesh(torch.nn.Module):
     def forward(self, inputs):
         if self.multilabel_attention:
             hidden_states = self.bert(input_ids=inputs)[0]
-            attention_outs = self.multilabel_attention(hidden_states)
+            attention_outs = self.multilabel_attention_layer(hidden_states)
             outs = torch.nn.functional.relu(self.linear_1(attention_outs))
             outs = torch.sigmoid(self.linear_2(outs))
             outs = torch.flatten(outs, start_dim=1)

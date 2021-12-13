@@ -8,3 +8,4 @@ train:
     epochs: 5
     pretrained_model: microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract
     hidden_size: 1024
+    clip_norm: 5

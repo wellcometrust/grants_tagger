@@ -3,21 +3,27 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 import torch
 import typer
+import wandb
 
 from grants_tagger.bertmesh.data import MeshDataset
 from grants_tagger.bertmesh.model import BertMesh, MultiLabelAttention
+
+wandb.init(project="bertmesh", config={"yaml": "params.yaml"})
 
 
 def train_bertmesh(
     x_path,
     y_path,
     model_path,
+    hidden_size: int = 512,
     multilabel_attention: bool = False,
     batch_size: int = 64,
     learning_rate: float = 1e-5,
     epochs: int = 5,
     pretrained_model="bert-base-uncased",
 ):
+    wandb.config.update({"multilabel_attention": multilabel_attention})
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     dataset = MeshDataset(x_path, y_path)
@@ -25,6 +31,7 @@ def train_bertmesh(
     model = BertMesh(
         pretrained_model,
         num_labels=dataset.num_labels,
+        hidden_size=hidden_size,
         multilabel_attention=multilabel_attention,
     )
     model = torch.nn.DataParallel(model)
@@ -51,9 +58,8 @@ def train_bertmesh(
             loss.backward()
             optimizer.step()
 
-            batches.set_postfix(
-                {"loss": "{:.5f}".format(loss.item() / len(batch))}
-            )
+            batches.set_postfix({"loss": "{:.5f}".format(loss.item() / len(batch))})
+            wandb.log({"loss": loss.item()})
 
     torch.save(model, model_path)
 

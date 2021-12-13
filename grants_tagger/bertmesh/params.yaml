@@ -7,3 +7,4 @@ train:
     batch_size: 64 # with nn.DataParallel otherwise 8
     epochs: 5
     pretrained_model: microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract
+    hidden_size: 1024

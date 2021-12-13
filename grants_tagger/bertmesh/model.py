@@ -16,19 +16,22 @@ class MultiLabelAttention(torch.nn.Module):
 
 
 class BertMesh(torch.nn.Module):
-    def __init__(self, pretrained_model, num_labels, multilabel_attention=False):
+    def __init__(
+        self, pretrained_model, num_labels, hidden_size=512, multilabel_attention=False
+    ):
         super().__init__()
         self.pretrained_model = pretrained_model
         self.num_labels = num_labels
+        self.hidden_size = hidden_size
         self.multilabel_attention = multilabel_attention
 
         self.bert = AutoModel.from_pretrained(pretrained_model)  # 768
         self.multilabel_attention = MultiLabelAttention(
             768, num_labels
         )  # num_labels, 768
-        self.linear_1 = torch.nn.Linear(768, 512)  # num_labels, 512
-        self.linear_2 = torch.nn.Linear(512, 1)  # num_labels, 1
-        self.linear_out = torch.nn.Linear(512, num_labels)
+        self.linear_1 = torch.nn.Linear(768, hidden_size)  # num_labels, 512
+        self.linear_2 = torch.nn.Linear(hidden_size, 1)  # num_labels, 1
+        self.linear_out = torch.nn.Linear(hidden_size, num_labels)
 
     def forward(self, inputs):
         if self.multilabel_attention:

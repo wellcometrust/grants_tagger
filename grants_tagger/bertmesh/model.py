@@ -43,6 +43,5 @@ class BertMesh(torch.nn.Module):
         else:
             cls = self.bert(input_ids=inputs)[1]
             outs = torch.nn.functional.relu(self.linear_1(cls))
-            outs = torch.nn.functional.relu(self.linear_2(outs))
             outs = torch.sigmoid(self.linear_out(outs))
         return outs

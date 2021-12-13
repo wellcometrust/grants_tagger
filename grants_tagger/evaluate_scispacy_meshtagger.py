@@ -3,8 +3,10 @@ Evaluates SciSpacyMesh tagger against a subset of Mesh
 """
 from argparse import ArgumentParser
 import pickle
+import typer
 
 import pandas as pd
+from pathlib import Path
 
 from grants_tagger.scispacy_meshtagger import SciSpacyMeshTagger
 from grants_tagger.utils import load_data
@@ -35,21 +37,35 @@ def evaluate_scispacy_meshtagger(
     print(score)
 
 
-if __name__ == "__main__":
-    argparser = ArgumentParser(description=__doc__.strip())
-    argparser.add_argument(
-        "--mesh_label_binarizer",
-        help="label binarizer that transforms mesh names to binarized format",
-    )
-    argparser.add_argument(
-        "--mesh_tags", help="csv that contains metadata about mesh such as UI, Name etc"
-    )
-    argparser.add_argument(
-        "--mesh_data",
-        help="JSONL of mesh data that contains text, tags and meta per line",
-    )
-    args = argparser.parse_args()
+evaluate_scispacy_app = typer.Typer()
 
-    evaluate_scispacy_meshtagger(
-        args.mesh_label_binarizer, args.mesh_tags, args.mesh_data
-    )
+
+@evaluate_scispacy_app.command()
+def evaluate_scispacy_cli(
+    data_path: Path = typer.Argument(
+        ..., help="JSONL of mesh data that contains text, tags and meta per line"
+    ),
+    label_binarizer_path: Path = typer.Argument(
+        ..., help="label binarizer that transforms mesh names to binarized format"
+    ),
+    mesh_metadata_path: Path = typer.Argument(
+        ..., help="csv that contains metadata about mesh such as UI, Name etc"
+    ),
+):
+
+    try:
+        from grants_tagger.evaluate_scispacy_meshtagger import (
+            evaluate_scispacy_meshtagger,
+        )
+    except ModuleNotFoundError:
+        print(
+            "Scispacy not installed. To use it install separately pip install -r requirements_scispacy.txt"
+        )
+    finally:
+        evaluate_scispacy_meshtagger(
+            label_binarizer_path, mesh_metadata_path, data_path
+        )
+
+
+if __name__ == "__main__":
+    evaluate_scispacy_app()

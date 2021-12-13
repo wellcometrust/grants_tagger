@@ -12,7 +12,8 @@ from sklearn.svm import SVC
 from typer.testing import CliRunner
 import pytest
 
-from grants_tagger.__main__ import app, convert_dvc_to_sklearn_params
+from grants_tagger.cli import app
+from grants_tagger.utils import convert_dvc_to_sklearn_params
 from grants_tagger.models.mesh_cnn import MeshCNN
 
 runner = CliRunner()
@@ -133,8 +134,8 @@ def test_train_command():
         result = runner.invoke(app, [
             "train",
             data_path,
-            model_path,
             label_binarizer_path,
+            model_path,
             "--approach",
             "tfidf-svm",
             "--parameters",
@@ -316,7 +317,7 @@ def test_tune_threshold_command():
             data_path,
             model_path,
             label_binarizer_path,
-            thresholds_path
+            thresholds_path,
         ])
         assert result.exit_code == 0
         assert os.path.isfile(thresholds_path)

@@ -8,7 +8,9 @@ import pickle
 import json
 import ast
 import os
+import typer
 
+from typing import List, Optional
 from sklearn.model_selection import GridSearchCV
 
 from grants_tagger.utils import load_data
@@ -78,22 +80,22 @@ def optimise_params(data_path, label_binarizer_path, approach, params=None):
         json.dump(best_params, f)
 
 
+tune_params_app = typer.Typer()
+
+
+@tune_params_app.command()
+def tune_params_cli(
+    data_path: Path = typer.Argument(
+        ..., help="path to processed JSON data to be used for training"
+    ),
+    label_binarizer_path: Path = typer.Argument(..., help="path to label binarizer"),
+    approach: str = typer.Argument(
+        ..., help="tfidf-svm, bert-svm, spacy-textclassifier, bert"
+    ),
+    params: Optional[str] = typer.Option(None, help=""),
+):
+    optimise_params(data_path, label_binarizer_path, approach, params=params)
+
+
 if __name__ == "__main__":
-    argparser = ArgumentParser(description=__doc__.strip())
-    argparser.add_argument(
-        "-d",
-        "--data",
-        type=Path,
-        help="path to processed JSON data to be used for training",
-    )
-    argparser.add_argument(
-        "-l", "--label_binarizer", type=Path, help="path to label binarizer"
-    )
-    argparser.add_argument(
-        "-a",
-        "--approach",
-        type=str,
-        help="tfidf-svm, bert-svm, spacy-textclassifier, bert",
-        default="tfidf-svm",
-    )
-    args = argparser.parse_args()
+    tune_params_app()

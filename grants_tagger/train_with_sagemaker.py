@@ -2,8 +2,15 @@ import tarfile
 import logging
 import json
 import os
+import yaml
+import time
+import typer
+import configparser
 
+from pathlib import Path
+from typing import List, Optional
 from sagemaker.estimator import Estimator
+from grants_tagger.utils import get_ec2_instance_type, convert_dvc_to_sklearn_params
 import sagemaker
 
 
@@ -141,3 +148,94 @@ def train_with_sagemaker(instance_type="local", config_version=None, **kwargs):
         max_run=5 * 24 * 60 * 60,  # 5 days
     )
     es.fit({"training": data_path})
+
+
+train_with_sagemaker_app = typer.Typer()
+
+
+# Move to train and import from there
+@train_with_sagemaker_app.command()
+def train_with_sagemaker_cli(
+    data_path: Optional[Path] = typer.Argument(
+        None, help="path to processed JSON data to be used for training"
+    ),
+    label_binarizer_path: Optional[Path] = typer.Argument(
+        None, help="path to label binarizer"
+    ),
+    model_path: Optional[Path] = typer.Argument(
+        None, help="path to output model.pkl or dir to save model"
+    ),
+    approach: str = typer.Option("tfidf-svm", help="tfidf-svm, scibert, cnn, ..."),
+    parameters: str = typer.Option(
+        None, help="model params in sklearn format e.g. {'svm__kernel: linear'}"
+    ),
+    threshold: float = typer.Option(None, help="threshold to assign a tag"),
+    data_format: str = typer.Option(
+        "list",
+        help="format that will be used when loading the data. One of list,generator",
+    ),
+    sparse_labels: bool = typer.Option(
+        False, help="flat about whether labels should be sparse when binarized"
+    ),
+    cache_path: Optional[Path] = typer.Option(
+        None, help="path to cache data transformartions"
+    ),
+    config: Path = None,
+    instance_type: str = typer.Option(
+        "local", help="instance type to use when training with Sagemaker"
+    ),
+):
+
+    start = time.time()
+    params_path = os.path.join(os.path.dirname(__file__), "../params.yaml")
+    with open(params_path) as f:
+        params = yaml.safe_load(f)
+
+    # If parameters not provided from user we initialise from DVC
+    if not parameters:
+        parameters = params["train"].get(approach)
+        parameters = convert_dvc_to_sklearn_params(parameters)
+        parameters = str(parameters)
+
+    # Note that config overwrites parameters for backwards compatibility
+    if config:
+        cfg = configparser.ConfigParser(allow_no_value=True)
+        cfg.read(config)
+
+        config_version = cfg["DEFAULT"]["version"]
+        data_path = cfg["data"]["train_data_path"]
+        label_binarizer_path = cfg["model"]["label_binarizer_path"]
+        approach = cfg["model"]["approach"]
+        parameters = cfg["model"]["parameters"]
+        model_path = cfg["model"].get("model_path", None)
+        threshold = cfg["model"].get("threshold", None)
+        if threshold:
+            threshold = float(threshold)
+        data_format = cfg["data"].get("data_format", "list")
+        sparse_labels = cfg["model"].get("sparse_labels", False)
+        if sparse_labels:
+            sparse_labels = bool(sparse_labels)
+        cache_path = cfg["data"].get("cache_path")
+
+    if not config:
+        config_version = None
+    train_with_sagemaker(
+        data_path=data_path,
+        label_binarizer_path=label_binarizer_path,
+        approach=approach,
+        parameters=parameters,
+        model_path=model_path,
+        threshold=threshold,
+        data_format=data_format,
+        sparse_labels=sparse_labels,
+        cache_path=cache_path,
+        instance_type=instance_type,
+        config_version=config_version,
+    )
+
+    duration = time.time() - start
+    print(f"Took {duration:.2f} to train")
+
+
+if __name__ == "__main__":
+    train_with_sagemaker_app()

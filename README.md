@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.com/wellcometrust/grants_tagger.svg?branch=master)](https://travis-ci.com/wellcometrust/grants_tagger)
-[![codecov](https://codecov.io/gh/wellcometrust/grants_tagger/branch/master/graph/badge.svg)](https://codecov.io/gh/wellcometrust/grants_tagger)
+[![Build Status](https://travis-ci.com/wellcometrust/grants_tagger.svg?branch=main)](https://travis-ci.com/wellcometrust/grants_tagger)
+[![codecov](https://codecov.io/gh/wellcometrust/grants_tagger/branch/main/graph/badge.svg)](https://codecov.io/gh/wellcometrust/grants_tagger)
 ![GitHub](https://img.shields.io/github/license/wellcometrust/grants_tagger)
 
 # Grants tagger 🔖
@@ -76,32 +76,50 @@ your own data under development.
 ```
 Usage: grants_tagger preprocess wellcome-science [OPTIONS] [INPUT_PATH]
                                                  [OUTPUT_PATH]
+                                                 [LABEL_BINARIZER_PATH]
 
 Arguments:
   [INPUT_PATH]   path to raw Excel file with tagged or untagged grant data
-  [OUTPUT_PATH]  path to JSONL output file that will be generated
+  [TRAIN_OUTPUT_PATH]  path to JSONL output file that will be generated for the train set
+  [LABEL_BINARIZER_PATH] path to pickle file that will contain the label binarizer
 
 Options:
-  --text-cols TEXT  comma delimited column names to concatenate to text
-  --meta-cols TEXT  comma delimited column names to include in the meta
-  --config PATH     path to config file that defines the arguments
-  --help            Show this message and exit.
+  --test-output-path PATH   path to JSONL output file that will be generated for the test set
+  --text-cols TEXT          comma delimited column names to concatenate to text
+  --meta-cols TEXT          comma delimited column names to include in the meta
+  --test-split FLOAT        split percentage for test data. if None no split.
+  --config PATH             path to config file that defines the arguments
+  --help                    Show this message and exit.
 ```
 
 #### bioasq-mesh
 ```
 Usage: grants_tagger preprocess bioasq-mesh [OPTIONS] [INPUT_PATH]
-                                            [OUTPUT_PATH]
+                                            [TRAIN_OUTPUT_PATH]
+                                            [LABEL_BINARIZER_PATH]
 
 Arguments:
-  [INPUT_PATH]   path to BioASQ JSON data
-  [OUTPUT_PATH]  path to output JSONL data
+  [INPUT_PATH]            path to BioASQ JSON data
+  [TRAIN_OUTPUT_PATH]     path to JSONL output file that will be generated for
+                          the train set
+
+  [LABEL_BINARIZER_PATH]  path to pickle file that will contain the label
+                          binarizer
+
 
 Options:
-  --mesh-tags-path TEXT      path to mesh tags to filter
-  --test-split FLOAT         split percentage for test data. if None no split.
-  --config PATH              path to config files that defines arguments
-  --help                     Show this message and exit.
+  --test-output-path TEXT  path to JSONL output file that will be generated
+                           for the test set
+
+  --mesh-tags-path TEXT    path to mesh tags to filter
+  --test-split FLOAT       split percentage for test data. if None no split.
+                           [default: 0.01]
+
+  --filter-years TEXT      years to keep in form min_year,max_year with both
+                           inclusive
+
+  --config PATH            path to config files that defines arguments
+  --help                   Show this message and exit.
 ```
 
 ### 🔥 Train
@@ -344,12 +362,17 @@ Arguments:
   THRESHOLDS_PATH       path to save threshold values  [required]
 
 Options:
-  --sample-size INTEGER    sample size of text data to use for tuning
-  --nb-thresholds INTEGER  number of thresholds to be tried divided evenly
-                           between 0 and 1
+  --val-size FLOAT                validation size of text data to use for
+                                  tuning  [default: 0.8]
 
-  --init-threshold FLOAT   value to initialise threshold values
-  --help                   Show this message and exit.
+  --nb-thresholds INTEGER         number of thresholds to be tried divided
+                                  evenly between 0 and 1
+
+  --init-threshold FLOAT          value to initialise threshold values
+  --split-data / --no-split-data  flag on whether to split data as was done
+                                  for train  [default: True]
+
+  --help                          Show this message and exit.
 ```
 
 ### 📚 Pretrain

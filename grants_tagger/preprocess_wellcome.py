@@ -8,10 +8,18 @@ from argparse import ArgumentParser
 from configparser import ConfigParser
 from pathlib import Path
 import pickle
+import configparser
 import json
 import os
+import typer
+import yaml
+import shutil
 
 import pandas as pd
+from typing import List, Optional
+from grants_tagger.utils import verify_if_paths_exist
+from grants_tagger.label_binarizer import create_label_binarizer
+from grants_tagger.split_data import split_data
 
 
 def process_tagger_data(tagger_data):
@@ -92,3 +100,86 @@ def preprocess(input_path, output_path, text_cols, meta_cols):
             f.write(json.dumps(chunk))
             f.write("\n")
             tags.append(chunk["tags"])
+
+
+preprocess_wellcome_app = typer.Typer()
+
+
+@preprocess_wellcome_app.command()
+def preprocess_wellcome_cli(
+    input_path: Optional[Path] = typer.Argument(
+        None, help="path to raw Excel file with tagged or untagged grant data"
+    ),
+    train_output_path: Optional[str] = typer.Argument(
+        None, help="path to JSONL output file that will be generated for the train set"
+    ),
+    label_binarizer_path: Optional[Path] = typer.Argument(
+        None, help="path to pickle file that will contain the label binarizer"
+    ),
+    test_output_path: Optional[str] = typer.Option(
+        None, help="path to JSONL output file that will be generated for the test set"
+    ),
+    text_cols: Optional[str] = typer.Option(
+        None, help="comma delimited column names to concatenate to text"
+    ),
+    meta_cols: Optional[str] = typer.Option(
+        None, help="comma delimited column names to include in the meta"
+    ),
+    test_split: Optional[float] = typer.Option(
+        0.1, help="split percentage for test data. if None no split."
+    ),
+    config: Path = typer.Option(
+        None, help="path to config file that defines the arguments"
+    ),
+):
+
+    params_path = os.path.join(os.path.dirname(__file__), "../params.yaml")
+    with open(params_path) as f:
+        params = yaml.safe_load(f)
+
+    # Default values from params
+    if not text_cols:
+        text_cols = params["preprocess_wellcome_science"]["text_cols"]
+    if not meta_cols:
+        meta_cols = params["preprocess_wellcome_science"]["meta_cols"]
+
+    # Note that config overides values if provided, this ensures backwards compatibility
+    if config:
+        cfg = configparser.ConfigParser(allow_no_value=True)
+        cfg.read(config)
+
+        input_path = cfg["preprocess"]["input"]
+        train_output_path = cfg["preprocess"]["output"]
+        text_cols = cfg["preprocess"]["text_cols"]
+        if not text_cols:
+            text_cols = "Title,Synopsis"
+        meta_cols = cfg["preprocess"].get("meta_cols", "Grant_ID,Title")
+
+    text_cols = text_cols.split(",")
+    meta_cols = meta_cols.split(",")
+
+    if verify_if_paths_exist(
+        [
+            train_output_path,
+            label_binarizer_path,
+            test_output_path,
+        ]
+    ):
+        return
+
+    temporary_output_path = train_output_path + ".tmp"
+
+    preprocess(input_path, temporary_output_path, text_cols, meta_cols)
+    create_label_binarizer(temporary_output_path, label_binarizer_path)
+
+    if test_output_path:
+        split_data(
+            temporary_output_path, train_output_path, test_output_path, test_split
+        )
+        shutil.rm(temporary_output_path)
+    else:
+        shutil.move(temporary_output_path, train_output_path)
+
+
+if __name__ == "__main__":
+    preprocess_wellcome_app()

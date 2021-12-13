@@ -1,15 +1,16 @@
 stages:
   preprocess_wellcome_science:
     cmd: grants_tagger preprocess wellcome-science data/raw/science_tags_full_version.xlsx
-      data/processed/science_grants_tagged_title_synopsis.jsonl
+      data/processed/science_grants_tagged_title_synopsis.jsonl models/label_binarizer.pkl
     deps:
     - data/raw/science_tags_full_version.xlsx
-    - grants_tagger/preprocess.py
+    - grants_tagger/preprocess_wellcome.py
     params:
     - preprocess_wellcome_science.text_cols
     - preprocess_wellcome_science.meta_cols
     outs:
     - data/processed/science_grants_tagged_title_synopsis.jsonl
+    - models/label_binarizer.pkl
   train_tfidf_svm:
     cmd: grants_tagger train data/processed/science_grants_tagged_title_synopsis.jsonl
       models/label_binarizer.pkl models/tfidf-svm.pkl --approach tfidf-svm --train-info results/tfidf_svm_train_info.json
@@ -21,7 +22,6 @@ stages:
     - train.tfidf-svm.svm__estimator.class_weight
     - train.tfidf-svm.tfidf.ngram_range
     outs:
-    - models/label_binarizer.pkl
     - models/tfidf-svm.pkl
     metrics:
       - results/tfidf_svm_train_info.json:
@@ -88,13 +88,15 @@ stages:
     - results/science_ensemble.json:
         cache: false
   preprocess_bioasq_mesh:
-    cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/mesh2021.jsonl --test-split 0.01
+    cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/train_mesh2021.jsonl
+        models/xlinear/label_binarizer.pkl --test-split 0.01 --test-output-path data/processed/test_mesh2021.jsonl
     deps:
     - data/raw/allMeSH_2021.json
     - grants_tagger/preprocess_mesh.py
     outs:
     - data/processed/train_mesh2021.jsonl
     - data/processed/test_mesh2021.jsonl
+    - models/xlinear/label_binarizer.pkl
   train_mesh_xlinear:
     cmd: grants_tagger train data/processed/train_mesh2021.jsonl
       models/xlinear/label_binarizer.pkl models/xlinear/model
@@ -104,19 +106,18 @@ stages:
     - grants_tagger/train.py
     - grants_tagger/models/mesh_xlinear.py
     params:
-    - train.mesh-xlinear.tfidf.stop_words
-    - train.mesh-xlinear.tfidf.min_df
-    - train.mesh-xlinear.tfidf.max_df
-    - train.mesh-xlinear.tfidf.max_features
-    - train.mesh-xlinear.tfidf.ngram_range
-    - train.mesh-xlinear.tfidf.lowercase
-    - train.mesh-xlinear.xlinear.cluster_chain
-    - train.mesh-xlinear.xlinear.negative_sampling_scheme
-    - train.mesh-xlinear.xlinear.beam_size
-    - train.mesh-xlinear.xlinear.only_topk
-    - train.mesh-xlinear.xlinear.min_weight_value
+    - train.mesh-xlinear.stop_words
+    - train.mesh-xlinear.min_df
+    - train.mesh-xlinear.max_df
+    - train.mesh-xlinear.max_features
+    - train.mesh-xlinear.ngram_range
+    - train.mesh-xlinear.lowercase
+    - train.mesh-xlinear.cluster_chain
+    - train.mesh-xlinear.negative_sampling_scheme
+    - train.mesh-xlinear.beam_size
+    - train.mesh-xlinear.only_topk
+    - train.mesh-xlinear.min_weight_value
     outs:
-    - models/xlinear/label_binarizer.pkl
     - models/xlinear/model
   evaluate_mesh_xlinear:
     cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model
@@ -136,9 +137,9 @@ stages:
     outs:
     - data/processed/mesh_disease_tags.csv
   evaluate_mesh_xlinear_on_grants:
-    cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model
+    cmd: grants_tagger evaluate grants mesh-xlinear models/xlinear/model
       data/raw/disease_tags_validation_grants.xlsx models/xlinear/label_binarizer.pkl
-      --results-path results/mesh_xlinear_on_grants.json --grants
+      --results-path results/mesh_xlinear_on_grants.json
       --mesh-tags-path data/processed/mesh_disease_tags.csv
     deps:
     - data/raw/disease_tags_validation_grants.xlsx

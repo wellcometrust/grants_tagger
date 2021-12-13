@@ -2,11 +2,12 @@
 from functools import partial
 import pickle
 import json
+import os
 
 import requests
 from sklearn.model_selection import train_test_split
+
 from sklearn.metrics import f1_score
-import tensorflow as tf
 import pandas as pd
 import numpy as np
 
@@ -132,3 +133,38 @@ def load_pickle(obj_path):
 def save_pickle(obj_path, obj):
     with open(obj_path, "wb") as f:
         f.write(pickle.dumps(obj))
+
+
+def write_jsonl(f, data):
+    for item in data:
+        f.write(json.dumps(item))
+        f.write("\n")
+
+
+def verify_if_paths_exist(paths):
+    exist = 0
+    for path in paths:
+        if path and os.path.exists(path):
+            print(f"{path} exists. Remove if you want to rerun.")
+            exist += 1
+    if exist > 0:
+        return True
+    return False
+
+
+def convert_dvc_to_sklearn_params(parameters):
+    """converts dvc key value params to sklearn nested params if needed"""
+    # converts None to empty dict
+    if not parameters:
+        return {}
+
+    # indication of sklearn pipeline
+    has_nested_params = any([v for v in parameters.values() if type(v) is dict])
+    if has_nested_params:
+        return {
+            f"{pipeline_name}__{param_name}": param_value
+            for pipeline_name, params in parameters.items()
+            for param_name, param_value in params.items()
+        }
+    else:
+        return parameters

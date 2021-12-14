@@ -20,6 +20,7 @@ class MeshCNN:
         buffer_size=1000,
         data_cache=None,
         random_seed=42,
+        cutoff_prob=0.1,
     ):
         """
         threshold: float, default 0.5. Probability threshold on top of which a tag should be assigned.
@@ -28,6 +29,7 @@ class MeshCNN:
         buffer_size: int, default 1000. Buffer size used for shuffling or transforming data before fit.
         data_cache: path, default None. Path to use for caching data transformations.
         random_seed: int, default 42. Random seed that controls reproducibility.
+        cutoff_prob: float, default 0.1. Prob below which we zero the probs to create sparse probs
         """
         self.threshold = threshold
         self.batch_size = batch_size
@@ -35,6 +37,7 @@ class MeshCNN:
         self.buffer_size = buffer_size
         self.data_cache = data_cache
         self.random_seed = random_seed
+        self.cutoff_prob = cutoff_prob
 
     def _yield_data(self, X, vectorizer, Y=None):
         """
@@ -186,8 +189,15 @@ class MeshCNN:
                 Y_pred_proba_batch = self.classifier.predict_proba(
                     X_vec[i : i + self.batch_size]
                 )
+                if self.cutoff_prob:
+                    Y_pred_proba_batch[Y_pred_proba_batch < self.cutoff_prob] = 0
+                    Y_pred_proba_batch = sp.csr_matrix(Y_pred_proba_batch)
                 Y_pred_proba.append(Y_pred_proba_batch)
-            Y_pred_proba = np.hstack(Y_pred_proba)
+            if self.cutoff_prob:
+                Y_pred_proba = sp.hstack(Y_pred_proba)
+            else:
+                Y_pred_proba = np.hstack(Y_pred_proba)
+
         else:
             pred_data = self._yield_data(X, self.vectorizer)
             Y_pred_proba = self.classifier.predict_proba(pred_data)

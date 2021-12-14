@@ -1,9 +1,11 @@
+import json
+
 from sklearn.metrics import precision_recall_fscore_support
 import scipy.sparse as sp
 import typer
 
 
-def evaluate_xlinear(y_test_path, y_pred_path):
+def evaluate(y_test_path, y_pred_path, results_path):
     Y_test = sp.load_npz(y_test_path)
     Y_pred_proba = sp.load_npz(y_pred_path)
 
@@ -12,6 +14,12 @@ def evaluate_xlinear(y_test_path, y_pred_path):
         p, r, f1, _ = precision_recall_fscore_support(Y_test, Y_pred, average="micro")
         print(f"Th: {th} P: {p} R: {r} f1: {f1}")
 
+    Y_pred = Y_pred_proba > 0.5
+    p, r, f1, _ = precision_recall_fscore_support(Y_test, Y_pred, average="micro")
+
+    with open(results_path) as f:
+        f.write(json.dumps({"precision": p, "recall": r, "f1": f1}))
+
 
 if __name__ == "__main__":
-    typer.run(evaluate_xlinear)
+    typer.run(evaluate)

@@ -1,0 +1,10 @@
+prepare:
+    years: 2018,2019
+    test_years: 2020,2021
+
+train:
+    pretrained_model: "bert-base-uncased"
+    batch_size: 16
+    epochs: 5
+    learning_rate: 1e-4
+    gradient_accumulation_steps: 1

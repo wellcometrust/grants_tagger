@@ -16,16 +16,29 @@ def write_txt(txt_path, data):
             f.write(item.replace("\n", " "))
             f.write("\n")
 
+
 def load_pickle(pickle_path):
     with open(pickle_path, "rb") as f:
         return pickle.loads(f.read())
+
 
 def write_pickle(pickle_path, obj):
     with open(pickle_path, "wb") as f:
         f.write(pickle.dumps(obj))
 
-def prepare_xlinear(data_path, x_path, y_path, tfidf_vectorizer_path, label_binarizer_path, dense_vectorizer_path=None, x_txt_path=None, sequence_length=None, sample_size=None,
-        years=None):
+
+def prepare_xlinear(
+    data_path,
+    x_path,
+    y_path,
+    tfidf_vectorizer_path,
+    label_binarizer_path,
+    dense_vectorizer_path=None,
+    x_txt_path=None,
+    sequence_length=None,
+    sample_size=None,
+    years=None,
+):
     print("Loading data")
     X, Y, meta = load_data(data_path)
 
@@ -38,7 +51,11 @@ def prepare_xlinear(data_path, x_path, y_path, tfidf_vectorizer_path, label_bina
         else:
             min_year, max_year = [int(year) for year in years.split(",")]
             print("   calculating sample size")
-            sample_indices = [i for i, m in enumerate(meta) if m["year"] and (min_year <= int(m["year"]) <= max_year)]
+            sample_indices = [
+                i
+                for i, m in enumerate(meta)
+                if m["year"] and (min_year <= int(m["year"]) <= max_year)
+            ]
             print(f"   sample_size {len(sample_indices)}")
             X = [X[i] for i in sample_indices]
             Y = [Y[i] for i in sample_indices]
@@ -75,7 +92,6 @@ def prepare_xlinear(data_path, x_path, y_path, tfidf_vectorizer_path, label_bina
     if x_txt_path:
         write_txt(x_txt_path, X)
 
+
 if __name__ == "__main__":
     typer.run(prepare_xlinear)
-
-

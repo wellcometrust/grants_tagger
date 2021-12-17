@@ -14,13 +14,19 @@ from grants_tagger.models.utils import get_params_for_component
 
 class MeshTfidfSVM:
     def __init__(
-        self, y_batch_size=256, nb_labels=None, model_path=None, threshold=0.5
+        self,
+        y_batch_size=256,
+        nb_labels=None,
+        model_path=None,
+        threshold=0.5,
+        cutoff_prob=0.1,
     ):
         """
         y_batch_size: int, default 256. Size of column batches for Y i.e. tags that each classifier will train on
         nb_labels: int, default None. Number of tags that will be trained.
         model_path: path, default None. Model path being used to save intermediate classifiers
         threshold: float, default 0.5. Threshold probability on top of which a tag is assigned
+        cutoff_prob: float, default 0.1. Threshold below which to zero the weights to reduce size by sparsifying
 
         Note that model_path needs to be provided as it is used to save
         intermediate classifiers trained to reduce memory usage.
@@ -29,6 +35,7 @@ class MeshTfidfSVM:
         self.model_path = model_path
         self.nb_labels = None
         self.threshold = threshold
+        self.cutoff_prob = cutoff_prob
 
     def _init_vectorizer(self):
         self.vectorizer = TfidfVectorizer(
@@ -82,7 +89,11 @@ class MeshTfidfSVM:
             X_vec = self.vectorizer.transform(X)
             self.classifier.fit(X_vec, Y[:, tag_i : tag_i + self.y_batch_size])
 
-            # TODO: Sparsify weights before saving
+            for i, est in enumerate(self.classifier.estimators_):
+                est.coef_[np.abs(est.coef_) < self.cutoff_prob] = 0
+                est.sparsify()
+                self.classifier.estimators_[i] = est
+
             with open(f"{self.model_path}/{tag_i}.pkl", "wb") as f:
                 f.write(pickle.dumps(self.classifier))
 
@@ -96,6 +107,10 @@ class MeshTfidfSVM:
         for tag_i in range(0, self.nb_labels, self.y_batch_size):
             with open(f"{self.model_path}/{tag_i}.pkl", "rb") as f:
                 classifier = pickle.loads(f.read())
+
+            for est in classifier.estimators_:
+                est.densify()
+
             X_vec = self.vectorizer.transform(X)
 
             Y_pred_proba_batch = classifier.predict_proba(X_vec)

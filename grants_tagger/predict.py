@@ -45,7 +45,6 @@ def predict_tags(
     for y_pred_proba in Y_pred_proba:
         if sp.issparse(y_pred_proba):
             y_pred_proba = np.asarray(y_pred_proba.todense()).ravel()
-        print(y_pred_proba)
         if probabilities:
             tags_i = {
                 tag: prob

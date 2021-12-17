@@ -263,7 +263,6 @@ def test_predict_tags_mesh_cnn(mesh_cnn_path, mesh_label_binarizer_path):
     tags = predict_tags(
         X, mesh_cnn_path, mesh_label_binarizer_path,
         approach="mesh-cnn")
-    print(tags)
     assert len(tags) == 5
     tags = predict_tags(
         X, mesh_cnn_path, mesh_label_binarizer_path,

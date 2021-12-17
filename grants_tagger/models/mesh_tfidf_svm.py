@@ -19,6 +19,7 @@ class MeshTfidfSVM:
         nb_labels=None,
         model_path=None,
         threshold=0.5,
+        cutoff_weight=0.1,
         cutoff_prob=0.1,
     ):
         """

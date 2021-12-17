@@ -19,6 +19,7 @@ class MeshTfidfSVM:
         nb_labels=None,
         model_path=None,
         threshold=0.5,
+        cutoff_weight=0.1,
         cutoff_prob=0.1,
     ):
         """
@@ -26,7 +27,8 @@ class MeshTfidfSVM:
         nb_labels: int, default None. Number of tags that will be trained.
         model_path: path, default None. Model path being used to save intermediate classifiers
         threshold: float, default 0.5. Threshold probability on top of which a tag is assigned
-        cutoff_prob: float, default 0.1. Threshold below which to zero the weights to reduce size by sparsifying
+        cutoff_weight: float, default 0.1. Threshold below which to zero the weights to reduce size by sparsifying
+        cutoff_prob: float, default 0.1. Prob below which probabilities are zeroed to create sparse output
 
         Note that model_path needs to be provided as it is used to save
         intermediate classifiers trained to reduce memory usage.
@@ -35,6 +37,7 @@ class MeshTfidfSVM:
         self.model_path = model_path
         self.nb_labels = None
         self.threshold = threshold
+        self.cutoff_weight = cutoff_weight
         self.cutoff_prob = cutoff_prob
 
     def _init_vectorizer(self):
@@ -90,7 +93,7 @@ class MeshTfidfSVM:
             self.classifier.fit(X_vec, Y[:, tag_i : tag_i + self.y_batch_size])
 
             for i, est in enumerate(self.classifier.estimators_):
-                est.coef_[np.abs(est.coef_) < self.cutoff_prob] = 0
+                est.coef_[np.abs(est.coef_) < self.cutoff_weight] = 0
                 est.sparsify()
                 self.classifier.estimators_[i] = est
 
@@ -114,9 +117,11 @@ class MeshTfidfSVM:
             X_vec = self.vectorizer.transform(X)
 
             Y_pred_proba_batch = classifier.predict_proba(X_vec)
+            Y_pred_proba_batch[Y_pred_proba_batch < self.cutoff_prob] = 0
+            Y_pred_proba_batch = sp.csr_matrix(Y_pred_proba_batch)
             Y_pred_proba.append(Y_pred_proba_batch)
 
-        Y_pred_proba = np.hstack(Y_pred_proba)
+        Y_pred_proba = sp.hstack(Y_pred_proba).tocsr()
         return Y_pred_proba
 
     def save(self, model_path):

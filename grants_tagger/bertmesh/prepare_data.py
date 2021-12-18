@@ -38,7 +38,7 @@ def prepare_bertmesh(
         sample_indices = [
             i
             for i, m in enumerate(meta)
-            if m["year"] and (min_year <= int(m["year"]) < max_year)
+            if m["year"] and (min_year <= int(m["year"]) <= max_year)
         ]
         print(f"   sample_size {len(sample_indices)}")
         X = [X[i] for i in sample_indices]

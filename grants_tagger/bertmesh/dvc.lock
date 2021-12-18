@@ -9,28 +9,28 @@ stages:
       \ --years 2020,2021 --pretrained-model microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract\n"
     deps:
     - path: prepare_data.py
-      md5: f5d5aacd720fdcbb60d7608147f52036
-      size: 2006
+      md5: a451a03eab8e0d9311da13131b3e7fa3
+      size: 2007
     params:
       params.yaml:
         prepare_data.years: 2018,2019
         train.pretrained_model: microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract
     outs:
     - path: ../../data//processed/bertmesh/X.npy
-      md5: 68bc1e86940cfafca960fa756680eea3
-      size: 2547982464
+      md5: 45120fcbe393753259b92d36920359a0
+      size: 5208608896
     - path: ../../data//processed/bertmesh/X_test.npy
-      md5: 25c4bd0b21cedcf5cfdd3d5d67f64053
-      size: 909930624
+      md5: deca6b5db5d1b8350caca649bd0d9231
+      size: 911880320
     - path: ../../data//processed/bertmesh/Y.npz
-      md5: 945f6126714c622cef351e9fd9f7f252
-      size: 15758882
+      md5: 44bde9881191cfd225a4ab4b3f104905
+      size: 32027749
     - path: ../../data//processed/bertmesh/Y_test.npz
-      md5: 58b050351390cb111c6e434e2a7a0499
-      size: 5344521
+      md5: 97dd4bd766f586ad7b1f9fbef99d8040
+      size: 5408930
     - path: ../../models//bertmesh/label_binarizer.pkl
-      md5: 3491ee5cab1f01d04d3f7aaa4ff35ef1
-      size: 986160
+      md5: 520f700f579ea9c2e9adc430d4701022
+      size: 1020403
   train:
     cmd: python train_torch.py ../../data//processed/bertmesh/X.npy ../../data//processed/bertmesh/Y.npz
       ../../models//bertmesh/model.pt --learning-rate 1e-05 --batch-size 64 --epochs

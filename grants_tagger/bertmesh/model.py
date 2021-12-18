@@ -6,7 +6,7 @@ class MultiLabelAttention(torch.nn.Module):
     def __init__(self, D_in, num_labels):
         super().__init__()
         self.A = torch.nn.Parameter(torch.empty(D_in, num_labels))
-        torch.nn.init.uniform(self.A, -0.1, 0.1)
+        torch.nn.init.uniform_(self.A, -0.1, 0.1)
 
     def forward(self, x):
         attention_weights = torch.nn.functional.softmax(

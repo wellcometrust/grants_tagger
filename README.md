@@ -44,6 +44,14 @@ Alternatively you can clone this repository and manually install with
 pip install setup.py
 ```
 
+You can download the mesh pretrained model using:
+```
+grants_tagger download model mesh
+```
+Or, you can download some pretrained models from the releases section of this repository. Unzip this in the `models` folder. This will contain the mesh model and the label-binarizer.
+
+After that, you can predict a text's tag using the `predict` cli command.
+
 Grants tagger comes with a nice CLI with the following commands
 
 ## ⌨️  Commands
@@ -538,7 +546,7 @@ To use grants_tagger with your own data the main thing you need to
 implement is a new preprocess function that creates a JSONL with the
 fields `text`, `tags` and `meta`. Meta can be even left empty if you
 do not plan to use it. You can easily plug the new preprocess into the
-cli by importing your function to `grants_tagger/__main__.py` and
+cli by importing your function to `grants_tagger/cli.py` and
 define the subcommand name for your preprocess. For example if the
 function was preprocessing EPMC data for MESH it could be
 ```
@@ -555,7 +563,7 @@ for your model that adheres to the sklearn api so implements a
 and `load`. Each custom model is defined in their own python script inside
 the `grants_tagger/models` folder.
 
-Then you need to import you class to `models/create_model.py` and add it in
+Then you need to import you class to `grants_tagger/models/create_model.py` and add it in
 `create_model` as a separate approach with a name. Assuming your new approach
 is a bilstm with attention
 
@@ -627,28 +635,3 @@ deploy               Deploy wheel to public s3 bucket
 clean                Clean hidden and compiled files
 help                 Show help message
 ```
-
-## 🔌 How to use production models
-
-We'll go through an example on how to download data and models, and use them for prediction and training using the cli commands.
-
-Data can be downloaded from here after you make an account: http://participants-area.bioasq.org/datasets/
-Download from the `Datasets for task a` section, the latest available txt format dataset. This will result in a zip file what you can unzip, preferably in the `data\raw` folder. 
-You can download the mesh pretrained model using:
-```
-grants_tagger download model mesh
-```
-Or, you can download some pretrained models from the releases section of this repository. 
-
-Unzip this in the `models` folder. This will contain the mesh model and the label-binarizer.
-
-After that, you can predict a text's tag using:
-```
-grants_tagger predict "Global health pandemics, such as coronavirus disease 2019 (COVID-19), require efficient and well-conducted trials to determine effective interventions" models/disease_mesh_cnn-2021.03.1/ models/disease_mesh_label_binarizer.pkl mesh-cnn
-```
-
-You will get a list of tags that are above the given threshold (default 0.5). For the example above we get:
-```
-['Coronavirus Infections']
-```
-

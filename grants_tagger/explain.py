@@ -24,7 +24,7 @@ def explain(
     global_explanations=True,
 ):
     if approach == "mesh-cnn":
-        mesh_cnn = MeshCNN()
+        mesh_cnn = MeshCNN(cutoff_prob=None)
         mesh_cnn.load(model_path)
         tokenizer = mesh_cnn.vectorizer.tokenizer
 

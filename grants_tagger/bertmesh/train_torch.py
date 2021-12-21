@@ -5,6 +5,7 @@ import json
 
 from sklearn.metrics import precision_recall_fscore_support
 from torch.utils.data import DataLoader
+from accelerate import Accelerator
 from tqdm import tqdm
 import transformers
 import torch
@@ -33,6 +34,7 @@ def train_bertmesh(
     val_y_path: Optional[str] = None,
     log_interval: int = 100,
     experiment_name=datetime.now().strftime("%d/%m/%Y"),
+    accelerate: bool = False,
     dry_run: bool = False,
 ):
     if not dry_run:
@@ -51,7 +53,11 @@ def train_bertmesh(
             project="bertmesh", group=experiment_name, job_type="train", config=config
         )
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if accelerate:
+        accelerator = Accelerator()
+        device = accelerator.device
+    else:
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     dataset = MeshDataset(x_path, y_path)
     data = DataLoader(dataset, batch_size=batch_size, shuffle=True)
@@ -79,6 +85,11 @@ def train_bertmesh(
         optimizer, num_warmup_steps=warmup_steps, num_training_steps=epochs * len(data)
     )
 
+    if accelerate:
+        model, optimizer, data = accelerator.prepare(model, optimizer, data)
+        if val_x_path and val_y_path:
+            val_data = accelerator.prepare(val_data)
+
     best_val_loss = 1
     metrics = []
     running_loss = 0
@@ -92,13 +103,21 @@ def train_bertmesh(
 
             outputs = model(inputs)
             loss = criterion(outputs, labels.float())
-            loss.backward()
+            if accelerate:
+                accelerator.backward(loss)
+            else:
+                loss.backward()
             optimizer.step()
 
             if clip_norm:
-                torch.nn.utils.clip_grad_norm_(
-                    parameters=model.parameters(), max_norm=clip_norm
-                )
+                if accelerate:
+                    accelerator.clip_grad_norm_(
+                        parameters=model.parameters(), max_norm=clip_norm
+                    )
+                else:
+                    torch.nn.utils.clip_grad_norm_(
+                        parameters=model.parameters(), max_norm=clip_norm
+                    )
 
             scheduler.step()
 
@@ -153,6 +172,12 @@ def train_bertmesh(
 
             model.train()
 
+        if dry_run:
+            break
+
+    if accelerate:
+        accelerator.wait_for_everyone()
+        model = accelerator.unwrap_model(model)
     torch.save(model, model_path)
 
     if train_metrics_path:

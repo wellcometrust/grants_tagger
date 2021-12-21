@@ -1,6 +1,7 @@
 vars:
     - data: "../../data/"
     - models: "../../models/"
+    - experiment_name: "2016-2019"
 
 stages:
     prepare_data:
@@ -24,7 +25,7 @@ stages:
             --pretrained-model ${train.pretrained_model} --multilabel-attention --hidden-size ${train.hidden_size}
             --clip-norm ${train.clip_norm} --dropout ${train.dropout} --train-metrics-path train_metrics.json
             --warmup-steps ${train.warmup_steps} --val-x-path ${data}/processed/bertmesh/X_test.npy
-            --val-y-path ${data}/processed/bertmesh/Y_test.npz
+            --val-y-path ${data}/processed/bertmesh/Y_test.npz --experiment-name ${experiment_name}
         deps:
         - train.py
         - ${data}/processed/bertmesh/X.npy
@@ -45,7 +46,7 @@ stages:
         - train_metrics.json:
             cache: false
     evaluate:
-        cmd: python evaluate.py ${data}/processed/bertmesh/X_test.npy ${data}/processed/bertmesh/Y_test.npz ${models}/bertmesh/model.pt --batch-size ${train.batch_size} --results-path results.json --pr-curve-path pr_curve.json
+        cmd: python evaluate.py ${data}/processed/bertmesh/X_test.npy ${data}/processed/bertmesh/Y_test.npz ${models}/bertmesh/model.pt --batch-size ${train.batch_size} --results-path results.json --pr-curve-path pr_curve.json --experiment-name ${experiment_name}
         deps:
         - evaluate.py
         - ${data}/processed/bertmesh/X_test.npy

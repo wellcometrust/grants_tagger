@@ -1,5 +1,5 @@
 prepare_data:
-    years: 2018,2019
+    years: 2016,2019
     test_years: 2020,2021
 
 train:

@@ -70,7 +70,7 @@ def evaluate(
 
     if not dry_run:
         wandb.log(metrics)
-        table = wandb.table(
+        table = wandb.Table(
             data=[[point["p"], point["r"]] for point in pr_curve],
             colums=["precision", "recall"],
         )

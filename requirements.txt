@@ -1,5 +1,6 @@
 #Created by Makefile. Do not edit.
 absl-py==0.15.0
+accelerate==0.5.1
 aiobotocore==2.1.1
 aiohttp==3.8.1
 aiohttp-retry==2.4.6

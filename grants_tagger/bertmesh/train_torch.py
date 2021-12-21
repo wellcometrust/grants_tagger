@@ -1,4 +1,5 @@
 from typing import Optional
+from datetime import datetime
 import yaml
 import json
 
@@ -12,10 +13,6 @@ import wandb
 
 from grants_tagger.bertmesh.data import MeshDataset
 from grants_tagger.bertmesh.model import BertMesh, MultiLabelAttention
-
-with open("params.yaml") as f:
-    params = yaml.safe_load(f)
-wandb.init(project="bertmesh", config=params["train"])
 
 
 def train_bertmesh(
@@ -35,9 +32,24 @@ def train_bertmesh(
     val_x_path: Optional[str] = None,
     val_y_path: Optional[str] = None,
     log_interval: int = 100,
+    experiment_name=datetime.now().strftime("%d/%m/%Y"),
     dry_run: bool = False,
 ):
-    wandb.config.update({"multilabel_attention": multilabel_attention})
+    if not dry_run:
+        config = {
+            "hidden_size": hidden_size,
+            "dropout": dropout,
+            "multilabel_attention": multilabel_attention,
+            "batch_size": batch_size,
+            "learning_rate": learning_rate,
+            "epochs": epochs,
+            "pretrained_model": pretrained_model,
+            "warmup_steps": warmup_steps,
+            "clip_norm": clip_norm,
+        }
+        wandb.init(
+            project="bertmesh", group=experiment_name, job_type="train", config=config
+        )
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -58,7 +70,8 @@ def train_bertmesh(
     model = torch.nn.DataParallel(model)
     model.to(device)
 
-    wandb.watch(model, log_freq=log_interval)
+    if not dry_run:
+        wandb.watch(model, log_freq=log_interval)
 
     criterion = torch.nn.BCELoss()
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
@@ -95,19 +108,19 @@ def train_bertmesh(
                 batch_metrics = {
                     "loss": round(running_loss / log_interval, 5),
                     "learning_rate": scheduler.get_last_lr()[0],
-                    "step": global_step
+                    "step": global_step,
                 }
                 batches.set_postfix(batch_metrics)
-                wandb.log(batch_metrics, step=global_step)
+                if not dry_run:
+                    wandb.log(batch_metrics, step=global_step)
                 metrics.append(batch_metrics)
-                
+
                 running_loss = 0
 
             global_step += 1
-            
-            if dry_run:
-                breiak
 
+            if dry_run:
+                break
 
         epoch_model_path = model_path.replace(".pt", f"-epoch{epoch+1}.pt")
         torch.save(model, epoch_model_path)
@@ -135,7 +148,8 @@ def train_bertmesh(
                 best_model_path = model_path.replace(".pt", "-best.pt")
                 torch.save(model, best_model_path)
 
-            wandb.log({"val_loss": val_loss})
+            if not dry_run:
+                wandb.log({"val_loss": val_loss})
 
             model.train()
 

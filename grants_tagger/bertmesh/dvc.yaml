@@ -45,12 +45,14 @@ stages:
         - train_metrics.json:
             cache: false
     evaluate:
-        cmd: python evaluate.py ${data}/processed/bertmesh/X_test.npy ${data}/processed/bertmesh/Y_test.npz ${models}/bertmesh/model.pt --results-path results.json
+        cmd: python evaluate.py ${data}/processed/bertmesh/X_test.npy ${data}/processed/bertmesh/Y_test.npz ${models}/bertmesh/model.pt --batch-size ${train.batch_size} --results-path results.json
         deps:
         - evaluate.py
         - ${data}/processed/bertmesh/X_test.npy
         - ${data}/processed/bertmesh/Y_test.npz
         - ${models}/bertmesh/model.pt
+        params:
+        - train.batch_size
         metrics:
         - results.json:
             cache: false

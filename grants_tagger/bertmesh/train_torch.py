@@ -58,7 +58,7 @@ def train_bertmesh(
     model = torch.nn.DataParallel(model)
     model.to(device)
 
-    wandb.watch(model, log_freq=100)
+    wandb.watch(model, log_freq=log_interval)
 
     criterion = torch.nn.BCELoss()
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
@@ -69,6 +69,7 @@ def train_bertmesh(
     best_val_loss = 1
     metrics = []
     running_loss = 0
+    global_step = 0
     for epoch in range(epochs):
         batches = tqdm(data, desc=f"Epoch {epoch+1:2d}/{epochs:2d}")
         for step, batch in enumerate(batches):
@@ -94,13 +95,19 @@ def train_bertmesh(
                 batch_metrics = {
                     "loss": round(running_loss / log_interval, 5),
                     "learning_rate": scheduler.get_last_lr()[0],
+                    "step": global_step
                 }
                 batches.set_postfix(batch_metrics)
-                wandb.log(batch_metrics)
+                wandb.log(batch_metrics, step=global_step)
                 metrics.append(batch_metrics)
+                
+                running_loss = 0
 
+            global_step += 1
+            
             if dry_run:
-                break
+                breiak
+
 
         epoch_model_path = model_path.replace(".pt", f"-epoch{epoch+1}.pt")
         torch.save(model, epoch_model_path)

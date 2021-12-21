@@ -35,48 +35,59 @@ stages:
     cmd: python train_torch.py ../../data//processed/bertmesh/X.npy ../../data//processed/bertmesh/Y.npz
       ../../models//bertmesh/model.pt --learning-rate 1e-05 --batch-size 64 --epochs
       5 --pretrained-model microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract --multilabel-attention
-      --hidden-size 1024
+      --hidden-size 1024 --clip-norm 5 --dropout 0.1 --train-metrics-path train_metrics.json
+      --warmup-steps 1000 --val-x-path ../../data//processed/bertmesh/X_test.npy --val-y-path
+      ../../data//processed/bertmesh/Y_test.npz
     deps:
     - path: ../../data//processed/bertmesh/X.npy
-      md5: 68bc1e86940cfafca960fa756680eea3
-      size: 2547982464
+      md5: 45120fcbe393753259b92d36920359a0
+      size: 5208608896
     - path: ../../data//processed/bertmesh/Y.npz
-      md5: 945f6126714c622cef351e9fd9f7f252
-      size: 15758882
+      md5: 44bde9881191cfd225a4ab4b3f104905
+      size: 32027749
     - path: ../../models//bertmesh/label_binarizer.pkl
-      md5: 3491ee5cab1f01d04d3f7aaa4ff35ef1
-      size: 986160
+      md5: 520f700f579ea9c2e9adc430d4701022
+      size: 1020403
     - path: train.py
       md5: 54e8be459c2b194b7318919f754eef37
       size: 3479
     params:
       params.yaml:
         train.batch_size: 64
+        train.clip_norm: 5
+        train.dropout: 0.1
         train.epochs: 5
         train.hidden_size: 1024
         train.learning_rate: 1e-05
         train.pretrained_model: microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract
+        train.warmup_steps: 1000
     outs:
     - path: ../../models//bertmesh/model.pt
-      md5: 4852d80543795282c718edd4b50b5e51
-      size: 637476641
+      md5: 9adb6c18dde04883aa9161f60279766a
+      size: 644011041
+    - path: train_metrics.json
+      md5: 35eda957a486ff45012eb6edc535ce9b
+      size: 73491
   evaluate:
     cmd: python evaluate.py ../../data//processed/bertmesh/X_test.npy ../../data//processed/bertmesh/Y_test.npz
-      ../../models//bertmesh/model.pt --results-path results.json
+      ../../models//bertmesh/model.pt --batch-size 64 --results-path results.json
     deps:
     - path: ../../data//processed/bertmesh/X_test.npy
-      md5: 25c4bd0b21cedcf5cfdd3d5d67f64053
-      size: 909930624
+      md5: deca6b5db5d1b8350caca649bd0d9231
+      size: 911880320
     - path: ../../data//processed/bertmesh/Y_test.npz
-      md5: 58b050351390cb111c6e434e2a7a0499
-      size: 5344521
+      md5: 97dd4bd766f586ad7b1f9fbef99d8040
+      size: 5408930
     - path: ../../models//bertmesh/model.pt
-      md5: 4852d80543795282c718edd4b50b5e51
-      size: 637476641
+      md5: 9adb6c18dde04883aa9161f60279766a
+      size: 644011041
     - path: evaluate.py
       md5: cd379cda9666c27bd55d76f192acf81c
       size: 1167
+    params:
+      params.yaml:
+        train.batch_size: 64
     outs:
     - path: results.json
-      md5: 4476b39231b7af236366435bb3391101
-      size: 78
+      md5: 4d776e96629da326d9a94b7415ff256e
+      size: 77

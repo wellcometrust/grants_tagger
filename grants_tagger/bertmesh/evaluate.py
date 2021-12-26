@@ -59,7 +59,7 @@ def evaluate(
         Y_pred = Y_pred_proba > th
         p, r, f1, _ = precision_recall_fscore_support(Y_test, Y_pred, average="micro")
         metrics = {"p": p, "r": r, "f1": f1, "th": th}
-        pr_curve.append([metrics])
+        pr_curve.append(metrics)
         print(f"P {p:.2f} R {r:.2f} f1 {f1:.2f}")
 
     with open(results_path, "w") as f:
@@ -72,10 +72,10 @@ def evaluate(
         wandb.log(metrics)
         table = wandb.Table(
             data=[[point["p"], point["r"]] for point in pr_curve],
-            colums=["precision", "recall"],
+            columns=["precision", "recall"],
         )
         wandb.log(
-            "pr_curve", wandb.plot.line(table, "precision", "recall", title="PR curve")
+            {"pr_curve": wandb.plot.line(table, "precision", "recall", title="PR curve")}
         )
 
 

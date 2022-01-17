@@ -307,3 +307,29 @@ stages:
     - path: results/mesh_xlinear.json
       md5: a0e6aa5fcc7b1ae79e588ce2b38c1bf3
       size: 76
+  generate_validation_data_xlinear:
+    cmd: python scripts/generate_validation_data_xlinear.py
+    deps:
+    - path: data/interim/mesh_pipeline_result.csv
+      md5: 10639bbe244b986919efc8f7866b98b4
+      size: 138862818
+    - path: data/raw/grants.csv
+      md5: 9732c21dd1954cce8baaf3746f301ead
+      size: 152523849
+    - path: scripts/generate_validation_data_xlinear.py
+      md5: e3eb14350c3ea5f7692cce5a48fed5fe
+      size: 2734
+    outs:
+    - path: data/processed/merged_mesh_predictions_mesh_xlinear_for_validation.xlsx
+      md5: f174b02bf804885f769816cc27540b89
+      size: 40795153
+  get_grants:
+    cmd: python scripts/get_grants.py
+    deps:
+    - path: scripts/get_grants.py
+      md5: 50c0cf255eb0252fd4f3412920430d19
+      size: 1010
+    outs:
+    - path: data/raw/grants.csv
+      md5: 9732c21dd1954cce8baaf3746f301ead
+      size: 152523849

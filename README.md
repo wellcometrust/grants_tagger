@@ -32,11 +32,25 @@ at the moment.
 
 # 💻 Install and use
 
-In the near future you will be able to find official releases
-in Github, PyPi and through AWS. Until then the easiest way
-to install and use Grants tagger is through a
-manual installation. You need to git clone and pip install
-the code in your environment of choice.
+Easiest way to install is with pip.
+The project is available in the PyPI repository at https://pypi.org/project/grants-tagger/.
+
+```
+pip install grants-tagger
+```
+
+Alternatively you can clone this repository and manually install with
+```
+pip install setup.py
+```
+
+You can download the mesh pretrained model using:
+```
+grants_tagger download model mesh
+```
+Or, you can download some pretrained models from the releases section of this repository. Unzip this in the `models` folder. This will contain the mesh model and the label-binarizer.
+
+After that, you can predict a text's tag using the `predict` cli command.
 
 Grants tagger comes with a nice CLI with the following commands
 
@@ -532,7 +546,7 @@ To use grants_tagger with your own data the main thing you need to
 implement is a new preprocess function that creates a JSONL with the
 fields `text`, `tags` and `meta`. Meta can be even left empty if you
 do not plan to use it. You can easily plug the new preprocess into the
-cli by importing your function to `grants_tagger/__main__.py` and
+cli by importing your function to `grants_tagger/cli.py` and
 define the subcommand name for your preprocess. For example if the
 function was preprocessing EPMC data for MESH it could be
 ```
@@ -549,7 +563,7 @@ for your model that adheres to the sklearn api so implements a
 and `load`. Each custom model is defined in their own python script inside
 the `grants_tagger/models` folder.
 
-Then you need to import you class to `models/create_model.py` and add it in
+Then you need to import you class to `grants_tagger/models/create_model.py` and add it in
 `create_model` as a separate approach with a name. Assuming your new approach
 is a bilstm with attention
 
@@ -582,8 +596,7 @@ science and `docs/mesh_results.md` for bioasq mesh.
 To package the code run `make build`. This will create a wheel in
 dist that you can distribute and `pip install`. `make deploy` pushes
 that wheel in a public Wellcome bucket that you can use if you have
-access to write into it. We plan to migrate towards Github releases
-and PyPi soon.
+access to write into it.
 
 Packaged models are produced through dvc by running `dvc repro` and
 stored in s3 by running `make sync_artifacts`. This might soon change to

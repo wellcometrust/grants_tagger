@@ -4,6 +4,7 @@ Adds tags to grants based on the model for science or mesh
 from pathlib import Path
 import argparse
 import csv
+from typing import List
 
 import typer
 
@@ -27,7 +28,7 @@ def yield_batched_grants(input_file, batch_size=256):
 
 @app.command()
 def tag_grants(grants_path, tagged_grants_path, model_path, label_binarizer_path, approach, threshold=0.5,
-        grant_id_field = "grant_id", grant_text_fields=["title", "synopsis"], text_null_value="No Data Entered"):
+        grant_id_field = "grant_id", grant_text_fields: List[str] = ["title", "synopsis"], text_null_value="No Data Entered"):
 
     with open(tagged_grants_path, "w") as tagged_grants_tf:
         fieldnames = ["Grant id", "Tag", "Prob"]

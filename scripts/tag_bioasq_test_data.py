@@ -28,15 +28,18 @@ def tag_bioasq_data(data_path, model_path, label_binarizer_path, mesh_metadata_p
 
     mesh2code = get_mesh2code(mesh_metadata_path)
 
-    X = [item["title"] + " " + item["abstractText"] for item in data]
-    pmids = [item["pmid"] for item in data]
+    X = []
+    pmids = []
+    for item in tqdm(data):
+        X.append(item["title"] + " " + item["abstractText"])
+        pmids.append(item["pmid"])
 
     tags = predict_tags(X, model_path, label_binarizer_path, "mesh-xlinear", threshold=threshold)
     
     tagged_data = [{"pmid": pmid, "labels": [mesh2code[t] for t in tags_]} for pmid, tags_ in zip(pmids, tags)]
   
     with open(tagged_data_path, "w") as f:
-        json.dump({"tagged_data": tagged_data, f) 
+        json.dump({"documents": tagged_data}, f) 
 
 if __name__ == "__main__":
     typer.run(tag_bioasq_data)

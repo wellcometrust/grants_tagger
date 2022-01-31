@@ -5,6 +5,7 @@ import pandas as pd
 import os
 try:
     from datascience.warehouse.warehouse import FortyTwo
+    from datascience.warehouse.constants import COLUMNS_APPLICATIONS_AND_GRANTS_TABLE
     from datascience.grants.cleaning import clean_grants
 except ImportError as e:
     raise ImportError(f"Error importing {e.name }. "
@@ -12,7 +13,7 @@ except ImportError as e:
                       f"utils, for example with `make install-private-requirements`")
 
 forty_two = FortyTwo()
-df = pd.DataFrame(forty_two.get_grants())
+df = pd.DataFrame(forty_two.get_grants(fields=COLUMNS_APPLICATIONS_AND_GRANTS_TABLE+['Research Proposal']))
 
 columns_of_interest = [
     'Grant ID',
@@ -27,6 +28,7 @@ columns_of_interest = [
     'Synopsis',
     'Lay Summary',
     'Research Question',
+    'Research Proposal'
 ]
 
 # Cleans grants to remove 'No data entered' and other things

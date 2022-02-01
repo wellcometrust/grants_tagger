@@ -5,6 +5,10 @@ from pathlib import Path
 import math
 import argparse
 import csv
+import sys
+
+csv.field_size_limit(sys.maxsize)
+
 from typing import List
 
 import typer
@@ -22,7 +26,7 @@ def yield_batched_grants(input_file, batch_size=256, grant_text_fields=["title",
         csv_reader = csv.DictReader(tf, delimiter=",", quotechar='"')
         lines = []
         for line in csv_reader:
-            text = " ".join([line[field].replace(text_null_value, "")
+            text = " ".join([line[field].replace(text_null_value, "").rstrip()
                     for field in grant_text_fields])
             if text:
                 line["text"] = text
@@ -57,9 +61,7 @@ def tag_grants(grants_path, tagged_grants_path, model_path, label_binarizer_path
             grants_text = [grants_text[i] for i in relevant_indices]
 
             if len(grants) > 0:
-                print(grants_text)
                 # Removes consecutive white spaces which are uninformative and may cause error #30
-                grants_text = [" ".join(text.split()) for text in grants_text if text.strip()] # Removes empty text
                 grants_tags = predict_tags(
                         grants_text,
                         model_path, 

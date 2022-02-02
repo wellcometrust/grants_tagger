@@ -4,7 +4,7 @@
 PRIVATE_PROJECT_BUCKET := $(PROJECTS_BUCKET)/$(PROJECT_NAME)
 PUBLIC_PROJECT_BUCKET := datalabs-public/$(PROJECT_NAME)
 
-PACKAGE_VERSION := $(shell venv/bin/python -c "import grants_tagger;print(grants_tagger.__version__)")
+PACKAGE_VERSION := $(shell venv/bin/python -c "import grants_tagger;print(grants_tagger.__version__.__version__)")
 MESH_MODEL_PACKAGE := xlinear-$(PACKAGE_VERSION).tar.gz
 MESH_MODEL := xlinear/model/
 MESH_LABEL_BINARIZER := xlinear/label_binarizer.pkl
@@ -12,7 +12,7 @@ SCIENCE_TFIDF_SVM_MODEL:= tfidf-svm.pkl
 SCIENCE_SCIBERT_MODEL := scibert
 SCIENCE_LABEL_BINARIZER := label_binarizer.pkl
 
-PYTHON := python3.8
+PYTHON := python3.7
 VIRTUALENV := venv
 PIP := $(VIRTUALENV)/bin/pip
 

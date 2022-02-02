@@ -19,7 +19,7 @@ setup(
         'xlrd',
         'scikit-learn==0.23.2',
         'matplotlib',
-        'wellcomeml[tensorflow,core,transformers,torch]==2.0.0',
+        'wellcomeml[tensorflow,core,transformers,torch]==2.0.2',
         'docutils==0.15',
         'scipy==1.4.1',
         'wasabi',

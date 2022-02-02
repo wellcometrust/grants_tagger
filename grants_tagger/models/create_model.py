@@ -185,7 +185,7 @@ def create_model(approach, parameters=None):
             [
                 (
                     "hashing_vectorizer",
-                    HashingVectorizer(binary=True, n_features=2 ** 18),
+                    HashingVectorizer(binary=True, n_features=2**18),
                 ),
                 ("nb", OneVsRestClassifier(MultinomialNB())),
             ]

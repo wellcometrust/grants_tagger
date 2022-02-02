@@ -12,7 +12,7 @@ SCIENCE_TFIDF_SVM_MODEL:= tfidf-svm.pkl
 SCIENCE_SCIBERT_MODEL := scibert
 SCIENCE_LABEL_BINARIZER := label_binarizer.pkl
 
-PYTHON := python3.7
+PYTHON := python3.8
 VIRTUALENV := venv
 PIP := $(VIRTUALENV)/bin/pip
 
@@ -72,7 +72,6 @@ update-requirements: ## Updates requirement
 	virtualenv --python $(PYTHON) $(VIRTUALENV)
 	$(VIRTUALENV)/bin/pip install --upgrade pip
 	$(VIRTUALENV)/bin/pip install -r unpinned_requirements.txt
-	$(VIRTUALENV)/bin/pip install -r unpinned_test_requirements.txt
 	echo "#Created by Makefile. Do not edit." > requirements.txt
 	$(VIRTUALENV)/bin/pip freeze | grep -v pkg_resources==0.0.0 >> requirements.txt
 #	echo "-e git://github.com/wellcometrust/WellcomeML.git@tokenizer-decode#egg=wellcomeml" >> requirements.txt
@@ -134,7 +133,7 @@ build-streamlit-docker: ## Builds Docker with streamlit and models
 
 .PHONY: install-private-requirements
 install-private-requirements: ## Install the private datascience utils
-	pip install pyodbc psycopg2
+	pip install httpx pyodbc psycopg2
 	pip install -e git+ssh://git@github.com/wellcometrust/datascience.git#egg=wellcome-datascience-common
  
 

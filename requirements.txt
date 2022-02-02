@@ -15,7 +15,6 @@ astor==0.8.1
 astunparse==1.6.3
 async-timeout==4.0.2
 asyncssh==2.8.1
-asynctest==0.13.0
 atpublic==3.0.1
 attrs==21.4.0
 backcall==0.2.0
@@ -27,19 +26,16 @@ blis==0.7.5
 bokeh==2.3.3
 boto3==1.20.24
 botocore==1.23.24
-cached-property==1.5.2
 cachetools==5.0.0
 catalogue==2.0.6
 certifi==2021.10.8
 cffi==1.15.0
 charset-normalizer==2.0.11
 click==7.1.2
-codecov==2.1.12
 colorama==0.4.4
 commonmark==0.9.1
 configobj==5.0.6
 conllu==4.4.1
-coverage==6.3.1
 cryptography==36.0.1
 cycler==0.11.0
 cymem==2.0.6
@@ -50,7 +46,6 @@ defusedxml==0.7.1
 dictdiffer==0.9.0
 dill==0.3.4
 diskcache==5.4.0
-distlib==0.3.4
 distro==1.6.0
 docutils==0.15
 dpath==2.0.6
@@ -82,7 +77,6 @@ huggingface-hub==0.4.0
 idna==3.3
 importlib-metadata==4.10.1
 importlib-resources==5.4.0
-iniconfig==1.1.1
 ipykernel==6.8.0
 ipython==7.31.1
 ipython-genutils==0.2.0
@@ -135,8 +129,6 @@ phonenumbers==8.12.42
 pickleshare==0.7.5
 Pillow==9.0.0
 pkginfo==1.8.2
-platformdirs==2.4.1
-pluggy==1.0.0
 ply==3.11
 pox==0.3.0
 ppft==1.6.6.4
@@ -147,7 +139,6 @@ protobuf==3.19.4
 protobuf3-to-dict==0.1.5
 psutil==5.9.0
 ptyprocess==0.7.0
-py==1.11.0
 pyarrow==6.0.1
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
@@ -164,8 +155,6 @@ pynndescent==0.5.6
 pyparsing==3.0.7
 pyrsistent==0.18.1
 pysbd==0.3.4
-pytest==6.2.5
-pytest-cov==3.0.0
 python-benedict==0.24.3
 python-dateutil==2.8.0
 python-fsutil==0.6.0
@@ -219,11 +208,9 @@ thinc==8.0.13
 threadpoolctl==3.1.0
 tokenizers==0.10.1
 toml==0.10.2
-tomli==2.0.0
 toolz==0.11.2
 torch==1.10.2
 tornado==6.1
-tox==3.24.5
 tqdm==4.62.3
 traitlets==5.1.1
 transformers==4.16.2
@@ -236,7 +223,6 @@ tzlocal==4.1
 umap-learn==0.5.2
 urllib3==1.26.8
 validators==0.18.2
-virtualenv==20.13.0
 voluptuous==0.12.2
 wasabi==0.9.0
 wcwidth==0.2.5

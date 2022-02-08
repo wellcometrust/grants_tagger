@@ -12,7 +12,7 @@ def submit_test_results(test_number, tagged_data_path, system, username, passwor
     data = {
         "username": username,
         "password": password,
-        "documents": tagged_data,
+        "documents": tagged_data["documents"],
         "system": system
     }
     response = requests.post(url, data=json.dumps(data))

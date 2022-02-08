@@ -49,7 +49,7 @@ def tag_grants(grants_path, tagged_grants_path, model_path, label_binarizer_path
             # Removes consecutive white spaces which are uninformative and may cause error #30
             grants_text = [" ".join(text.split()) for text in grants_text if text.strip()] # Removes empty text
             grants_tags = predict_tags(grants_text, model_path, label_binarizer_path, approach,
-                    probabilities=True, threshold=threshold)
+                                       probabilities=True, threshold=threshold)
 
             for grant, tags in zip(grants, grants_tags):
                 for tag, prob in tags.items():

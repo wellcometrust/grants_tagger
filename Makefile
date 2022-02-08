@@ -4,7 +4,7 @@
 PRIVATE_PROJECT_BUCKET := $(PROJECTS_BUCKET)/$(PROJECT_NAME)
 PUBLIC_PROJECT_BUCKET := datalabs-public/$(PROJECT_NAME)
 
-PACKAGE_VERSION := $(shell venv/bin/python -c "import grants_tagger;print(grants_tagger.__version__)")
+PACKAGE_VERSION := $(shell venv/bin/python -c "import grants_tagger;print(grants_tagger.__version__.__version__)")
 MESH_MODEL_PACKAGE := xlinear-$(PACKAGE_VERSION).tar.gz
 MESH_MODEL := xlinear/model/
 MESH_LABEL_BINARIZER := xlinear/label_binarizer.pkl
@@ -61,6 +61,7 @@ virtualenv: ## Creates virtualenv
 ifeq ($(UNAME), Linux)
 	$(PIP) install libpecos==0.1.0
 endif		
+	$(PIP) install pytest pytest-cov tox
 	$(PIP) install -r requirements.txt
 	$(PIP) install --no-deps -e .
 	$(PIP) install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.4.0/en_core_sci_sm-0.4.0.tar.gz
@@ -72,7 +73,6 @@ update-requirements: ## Updates requirement
 	virtualenv --python $(PYTHON) $(VIRTUALENV)
 	$(VIRTUALENV)/bin/pip install --upgrade pip
 	$(VIRTUALENV)/bin/pip install -r unpinned_requirements.txt
-	$(VIRTUALENV)/bin/pip install -r unpinned_test_requirements.txt
 	echo "#Created by Makefile. Do not edit." > requirements.txt
 	$(VIRTUALENV)/bin/pip freeze | grep -v pkg_resources==0.0.0 >> requirements.txt
 #	echo "-e git://github.com/wellcometrust/WellcomeML.git@tokenizer-decode#egg=wellcomeml" >> requirements.txt
@@ -134,7 +134,7 @@ build-streamlit-docker: ## Builds Docker with streamlit and models
 
 .PHONY: install-private-requirements
 install-private-requirements: ## Install the private datascience utils
-	pip install pyodbc psycopg2
+	pip install httpx pyodbc psycopg2
 	pip install -e git+ssh://git@github.com/wellcometrust/datascience.git#egg=wellcome-datascience-common
  
 

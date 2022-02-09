@@ -63,7 +63,6 @@ ifeq ($(UNAME), Linux)
 endif		
 	$(PIP) install pytest pytest-cov tox
 	$(PIP) install -r requirements.txt
-	$(PIP) install pytest tox
 	$(PIP) install --no-deps -e .
 	$(PIP) install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.4.0/en_core_sci_sm-0.4.0.tar.gz
 

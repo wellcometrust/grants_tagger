@@ -12,7 +12,7 @@ SCIENCE_TFIDF_SVM_MODEL:= tfidf-svm.pkl
 SCIENCE_SCIBERT_MODEL := scibert
 SCIENCE_LABEL_BINARIZER := label_binarizer.pkl
 
-PYTHON := python3.8
+PYTHON := python3.7
 VIRTUALENV := venv
 PIP := $(VIRTUALENV)/bin/pip
 

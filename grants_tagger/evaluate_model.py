@@ -111,14 +111,13 @@ def evaluate_model_cli(
     split_data: bool = typer.Option(
         True, help="flag on whether to split data in same way as was done in train"
     ),
-    parameters: bool = typer.Option(
+    parameters: str = typer.Option(
         None, help="stringified parameters for model evaluation, if any"
     ),
     config: Optional[Path] = typer.Option(
         None, help="path to config file that defines arguments"
     ),
 ):
-
     if config:
         cfg = configparser.ConfigParser(allow_no_value=True)
         cfg.read(config)

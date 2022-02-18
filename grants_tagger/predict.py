@@ -3,11 +3,9 @@ Predict function for disease part of mesh that optionally
 exposes probabilities and that you can set the threshold
 for making a prediction
 """
-from operator import itemgetter
 from pathlib import Path
-import argparse
+import configparser
 import pickle
-import os
 import typer
 
 import scipy.sparse as sp
@@ -25,6 +23,7 @@ def predict_tags(
     probabilities=False,
     threshold=0.5,
     parameters=None,
+    config=None
 ):
     """
     X: list or numpy array of texts
@@ -34,7 +33,15 @@ def predict_tags(
     probabilities: bool, default False. When true probabilities are returned along with tags
     threshold: float, default 0.5. Probability threshold to be used to assign tags.
     parameters: any params required upon model creation
+    config: Path to config file
     """
+    if config:
+        # For some models, it might be necessary to see the parameters before loading it
+
+        cfg = configparser.ConfigParser(allow_no_value=True)
+        cfg.read(config)
+        parameters = cfg["model"]["parameters"]
+
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
     model = load_model(approach, model_path, parameters=parameters)

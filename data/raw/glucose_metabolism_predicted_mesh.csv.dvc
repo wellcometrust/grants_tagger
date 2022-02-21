@@ -1,0 +1,4 @@
+outs:
+- md5: d0f8b60feeb9f7ec1556a4bf60e6bc25
+  size: 25541055
+  path: glucose_metabolism_predicted_mesh.csv

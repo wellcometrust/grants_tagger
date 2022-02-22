@@ -121,12 +121,13 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
         if self.vectorizer_library == "sklearn":
             return self.xlinear_model_.predict(
                 self.vectorizer_.transform(X).astype("float32"),
+                only_topk=self.only_topk,
                 beam_size=self.beam_size,
             )
         else:
             return self.xlinear_model_.predict(
                 self.vectorizer_.predict(X).astype("float32"),
-                only_topk=100,
+                only_topk=self.only_topk,
                 beam_size=self.beam_size
             )
 

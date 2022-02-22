@@ -7,6 +7,7 @@ import torch
 
 from grants_tagger.bertmesh.model import BertMesh
 
+
 class MeshDataset(Dataset):
     def __init__(self, X):
         self.tokenizer = BertTokenizerFast.from_pretrained("bert-base-uncased")
@@ -18,9 +19,10 @@ class MeshDataset(Dataset):
     def __getitem__(self, idx):
         return torch.tensor(self.input_ids[idx])
 
-class WellcomeBertMesh():
+
+class WellcomeBertMesh:
     def __init__(self, cutoff_prob=0.1, threshold=0.5, batch_size=16):
-        self.cutoff_prob=cutoff_prob
+        self.cutoff_prob = cutoff_prob
         self.threshold = threshold
         self.batch_size = batch_size
 
@@ -50,6 +52,8 @@ class WellcomeBertMesh():
             pretrained_model="microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract",
             num_labels=28761,
             hidden_size=1024,
-            multilabel_attention=True
+            multilabel_attention=True,
         )
-        self.model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')).module.state_dict())
+        self.model.load_state_dict(
+            torch.load(model_path, map_location=torch.device("cpu")).module.state_dict()
+        )

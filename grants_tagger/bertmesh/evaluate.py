@@ -75,7 +75,11 @@ def evaluate(
             columns=["precision", "recall"],
         )
         wandb.log(
-            {"pr_curve": wandb.plot.line(table, "precision", "recall", title="PR curve")}
+            {
+                "pr_curve": wandb.plot.line(
+                    table, "precision", "recall", title="PR curve"
+                )
+            }
         )
 
 

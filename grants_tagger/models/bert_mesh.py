@@ -54,6 +54,9 @@ class WellcomeBertMesh:
             hidden_size=1024,
             multilabel_attention=True,
         )
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model.load_state_dict(
-            torch.load(model_path, map_location=torch.device("cpu")).module.state_dict()
+            torch.load(
+                model_path, map_location=torch.device(device)
+            ).module.state_dict()
         )

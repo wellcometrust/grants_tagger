@@ -65,10 +65,10 @@ stages:
         - 2
     outs:
     - path: models/tfidf-svm.pkl
-      md5: 32731569abad904c1780784370a61d68
+      md5: 38f35b3381d116adad18dc5e2a7dab03
       size: 17768857
     - path: results/tfidf_svm_train_info.json
-      md5: 9b0b29b3885289675175896958c7ebfc
+      md5: 6f98a7bec4325ece260581465a1d9847
       size: 62
   evaluate:
     cmd: grants_tagger evaluate model tfidf-svm models/tfidf-svm-2020.05.2.pkl data/processed/science_grants_tagged_title_synopsis.jsonl
@@ -98,11 +98,11 @@ stages:
       md5: 220319a004a60bd6475e2fb617c2c1f3
       size: 1067
     - path: models/tfidf-svm.pkl
-      md5: 32731569abad904c1780784370a61d68
+      md5: 38f35b3381d116adad18dc5e2a7dab03
       size: 17768857
     outs:
     - path: results/tfidf_svm.json
-      md5: f4a61e7af633056482e7d035e75cb658
+      md5: 45d09c717c170cfbe14bddc17965511c
       size: 76
   train_scibert:
     cmd: grants_tagger train data/processed/science_grants_tagged_title_synopsis.jsonl
@@ -178,11 +178,11 @@ stages:
       size: 440020006
       nfiles: 2
     - path: models/tfidf-svm.pkl
-      md5: 32731569abad904c1780784370a61d68
+      md5: 38f35b3381d116adad18dc5e2a7dab03
       size: 17768857
     outs:
     - path: results/science_ensemble.json
-      md5: 5a4e3ab1af337aa42d2150cf9ec97abb
+      md5: 0fe33f09efa340fefd307de9d778cb4c
       size: 76
   train_mesh_cnn:
     cmd: grants_tagger train data/processed/disease_mesh.jsonl models/disease_mesh_label_binarizer-2021.06.0.pkl
@@ -260,7 +260,7 @@ stages:
         train.mesh-xlinear.stop_words: english
     outs:
     - path: models/xlinear/model
-      md5: 072d18f207a503c632e0ce7f363da070.dir
+      md5: 39335bce321d2904889de4e1392b7a4e.dir
       size: 3740297256
       nfiles: 33
   evaluate_mesh_xlinear_on_grants:
@@ -281,7 +281,7 @@ stages:
       md5: 67d759ed4142feab2e575dc9bd3d5f54
       size: 827793
     - path: models/xlinear/model
-      md5: 072d18f207a503c632e0ce7f363da070.dir
+      md5: 39335bce321d2904889de4e1392b7a4e.dir
       size: 3740297256
       nfiles: 33
     outs:
@@ -300,7 +300,7 @@ stages:
       md5: 67d759ed4142feab2e575dc9bd3d5f54
       size: 827793
     - path: models/xlinear/model
-      md5: 072d18f207a503c632e0ce7f363da070.dir
+      md5: 39335bce321d2904889de4e1392b7a4e.dir
       size: 3740297256
       nfiles: 33
     outs:

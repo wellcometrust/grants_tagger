@@ -1,3 +1,6 @@
+## v0.2.2
+
+- #180: Bug fix
 ## v0.2.1
 
 Bug fixes:

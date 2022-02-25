@@ -16,11 +16,11 @@ import shutil
 from tqdm import tqdm
 from typing import List, Optional
 import pandas as pd
+import typer
+
 from grants_tagger.utils import write_jsonl, verify_if_paths_exist
 from grants_tagger.label_binarizer import create_label_binarizer
 from grants_tagger.split_data import split_data
-
-import typer
 
 
 def yield_raw_data(input_path):

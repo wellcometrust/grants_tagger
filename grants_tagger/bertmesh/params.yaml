@@ -1,0 +1,13 @@
+prepare_data:
+    years: 2016,2019
+    test_years: 2020,2021
+
+train:
+    learning_rate: 5e-5
+    batch_size: 64 # with nn.DataParallel divide by 8
+    epochs: 5
+    pretrained_model: microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract
+    hidden_size: 1024
+    clip_norm: 5
+    dropout: 0.1
+    warmup_steps: 1000

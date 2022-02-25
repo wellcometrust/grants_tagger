@@ -32,7 +32,7 @@ def evaluate(
     test_dataset = MeshDataset(x_path, y_path)
     test_data = DataLoader(test_dataset, batch_size)
 
-    config = AutoConfig.from_pretrained(f"{model_path}/config.cfg")
+    config = AutoConfig.from_pretrained(f"{model_path}/config.json")
     model = BertMesh(config)
     model.eval()
 

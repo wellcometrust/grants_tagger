@@ -76,7 +76,8 @@ def train_bertmesh(
         "multilabel_attention": multilabel_attention, 
     })
     model = BertMesh(config)
-    model = torch.nn.DataParallel(model)
+    if not accelerate:
+        model = torch.nn.DataParallel(model)
     model.to(device)
 
     if not dry_run:
@@ -100,7 +101,10 @@ def train_bertmesh(
     for epoch in range(epochs):
         batches = tqdm(data, desc=f"Epoch {epoch+1:2d}/{epochs:2d}")
         for step, batch in enumerate(batches):
-            inputs, labels = batch[0].to(device), batch[1].to(device)
+            if accelerate:
+                inputs, labels = batch
+            else:
+                inputs, labels = batch[0].to(device), batch[1].to(device)
 
             optimizer.zero_grad()
 
@@ -145,7 +149,13 @@ def train_bertmesh(
                 break
 
         epoch_model_path = f"{model_path}/epoch-{epoch+1}/"
-        model.save_pretrained(epoch_model_path)
+        if accelerate:
+            accelerator.wait_for_everyone()
+            unwrapped_model = accelerator.unwrap_model(model)
+        else:
+            unwrapped_model = model.module
+
+        unwrapped_model.save_pretrained(epoch_model_path)
 
         if val_x_path and val_y_path:
             model.eval()
@@ -168,8 +178,15 @@ def train_bertmesh(
 
             if val_loss < best_val_loss:
                 best_model_path = f"{model_path}/best/"
-                model.save_pretrained(best_model_path)
-
+    
+                if accelerate:
+                    accelerator.wait_for_everyone()
+                    unwrapped_model = accelerator.unwrap_model(model)
+                else:
+                    unwrapped_model = model.module
+                
+                unwrapped_model.save_pretrained(best_model_path)
+    
             if not dry_run:
                 wandb.log({"val_loss": val_loss})
 
@@ -181,6 +198,8 @@ def train_bertmesh(
     if accelerate:
         accelerator.wait_for_everyone()
         model = accelerator.unwrap_model(model)
+    else:
+        model = model.module
 
     model.save_pretrained(model_path)
 

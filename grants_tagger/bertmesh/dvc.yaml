@@ -25,9 +25,9 @@ stages:
             --pretrained-model ${train.pretrained_model} --multilabel-attention --hidden-size ${train.hidden_size}
             --clip-norm ${train.clip_norm} --dropout ${train.dropout} --train-metrics-path train_metrics.json
             --warmup-steps ${train.warmup_steps} --val-x-path ${data}/processed/bertmesh/X_test.npy
-            --val-y-path ${data}/processed/bertmesh/Y_test.npz --experiment-name ${experiment_name}
+            --val-y-path ${data}/processed/bertmesh/Y_test.npz --experiment-name ${experiment_name} --dry-run
         deps:
-        - train.py
+        - train_torch.py
         - ${data}/processed/bertmesh/X.npy
         - ${data}/processed/bertmesh/Y.npz
         - ${models}/bertmesh/label_binarizer.pkl
@@ -42,18 +42,18 @@ stages:
         - train.warmup_steps
         outs:
         - ${models}/bertmesh/model/pytorch_model.bin
-        - ${models}/bertmesh/model/config.cfg
+        - ${models}/bertmesh/model/config.json
         plots:
         - train_metrics.json:
             cache: false
     evaluate:
-        cmd: python evaluate.py ${data}/processed/bertmesh/X_test.npy ${data}/processed/bertmesh/Y_test.npz ${models}/bertmesh/model/ --batch-size ${train.batch_size} --results-path results.json --pr-curve-path pr_curve.json --experiment-name ${experiment_name}
+        cmd: python evaluate.py ${data}/processed/bertmesh/X_test.npy ${data}/processed/bertmesh/Y_test.npz ${models}/bertmesh/model/ --batch-size ${train.batch_size} --results-path results.json --pr-curve-path pr_curve.json --experiment-name ${experiment_name} --dry-run
         deps:
         - evaluate.py
         - ${data}/processed/bertmesh/X_test.npy
         - ${data}/processed/bertmesh/Y_test.npz
         - ${models}/bertmesh/model/pytorch_model.bin
-        - ${models}/bertmesh/model/config.cfg
+        - ${models}/bertmesh/model/config.json
         params:
         - train.batch_size
         metrics:

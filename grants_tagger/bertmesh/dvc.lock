@@ -3,34 +3,34 @@ stages:
   prepare_data:
     cmd: "python prepare_data.py ../../data//processed/train_mesh2021.jsonl ../../data//processed/bertmesh/X.npy\
       \ ../../data//processed/bertmesh/Y.npz ../../models//bertmesh/label_binarizer.pkl\
-      \ --years 2016,2019 --pretrained-model microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract\n\
+      \ --years 2019,2019 --pretrained-model microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract\n\
       python prepare_data.py ../../data//processed/train_mesh2021.jsonl ../../data//processed/bertmesh/X_test.npy\
       \ ../../data//processed/bertmesh/Y_test.npz ../../models//bertmesh/label_binarizer.pkl\
-      \ --years 2020,2021 --pretrained-model microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract\n"
+      \ --years 2020,2020 --pretrained-model microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract\n"
     deps:
     - path: prepare_data.py
       md5: a451a03eab8e0d9311da13131b3e7fa3
       size: 2007
     params:
       params.yaml:
-        prepare_data.years: 2016,2019
+        prepare_data.years: 2019,2019
         train.pretrained_model: microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract
     outs:
     - path: ../../data//processed/bertmesh/X.npy
-      md5: 5c567ae7f15ae62b3ded0d02ddf31004
-      size: 10150809728
+      md5: b734201c1044a36e1a1c59f886d0644f
+      size: 2660626560
     - path: ../../data//processed/bertmesh/X_test.npy
-      md5: deca6b5db5d1b8350caca649bd0d9231
-      size: 911880320
+      md5: 25c4bd0b21cedcf5cfdd3d5d67f64053
+      size: 909930624
     - path: ../../data//processed/bertmesh/Y.npz
-      md5: 4a3b1e16c99ea37be90e955e7b83b191
-      size: 63159817
+      md5: 172b71b4e7d2be26a76ca072c7b48e39
+      size: 16141305
     - path: ../../data//processed/bertmesh/Y_test.npz
-      md5: 38d8fe3eb327c4848dbc83a47a665192
-      size: 5391654
+      md5: f3c3763c9a75a8425ee12bbcf3b0a6af
+      size: 5375745
     - path: ../../models//bertmesh/label_binarizer.pkl
-      md5: fc776931bd177c10b7831c05a9684a8b
-      size: 1038486
+      md5: 711869c5ef9d5f3dc89da99378f8e36d
+      size: 992992
   train:
     cmd: python train_torch.py ../../data//processed/bertmesh/X.npy ../../data//processed/bertmesh/Y.npz
       ../../models//bertmesh/model.pt --learning-rate 5e-05 --batch-size 64 --epochs

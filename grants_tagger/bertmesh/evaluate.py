@@ -3,6 +3,7 @@ import json
 
 from sklearn.metrics import precision_recall_fscore_support
 from torch.utils.data import DataLoader
+from transformers import AutoConfig
 from tqdm import tqdm
 import scipy.sparse as sp
 import torch
@@ -31,7 +32,8 @@ def evaluate(
     test_dataset = MeshDataset(x_path, y_path)
     test_data = DataLoader(test_dataset, batch_size)
 
-    model = torch.load(model_path)
+    config = AutoConfig.from_pretrained(f"{model_path}/config.cfg")
+    model = BertMesh(config)
     model.eval()
 
     Y_pred_proba = []

@@ -6,6 +6,7 @@ import json
 from sklearn.metrics import precision_recall_fscore_support
 from torch.utils.data import DataLoader
 from accelerate import Accelerator
+from transformers import AutoConfig
 from tqdm import tqdm
 import transformers
 import torch
@@ -66,13 +67,15 @@ def train_bertmesh(
         val_dataset = MeshDataset(val_x_path, val_y_path)
         val_data = DataLoader(val_dataset, batch_size=batch_size)
 
-    model = BertMesh(
-        pretrained_model,
-        num_labels=dataset.num_labels,
-        hidden_size=hidden_size,
-        dropout=dropout,
-        multilabel_attention=multilabel_attention,
-    )
+    config = AutoConfig.from_pretrained(pretrained_model)
+    config.update({
+        "pretrained_model": pretrained_model,
+        "num_labels": dataset.num_labels,
+        "hidden_size": hidden_size,
+        "dropout": dropout,
+        "multilabel_attention": multilabel_attention, 
+    })
+    model = BertMesh(config)
     model = torch.nn.DataParallel(model)
     model.to(device)
 
@@ -141,8 +144,8 @@ def train_bertmesh(
             if dry_run:
                 break
 
-        epoch_model_path = model_path.replace(".pt", f"-epoch{epoch+1}.pt")
-        torch.save(model, epoch_model_path)
+        epoch_model_path = f"{model_path}/epoch-{epoch+1}/"
+        model.save_pretrained(epoch_model_path)
 
         if val_x_path and val_y_path:
             model.eval()
@@ -164,8 +167,8 @@ def train_bertmesh(
             val_loss /= len(val_dataset)
 
             if val_loss < best_val_loss:
-                best_model_path = model_path.replace(".pt", "-best.pt")
-                torch.save(model, best_model_path)
+                best_model_path = f"{model_path}/best/"
+                model.save_pretrained(best_model_path)
 
             if not dry_run:
                 wandb.log({"val_loss": val_loss})
@@ -178,7 +181,8 @@ def train_bertmesh(
     if accelerate:
         accelerator.wait_for_everyone()
         model = accelerator.unwrap_model(model)
-    torch.save(model, model_path)
+
+    model.save_pretrained(model_path)
 
     if train_metrics_path:
         with open(train_metrics_path, "w") as f:

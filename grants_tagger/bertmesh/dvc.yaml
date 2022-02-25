@@ -1,7 +1,7 @@
 vars:
     - data: "../../data/"
     - models: "../../models/"
-    - experiment_name: "2016-2019"
+    - experiment_name: "transformers-bertmesh"
 
 stages:
     prepare_data:
@@ -20,7 +20,7 @@ stages:
         - ${data}/processed/bertmesh/Y_test.npz
         - ${models}/bertmesh/label_binarizer.pkl
     train:
-        cmd: python train_torch.py ${data}/processed/bertmesh/X.npy ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/model.pt
+        cmd: python train_torch.py ${data}/processed/bertmesh/X.npy ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/model/
             --learning-rate ${train.learning_rate} --batch-size ${train.batch_size} --epochs ${train.epochs} 
             --pretrained-model ${train.pretrained_model} --multilabel-attention --hidden-size ${train.hidden_size}
             --clip-norm ${train.clip_norm} --dropout ${train.dropout} --train-metrics-path train_metrics.json
@@ -41,17 +41,19 @@ stages:
         - train.dropout
         - train.warmup_steps
         outs:
-        - ${models}/bertmesh/model.pt
+        - ${models}/bertmesh/model/pytorch_model.bin
+        - ${models}/bertmesh/model/config.cfg
         plots:
         - train_metrics.json:
             cache: false
     evaluate:
-        cmd: python evaluate.py ${data}/processed/bertmesh/X_test.npy ${data}/processed/bertmesh/Y_test.npz ${models}/bertmesh/model.pt --batch-size ${train.batch_size} --results-path results.json --pr-curve-path pr_curve.json --experiment-name ${experiment_name}
+        cmd: python evaluate.py ${data}/processed/bertmesh/X_test.npy ${data}/processed/bertmesh/Y_test.npz ${models}/bertmesh/model/ --batch-size ${train.batch_size} --results-path results.json --pr-curve-path pr_curve.json --experiment-name ${experiment_name}
         deps:
         - evaluate.py
         - ${data}/processed/bertmesh/X_test.npy
         - ${data}/processed/bertmesh/Y_test.npz
-        - ${models}/bertmesh/model.pt
+        - ${models}/bertmesh/model/pytorch_model.bin
+        - ${models}/bertmesh/model/config.cfg
         params:
         - train.batch_size
         metrics:

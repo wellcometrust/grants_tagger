@@ -1,4 +1,4 @@
-from transformers import AutoModel
+from transformers import AutoModel, PreTrainedModel
 import torch
 
 
@@ -15,29 +15,26 @@ class MultiLabelAttention(torch.nn.Module):
         return torch.matmul(torch.transpose(attention_weights, 2, 1), x)
 
 
-class BertMesh(torch.nn.Module):
+class BertMesh(PreTrainedModel):
     def __init__(
         self,
-        pretrained_model,
-        num_labels,
-        hidden_size=512,
-        dropout=0,
-        multilabel_attention=False,
+        config,
     ):
-        super().__init__()
-        self.pretrained_model = pretrained_model
-        self.num_labels = num_labels
-        self.hidden_size = hidden_size
-        self.dropout = dropout
-        self.multilabel_attention = multilabel_attention
+        super().__init__(config=config)
+        self.config.auto_map = {"AutoModel": "model.BertMesh"}
+        self.pretrained_model = self.config.pretrained_model
+        self.num_labels = self.config.num_labels
+        self.hidden_size = self.config.hidden_size
+        self.dropout = self.config.dropout
+        self.multilabel_attention = self.config.multilabel_attention
 
-        self.bert = AutoModel.from_pretrained(pretrained_model)  # 768
+        self.bert = AutoModel.from_pretrained(self.pretrained_model)  # 768
         self.multilabel_attention_layer = MultiLabelAttention(
-            768, num_labels
+            768, self.num_labels
         )  # num_labels, 768
-        self.linear_1 = torch.nn.Linear(768, hidden_size)  # num_labels, 512
-        self.linear_2 = torch.nn.Linear(hidden_size, 1)  # num_labels, 1
-        self.linear_out = torch.nn.Linear(hidden_size, num_labels)
+        self.linear_1 = torch.nn.Linear(768, self.hidden_size)  # num_labels, 512
+        self.linear_2 = torch.nn.Linear(self.hidden_size, 1)  # num_labels, 1
+        self.linear_out = torch.nn.Linear(self.hidden_size, self.num_labels)
         self.dropout_layer = torch.nn.Dropout(self.dropout)
 
     def forward(self, inputs):

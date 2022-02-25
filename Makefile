@@ -4,7 +4,7 @@
 PRIVATE_PROJECT_BUCKET := $(PROJECTS_BUCKET)/$(PROJECT_NAME)
 PUBLIC_PROJECT_BUCKET := datalabs-public/$(PROJECT_NAME)
 
-PACKAGE_VERSION := $(shell venv/bin/python -c "import grants_tagger;print(grants_tagger.__version__.__version__)")
+PACKAGE_VERSION := $(shell venv/bin/python -c "from grants_tagger.__version__ import __version__; print(__version__)")
 MESH_MODEL_PACKAGE := xlinear-$(PACKAGE_VERSION).tar.gz
 MESH_MODEL := xlinear/model/
 MESH_LABEL_BINARIZER := xlinear/label_binarizer.pkl
@@ -92,9 +92,10 @@ build: ## Create wheel distribution
 .PHONY: deploy
 deploy: ## Deploy wheel to public s3 bucket
 	aws s3 cp --recursive --exclude "*" --include "*.whl" --acl public-read dist/ s3://$(PUBLIC_PROJECT_BUCKET)
+	echo "Deploying $(PACKAGE_VERSION)"
 	git tag v$(shell python setup.py --version)
 	git push --tags
-	$(VIRTUALENV)/bin/python -m twine upload --repository pypi dist/*
+	$(VIRTUALENV)/bin/python -m twine upload --repository pypi --verbose dist/*
 	aws s3 cp --acl public-read models/$(MESH_MODEL_PACKAGE) s3://datalabs-public/grants_tagger/models/$(MESH_MODEL_PACKAGE)
 	aws s3 cp --recursive models/$(MESH_MODEL) s3://datalabs-data/grants_tagger/$(MESH_MODEL)
 	aws s3 cp models/$(MESH_LABEL_BINARIZER) s3://datalabs-data/grants_tagger/models/$(MESH_LABEL_BINARIZER)

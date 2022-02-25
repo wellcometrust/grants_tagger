@@ -68,13 +68,15 @@ def train_bertmesh(
         val_data = DataLoader(val_dataset, batch_size=batch_size)
 
     config = AutoConfig.from_pretrained(pretrained_model)
-    config.update({
-        "pretrained_model": pretrained_model,
-        "num_labels": dataset.num_labels,
-        "hidden_size": hidden_size,
-        "dropout": dropout,
-        "multilabel_attention": multilabel_attention, 
-    })
+    config.update(
+        {
+            "pretrained_model": pretrained_model,
+            "num_labels": dataset.num_labels,
+            "hidden_size": hidden_size,
+            "dropout": dropout,
+            "multilabel_attention": multilabel_attention,
+        }
+    )
     model = BertMesh(config)
     if not accelerate:
         model = torch.nn.DataParallel(model)
@@ -178,15 +180,15 @@ def train_bertmesh(
 
             if val_loss < best_val_loss:
                 best_model_path = f"{model_path}/best/"
-    
+
                 if accelerate:
                     accelerator.wait_for_everyone()
                     unwrapped_model = accelerator.unwrap_model(model)
                 else:
                     unwrapped_model = model.module
-                
+
                 unwrapped_model.save_pretrained(best_model_path)
-    
+
             if not dry_run:
                 wandb.log({"val_loss": val_loss})
 

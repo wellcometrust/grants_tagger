@@ -502,7 +502,8 @@ expected in the future when newer versions will have been published.
 
 ## 📋 Env variables
 
-You need to set the following variables for sagemaker or sync to work.
+You need to set the following variables for sagemaker or sync to work. If you want to
+participate to BIOASQ competition you need to also set some variables.
 
 Variable              | Required for       | Description
 --------------------- | ------------------ | ----------
@@ -513,6 +514,8 @@ ECR_IMAGE             | sagemaker          | ecr image with dependencies to run 
 SAGEMAKER_ROLE        | sagemaker          | aws sagemaker role, ask aws administrator
 AWS_ACCESS_KEY_ID     | sagemaker, sync    | aws access key, for aws cli to work
 AWS_SECRET_ACCESS_KEY | sagemaker, sync    | aws secret key, for aws cli to work
+BIOASQ_USERNAME       | bioasq             | username with which registered in BioASQ
+BIOASQ_PASSWORD       | bioasq             | password            --//--
 
 There is a `.envrc.template` with the env variables needed. If you
 use [direnv](https://direnv.net) then you can use it to populate

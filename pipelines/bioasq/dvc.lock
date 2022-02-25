@@ -1,0 +1,37 @@
+schema: '2.0'
+stages:
+  download:
+    cmd: python ../../scripts/download_bioasq_test_data.py 3 ../../data/processed/bioasq/data_3.json
+    deps:
+    - path: ../../scripts/download_bioasq_test_data.py
+      md5: dd7b13b49437977d68fee317acf4499d
+      size: 528
+    outs:
+    - path: ../../data/processed/bioasq/data_3.json
+      md5: ec91b529f6e8464255603001bed995c4
+      size: 7694765
+  tag:
+    cmd: python ../../scripts/tag_bioasq_test_data.py ../../data/processed/bioasq/data_3.json
+      ../../models/xlinear/model/ ../../models/xlinear/label_binarizer.pkl ../../data/raw/desc2021.xml
+      ../../data/processed/bioasq/tagged_data_3_xlinear.json --approach mesh-xlinear
+    deps:
+    - path: ../../data/processed/bioasq/data_3.json
+      md5: ec91b529f6e8464255603001bed995c4
+      size: 7694765
+    - path: ../../data/raw/desc2021.xml
+      md5: 8663a7dd8e1895dd22525d42b80cd2df
+      size: 300410104
+    - path: ../../models/xlinear/label_binarizer.pkl
+      md5: 67d759ed4142feab2e575dc9bd3d5f54
+      size: 827793
+    - path: ../../models/xlinear/model/
+      md5: 072d18f207a503c632e0ce7f363da070.dir
+      size: 3740297256
+      nfiles: 33
+    - path: ../../scripts/tag_bioasq_test_data.py
+      md5: fe0d5e489c45101738e5a62935837d9f
+      size: 1383
+    outs:
+    - path: ../../data/processed/bioasq/tagged_data_3_xlinear.json
+      md5: 4684b1bc9161d2035847a3d7519bf35e
+      size: 504262

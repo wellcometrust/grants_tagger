@@ -37,16 +37,19 @@ class BertMesh(PreTrainedModel):
         self.linear_out = torch.nn.Linear(self.hidden_size, self.num_labels)
         self.dropout_layer = torch.nn.Dropout(self.dropout)
 
-    def forward(self, inputs):
+    def forward(self, input_ids, **kwargs):
+        if type(input_ids) is list:
+            # coming from tokenizer
+            input_ids = torch.tensor(input_ids) 
         if self.multilabel_attention:
-            hidden_states = self.bert(input_ids=inputs)[0]
+            hidden_states = self.bert(input_ids=input_ids)[0]
             attention_outs = self.multilabel_attention_layer(hidden_states)
             outs = torch.nn.functional.relu(self.linear_1(attention_outs))
             outs = self.dropout_layer(outs)
             outs = torch.sigmoid(self.linear_2(outs))
             outs = torch.flatten(outs, start_dim=1)
         else:
-            cls = self.bert(input_ids=inputs)[1]
+            cls = self.bert(input_ids=input_ids)[1]
             outs = torch.nn.functional.relu(self.linear_1(cls))
             outs = self.dropout_layer(outs)
             outs = torch.sigmoid(self.linear_out(outs))

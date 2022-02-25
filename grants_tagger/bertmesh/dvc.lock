@@ -49,9 +49,12 @@ stages:
     - path: ../../models//bertmesh/label_binarizer.pkl
       md5: 711869c5ef9d5f3dc89da99378f8e36d
       size: 992992
+    - path: model.py
+      md5: c771579fa3ae193691df138d23d6410f
+      size: 2301
     - path: train_torch.py
-      md5: c462042302b210f457dd34bd75dadf48
-      size: 6511
+      md5: 678293b5dd83a8f7eda963457f9fe4e4
+      size: 6524
     params:
       params.yaml:
         train.batch_size: 8
@@ -67,10 +70,10 @@ stages:
       md5: 55b43c72ddb003a1bb6f20e50ebe9938
       size: 1442899
     - path: ../../models//bertmesh/model/pytorch_model.bin
-      md5: 1f3da5f3832c7bfdac602ef69bdf75af
+      md5: ea8a0ee9139607b45a0cd1b9ab595e69
       size: 638592291
     - path: train_metrics.json
-      md5: be943ece0c00840c448fa7d169dc2ac2
+      md5: 365018aa491e5e1b52df814889517031
       size: 84
   evaluate:
     cmd: python evaluate.py ../../data//processed/bertmesh/X_test.npy ../../data//processed/bertmesh/Y_test.npz
@@ -87,7 +90,7 @@ stages:
       md5: 55b43c72ddb003a1bb6f20e50ebe9938
       size: 1442899
     - path: ../../models//bertmesh/model/pytorch_model.bin
-      md5: 1f3da5f3832c7bfdac602ef69bdf75af
+      md5: ea8a0ee9139607b45a0cd1b9ab595e69
       size: 638592291
     - path: evaluate.py
       md5: 06977ea962a3c1c24722e823d32e346e

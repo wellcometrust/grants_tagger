@@ -28,6 +28,7 @@ stages:
             --val-y-path ${data}/processed/bertmesh/Y_test.npz --experiment-name ${experiment_name} --dry-run
         deps:
         - train_torch.py
+        - model.py
         - ${data}/processed/bertmesh/X.npy
         - ${data}/processed/bertmesh/Y.npz
         - ${models}/bertmesh/label_binarizer.pkl

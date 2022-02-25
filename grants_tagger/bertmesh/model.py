@@ -16,8 +16,6 @@ class MultiLabelAttention(torch.nn.Module):
 
 
 class BertMesh(PreTrainedModel):
-    configClass = "BertMeshConfig"
-
     def __init__(
         self,
         config,

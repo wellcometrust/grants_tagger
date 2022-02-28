@@ -1,15 +1,15 @@
 schema: '2.0'
 stages:
   download:
-    cmd: python ../../scripts/download_bioasq_test_data.py 3 ../../data/processed/bioasq/data_3.json
+    cmd: python ../../scripts/download_bioasq_test_data.py 7 ../../data/processed/bioasq/data_7.json
     deps:
     - path: ../../scripts/download_bioasq_test_data.py
       md5: dd7b13b49437977d68fee317acf4499d
       size: 528
     outs:
-    - path: ../../data/processed/bioasq/data_3.json
-      md5: ec91b529f6e8464255603001bed995c4
-      size: 7694765
+    - path: ../../data/processed/bioasq/data_7.json
+      md5: 1b83feb67dfaada7ea87b396fe6e4deb
+      size: 182
   tag:
     cmd: python ../../scripts/tag_bioasq_test_data.py ../../data/processed/bioasq/data_3.json
       ../../models/xlinear/model/ ../../models/xlinear/label_binarizer.pkl ../../data/raw/desc2021.xml

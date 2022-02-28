@@ -1,7 +1,8 @@
 vars:
-  - test_number: 3 # You need to also chage the numbers in the below paths
-  - data_path: "../../data/processed/bioasq/data_3.json"
+  - test_number: 7 # Need to update the number below as well as interpolation is not allowed
+  - data_path: "../../data/processed/bioasq/data_7.json"
   - mesh_metadata_path: "../../data/raw/desc2021.xml"
+
 stages:
   download:
     cmd:
@@ -17,13 +18,15 @@ stages:
         label_binarizer_path: "../../models/xlinear/label_binarizer.pkl"
         approach: "mesh-xlinear"
         tagged_data_path: "../../data/processed/bioasq/tagged_data_${test_number}_xlinear.json"
+        threshold: 0.2
       - model_path: "../../models/bertmesh/model.pt"
         label_binarizer_path: "../../models/bertmesh/label_binarizer.pkl"
         approach: "bertmesh"
         tagged_data_path: "../../data/processed/bioasq/tagged_data_${test_number}_bertmesh.json"
+        threshold: 0.5
     do:
       cmd:
-        python ../../scripts/tag_bioasq_test_data.py ${data_path} ${item.model_path} ${item.label_binarizer_path} ${mesh_metadata_path} ${item.tagged_data_path} --approach ${item.approach}
+        python ../../scripts/tag_bioasq_test_data.py ${data_path} ${item.model_path} ${item.label_binarizer_path} ${mesh_metadata_path} ${item.tagged_data_path} --approach ${item.approach} --threshold ${item.threshold}
       deps:
         - ${data_path}
         - ${mesh_metadata_path}

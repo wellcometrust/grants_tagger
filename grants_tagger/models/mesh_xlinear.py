@@ -128,7 +128,7 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
             return self.xlinear_model_.predict(
                 self.vectorizer_.predict(X).astype("float32"),
                 only_topk=self.only_topk,
-                beam_size=self.beam_size
+                beam_size=self.beam_size,
             )
 
     def save(self, model_path):

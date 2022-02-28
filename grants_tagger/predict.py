@@ -23,7 +23,7 @@ def predict_tags(
     probabilities=False,
     threshold=0.5,
     parameters=None,
-    config=None
+    config=None,
 ):
     """
     X: list or numpy array of texts

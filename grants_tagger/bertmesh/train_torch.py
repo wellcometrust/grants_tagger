@@ -1,6 +1,7 @@
 from typing import Optional
 from datetime import datetime
 import yaml
+import time
 import json
 
 from sklearn.metrics import precision_recall_fscore_support
@@ -15,6 +16,7 @@ import wandb
 
 from grants_tagger.bertmesh.data import MeshDataset
 from grants_tagger.bertmesh.model import BertMesh, MultiLabelAttention
+from grants_tagger.utils import get_ec2_instance_type
 
 
 def train_bertmesh(
@@ -34,10 +36,12 @@ def train_bertmesh(
     val_x_path: Optional[str] = None,
     val_y_path: Optional[str] = None,
     log_interval: int = 100,
+    train_info: str = typer.Option(None, help="path to train times and instance"),
     experiment_name=datetime.now().strftime("%d/%m/%Y"),
     accelerate: bool = False,
     dry_run: bool = False,
 ):
+    start = time.time()
     if not dry_run:
         config = {
             "hidden_size": hidden_size,
@@ -208,6 +212,13 @@ def train_bertmesh(
     if train_metrics_path:
         with open(train_metrics_path, "w") as f:
             f.write(json.dumps({"metrics": metrics}))
+
+    duration = time.time() - start
+    instance = get_ec2_instance_type()
+    print(f"Took {duration:.2f} to train")
+    if train_info:
+        with open(train_info, "w") as f:
+            json.dump({"duration": duration, "ec2_instance": instance}, f)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 vars:
     - data: "../../data/"
     - models: "../../models/"
+    - results: "../../results"
     - experiment_name: "transformers-bertmesh"
 
 stages:
@@ -21,6 +22,7 @@ stages:
         - ${models}/bertmesh/label_binarizer.pkl
     train:
         cmd: python train_torch.py ${data}/processed/bertmesh/X.npy ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/model/
+            --train-info ${results}/bertmesh_train_info.json
             --learning-rate ${train.learning_rate} --batch-size ${train.batch_size} --epochs ${train.epochs} 
             --pretrained-model ${train.pretrained_model} --multilabel-attention --hidden-size ${train.hidden_size}
             --clip-norm ${train.clip_norm} --dropout ${train.dropout} --train-metrics-path train_metrics.json
@@ -28,10 +30,10 @@ stages:
             --val-y-path ${data}/processed/bertmesh/Y_test.npz --experiment-name ${experiment_name}
         deps:
         - train_torch.py
-        - model.py
-        - ${data}/processed/bertmesh/X.npy
-        - ${data}/processed/bertmesh/Y.npz
-        - ${models}/bertmesh/label_binarizer.pkl
+#        - model.py
+#        - ${data}/processed/bertmesh/X.npy
+#        - ${data}/processed/bertmesh/Y.npz
+#        - ${models}/bertmesh/label_binarizer.pkl
         params:
         - train.learning_rate
         - train.epochs

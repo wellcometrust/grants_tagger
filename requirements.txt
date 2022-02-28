@@ -12,10 +12,10 @@ arff==0.9
 argon2-cffi==21.3.0
 argon2-cffi-bindings==21.2.0
 astor==0.8.1
+asttokens==2.0.5
 astunparse==1.6.3
 async-timeout==4.0.2
 asyncssh==2.8.1
-asynctest==0.13.0
 atpublic==3.0.1
 attrs==20.3.0
 backcall==0.2.0
@@ -27,7 +27,6 @@ blis==0.7.5
 bokeh==2.3.3
 boto3==1.20.24
 botocore==1.23.24
-cached-property==1.5.2
 cachetools==5.0.0
 catalogue==2.0.6
 certifi==2021.10.8
@@ -56,6 +55,7 @@ dulwich==0.20.32
 dvc==2.9.5
 entrypoints==0.4
 et-xmlfile==1.1.0
+executing==0.8.3
 filelock==3.6.0
 flatbuffers==1.12
 flatten-dict==0.4.2
@@ -81,7 +81,7 @@ idna==3.3
 importlib-metadata==4.11.2
 importlib-resources==5.4.0
 ipykernel==6.9.1
-ipython==7.32.0
+ipython==8.1.0
 ipython-genutils==0.2.0
 ipywidgets==7.6.5
 jedi==0.18.1
@@ -145,6 +145,7 @@ protobuf==3.19.4
 protobuf3-to-dict==0.1.5
 psutil==5.9.0
 ptyprocess==0.7.0
+pure-eval==0.2.2
 pyarrow==7.0.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
@@ -201,6 +202,7 @@ smmap==5.0.0
 spacy==3.0.7
 spacy-legacy==3.0.9
 srsly==2.4.2
+stack-data==0.2.0
 streamlit==1.6.0
 tabulate==0.8.9
 tensorboard==2.8.0

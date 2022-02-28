@@ -1,4 +1,6 @@
-from transformers import BertTokenizerFast
+import os
+
+from transformers import BertTokenizerFast, AutoConfig
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
 import scipy.sparse as sp
@@ -34,12 +36,17 @@ class WellcomeBertMesh:
         self.cutoff_prob = cutoff_prob
         self.threshold = threshold
         self.batch_size = batch_size
-        self.model = BertMesh(
-            pretrained_model=pretrained_model,
-            num_labels=num_labels,
-            hidden_size=hidden_size,
-            multilabel_attention=multilabel_attention,
+
+        config = AutoConfig.from_pretrained(pretrained_model)
+        config.update(
+            {
+                "pretrained_model": pretrained_model,
+                "num_labels": num_labels,
+                "hidden_size": hidden_size,
+                "multilabel_attention": multilabel_attention,
+            }
         )
+        self.model = BertMesh(config)
 
     def set_params(self, **params):
         self.__init__(**params)
@@ -66,12 +73,6 @@ class WellcomeBertMesh:
         return Y_pred_proba
 
     def load(self, model_path):
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-        model = torch.load(model_path, map_location=torch.device(device))
-        if hasattr(model, "module"):
-            # trained with DataParallel
-            state_dict = model.module.state_dict()
-        else:
-            state_dict = model.state_dict()
-        self.model.load_state_dict(state_dict)
+        config_path = os.path.join(f"{model_path}/config.json")
+        config = AutoConfig.from_pretrained(config_path)
+        self.model = BertMesh(config)

@@ -1,4 +1,3 @@
 outs:
 - md5: 0787637f37e6b2b76060a963c8646ce0
   size: 1751648128
-  path: mesh_pipeline_result.csv

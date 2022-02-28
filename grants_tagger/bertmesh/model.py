@@ -24,9 +24,9 @@ class BertMesh(PreTrainedModel):
         self.config.auto_map = {"AutoModel": "model.BertMesh"}
         self.pretrained_model = self.config.pretrained_model
         self.num_labels = self.config.num_labels
-        self.hidden_size = self.config.hidden_size
-        self.dropout = self.config.dropout
-        self.multilabel_attention = self.config.multilabel_attention
+        self.hidden_size = getattr(self.config, "hidden_size", 512)
+        self.dropout = getattr(self.config, "dropout", 0.1)
+        self.multilabel_attention = getattr(self.config, "multilabel_attention", False)
 
         self.bert = AutoModel.from_pretrained(self.pretrained_model)  # 768
         self.multilabel_attention_layer = MultiLabelAttention(
@@ -40,7 +40,7 @@ class BertMesh(PreTrainedModel):
     def forward(self, input_ids, **kwargs):
         if type(input_ids) is list:
             # coming from tokenizer
-            input_ids = torch.tensor(input_ids) 
+            input_ids = torch.tensor(input_ids)
         if self.multilabel_attention:
             hidden_states = self.bert(input_ids=input_ids)[0]
             attention_outs = self.multilabel_attention_layer(hidden_states)

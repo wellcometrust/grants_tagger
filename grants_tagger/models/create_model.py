@@ -40,6 +40,7 @@ from grants_tagger.models.mesh_cnn import MeshCNN
 from grants_tagger.models.tfidf_transformers_svm import TfidfTransformersSVM
 from grants_tagger.models.science_ensemble import ScienceEnsemble
 from grants_tagger.models.mesh_tfidf_svm import MeshTfidfSVM
+from grants_tagger.models.bert_mesh import WellcomeBertMesh
 from grants_tagger.utils import save_pickle, load_pickle
 from wellcomeml.ml.bilstm import BiLSTMClassifier
 from wellcomeml.ml.cnn import CNNClassifier
@@ -478,6 +479,8 @@ def create_model(approach, parameters=None):
         model = ScienceEnsemble()
     elif approach == "mesh-xlinear":
         model = MeshXLinear()
+    elif approach == "bertmesh":
+        model = WellcomeBertMesh()
     else:
         raise ApproachNotImplemented
     if parameters:

@@ -1,9 +1,10 @@
 import requests
 import typer
 import json
+import os
 
 
-def download_test_data(test_number, username, password, data_path):
+def download_test_data(test_number, data_path, username=os.environ.get("BIOASQ_USERNAME"), password=os.environ.get("BIOASQ_PASSWORD")):
     url = f"http://participants-area.bioasq.org/tests/{test_number}"
 
     response = requests.get(url, auth=(username, password))

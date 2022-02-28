@@ -22,7 +22,7 @@ def get_mesh2code(mesh_metadata_path):
             pass
     return mesh2code
 
-def tag_bioasq_data(data_path, model_path, label_binarizer_path, mesh_metadata_path, tagged_data_path, threshold=0.5):
+def tag_bioasq_data(data_path, model_path, label_binarizer_path, mesh_metadata_path, tagged_data_path, threshold:float=0.5, approach="mesh-xlinear"):
     with open(data_path) as f:
         data = json.load(f)
 
@@ -34,7 +34,7 @@ def tag_bioasq_data(data_path, model_path, label_binarizer_path, mesh_metadata_p
         X.append(item["title"] + " " + item["abstractText"])
         pmids.append(item["pmid"])
 
-    tags = predict_tags(X, model_path, label_binarizer_path, "mesh-xlinear", threshold=threshold)
+    tags = predict_tags(X, model_path, label_binarizer_path, approach, threshold=threshold)
     
     tagged_data = [{"pmid": pmid, "labels": [mesh2code[t] for t in tags_]} for pmid, tags_ in zip(pmids, tags)]
   

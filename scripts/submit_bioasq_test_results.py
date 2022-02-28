@@ -1,9 +1,10 @@
 import requests
 import typer
 import json
+import os
 
 
-def submit_test_results(test_number, tagged_data_path, system, username, password):
+def submit_test_results(test_number, tagged_data_path, system, username=os.environ["BIOASQ_USERNAME"], password=os.environ["BIOASQ_PASSWORD"]):
     with open(tagged_data_path) as f:
         tagged_data = json.load(f)
 

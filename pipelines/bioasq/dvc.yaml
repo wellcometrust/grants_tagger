@@ -1,0 +1,50 @@
+vars:
+  - test_number: 7 # Need to update the number below as well as interpolation is not allowed
+  - data_path: "../../data/processed/bioasq/data_7.json"
+  - mesh_metadata_path: "../../data/raw/desc2021.xml"
+
+stages:
+  download:
+    cmd:
+      python ../../scripts/download_bioasq_test_data.py ${test_number} ${data_path}
+    deps:
+      - ../../scripts/download_bioasq_test_data.py
+    outs:
+      - ${data_path}
+
+  tag:
+    foreach:
+      - model_path: "../../models/xlinear/model/"
+        label_binarizer_path: "../../models/xlinear/label_binarizer.pkl"
+        approach: "mesh-xlinear"
+        tagged_data_path: "../../data/processed/bioasq/tagged_data_${test_number}_xlinear.json"
+        threshold: 0.2
+      - model_path: "../../models/bertmesh/model.pt"
+        label_binarizer_path: "../../models/bertmesh/label_binarizer.pkl"
+        approach: "bertmesh"
+        tagged_data_path: "../../data/processed/bioasq/tagged_data_${test_number}_bertmesh.json"
+        threshold: 0.5
+    do:
+      cmd:
+        python ../../scripts/tag_bioasq_test_data.py ${data_path} ${item.model_path} ${item.label_binarizer_path} ${mesh_metadata_path} ${item.tagged_data_path} --approach ${item.approach} --threshold ${item.threshold}
+      deps:
+        - ${data_path}
+        - ${mesh_metadata_path}
+        - ${item.model_path}
+        - ${item.label_binarizer_path}
+        - ../../scripts/tag_bioasq_test_data.py
+      outs:
+        - ${item.tagged_data_path}
+
+  submit:
+    foreach:
+      - tagged_data_path: "../../data/processed/bioasq/tagged_data_${test_number}_xlinear.json"
+        system: "Wellcome-XLinear"
+      - tagged_data_path: "../../data/processed/bioasq/tagged_data_${test_number}_bertmesh.json"
+        system: "Wellcome-BertMesh"
+    do:
+      cmd:
+        python ../../scripts/submit_bioasq_test_results.py ${test_number} ${item.tagged_data_path} ${item.system}
+      deps:
+        - ../../scripts/submit_bioasq_test_results.py
+        - ${item.tagged_data_path}

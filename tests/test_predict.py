@@ -5,11 +5,14 @@ import pickle
 import json
 import os
 
+from transformers import AutoTokenizer
 import numpy as np
 import pytest
+import torch
 
 from grants_tagger.train import create_label_binarizer, train
 from grants_tagger.predict import predict_tags
+from grants_tagger.bertmesh.model import BertMesh
 try:
     from grants_tagger.models.mesh_xlinear import MeshXLinear
     MESH_XLINEAR_IMPORTED = True
@@ -134,6 +137,33 @@ def mesh_xlinear_path(tmp_path):
     train(mesh_data_path, label_binarizer_path,
         approach="mesh-xlinear", model_path=model_path,
         sparse_labels=True, verbose=False, parameters=str(parameters))
+    return model_path
+
+@pytest.fixture
+def bert_mesh_path(tmp_path, mesh_label_binarizer_path):
+    model_path = os.path.join(tmp_path, "model.pt")
+    model = BertMesh(
+        pretrained_model="distilbert-base-uncased",
+        num_labels=5000,
+        multilabel_attention=True
+    )
+    tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
+
+    with open(mesh_label_binarizer_path, "rb") as f:
+        label_binarizer = pickle.loads(f.read())
+
+    criterion = torch.nn.BCELoss()
+    optimizer = torch.optim.Adam(model.parameters())
+
+    inputs = torch.tensor(tokenizer(X, padding="max_length")["input_ids"])
+    labels = torch.tensor(label_binarizer.transform(Y_mesh), dtype=torch.float32)
+
+    outputs = model(inputs)
+    loss = criterion(outputs, labels)
+    loss.backward()
+    optimizer.step()
+
+    torch.save(model, model_path)
     return model_path
 
 @pytest.fixture
@@ -307,3 +337,11 @@ def test_predict_tags_mesh_xlinear(mesh_xlinear_path, mesh_label_binarizer_path)
         approach="mesh-xlinear", threshold=1, parameters=parameters)
     for tags_ in tags:
         assert len(tags_) == 0
+
+
+def test_predict_tags_bertmesh(bert_mesh_path, mesh_label_binarizer_path):
+    parameters = str({"pretrained_model": "distilbert-base-uncased", "hidden_size": 512, "num_labels": 5000, "multilabel_attention": True})
+    tags = predict_tags(
+        X, bert_mesh_path, mesh_label_binarizer_path,
+        approach="bertmesh", parameters=parameters)
+    assert len(tags) == 5

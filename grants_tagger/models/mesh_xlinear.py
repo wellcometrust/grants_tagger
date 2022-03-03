@@ -5,9 +5,9 @@ import json
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.base import BaseEstimator, ClassifierMixin
 
-#from pecos.xmc.xlinear.model import XLinearModel
-#from pecos.xmc import Indexer, LabelEmbeddingFactory
-#from pecos.utils.featurization.text.vectorizers import Tfidf
+from pecos.xmc.xlinear.model import XLinearModel
+from pecos.xmc import Indexer, LabelEmbeddingFactory
+from pecos.utils.featurization.text.vectorizers import Tfidf
 
 from grants_tagger.utils import save_pickle, load_pickle
 

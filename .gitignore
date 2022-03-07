@@ -3,6 +3,7 @@
 
 # Models
 models/**
+!models/bertmesh/model/epoch-3.dvc
 
 # Data
 **/*.jsonl

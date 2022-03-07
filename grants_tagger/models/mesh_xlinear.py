@@ -136,7 +136,7 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
         params_path = os.path.join(model_path, "params.json")
         vectorizer_path = os.path.join(model_path, "vectorizer.pkl")
         with open(params_path, 'w') as f:
-            json.dump(self.__dict__, f, indent=4)
+            json.dump(self.__dict__, f, indent=4, default=str)
 
         if self.vectorizer_library == "sklearn":
             save_pickle(vectorizer_path, self.vectorizer_)

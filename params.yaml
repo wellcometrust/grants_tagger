@@ -19,10 +19,14 @@ train:
   # 2022.3.0
   mesh-xlinear:
     #tfidf params
+    min_df: 5
+    max_df: 1.0
     max_features: 400_000
     ngram_range: [1,1]
+    lowercase: True
     #xlinear params
     vectorizer_library: "pecos"
+    negative_sampling_scheme: "tfn"
     cluster_chain: True
     beam_size: 30
     only_topk: 200

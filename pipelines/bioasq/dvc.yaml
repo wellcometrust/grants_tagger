@@ -1,6 +1,6 @@
 vars:
-  - test_number: 7 # Need to update the number below as well as interpolation is not allowed
-  - data_path: "../../data/processed/bioasq/data_7.json"
+  - test_number: 8 # Need to update the number below as well as interpolation is not allowed
+  - data_path: "../../data/processed/bioasq/data_8.json"
   - mesh_metadata_path: "../../data/raw/desc2021.xml"
 
 stages:

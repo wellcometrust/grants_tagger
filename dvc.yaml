@@ -112,6 +112,7 @@ stages:
     - train.mesh-xlinear.max_features
     - train.mesh-xlinear.ngram_range
     - train.mesh-xlinear.lowercase
+    - train.mesh-xlinear.vectorizer_library
     - train.mesh-xlinear.cluster_chain
     - train.mesh-xlinear.negative_sampling_scheme
     - train.mesh-xlinear.beam_size

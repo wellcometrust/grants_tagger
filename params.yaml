@@ -16,18 +16,15 @@ train:
     validation_split: 0.10
     learning_rate: 0.00002
     epochs: 10
-  # 2021.09.0
+  # 2022.3.0
   mesh-xlinear:
     #tfidf params
-    stop_words: "english"
-    min_df: 5
-    max_df: 1.0
     max_features: 400_000
     ngram_range: [1,1]
-    lowercase: True
     #xlinear params
+    vectorizer_library: "pecos"
     cluster_chain: True
-    negative_sampling_scheme: "tfn"
-    beam_size: 10
-    only_topk: 20
+    beam_size: 30
+    only_topk: 200
     min_weight_value: 0.1
+

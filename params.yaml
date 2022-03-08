@@ -21,6 +21,7 @@ train:
     #tfidf params
     min_df: 5
     max_df: 1.0
+    stop_words: "english"
     max_features: 400_000
     ngram_range: [1,1]
     lowercase: True

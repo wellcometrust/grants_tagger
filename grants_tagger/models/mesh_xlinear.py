@@ -1,5 +1,6 @@
 import logging
 import os
+import json
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.base import BaseEstimator, ClassifierMixin
@@ -121,15 +122,22 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
         if self.vectorizer_library == "sklearn":
             return self.xlinear_model_.predict(
                 self.vectorizer_.transform(X).astype("float32"),
+                only_topk=self.only_topk,
                 beam_size=self.beam_size,
             )
         else:
             return self.xlinear_model_.predict(
-                self.vectorizer_.predict(X).astype("float32"), beam_size=self.beam_size
+                self.vectorizer_.predict(X).astype("float32"),
+                only_topk=self.only_topk,
+                beam_size=self.beam_size,
             )
 
     def save(self, model_path):
+        params_path = os.path.join(model_path, "params.json")
         vectorizer_path = os.path.join(model_path, "vectorizer.pkl")
+        with open(params_path, "w") as f:
+            json.dump(self.__dict__, f, indent=4, default=str)
+
         if self.vectorizer_library == "sklearn":
             save_pickle(vectorizer_path, self.vectorizer_)
         else:
@@ -138,7 +146,11 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
         self.xlinear_model_.save(model_path)
 
     def load(self, model_path, is_predict_only=True):
+        params_path = os.path.join(model_path, "params.json")
         vectorizer_path = os.path.join(model_path, "vectorizer.pkl")
+        with open(params_path, "r") as f:
+            self.__dict__.update(json.load(f))
+
         if self.vectorizer_library == "sklearn":
             self.vectorizer_ = load_pickle(vectorizer_path)
         else:

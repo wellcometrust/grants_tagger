@@ -43,7 +43,8 @@ def evaluate_model(
 
     if split_data:
         print(
-            "Warning: Data will be split in the same way as train. If you don't want that you set split_data=False"
+            "Warning: Data will be split in the same way as train."
+            " If you don't want that you set split_data=False"
         )
         _, X_test, _, Y_test = load_train_test_data(data_path, label_binarizer)
     else:
@@ -111,25 +112,26 @@ def evaluate_model_cli(
     split_data: bool = typer.Option(
         True, help="flag on whether to split data in same way as was done in train"
     ),
-    parameters: bool = typer.Option(
+    parameters: str = typer.Option(
         None, help="stringified parameters for model evaluation, if any"
     ),
     config: Optional[Path] = typer.Option(
         None, help="path to config file that defines arguments"
     ),
 ):
-
     if config:
         cfg = configparser.ConfigParser(allow_no_value=True)
         cfg.read(config)
-
-        approach = cfg["ensemble"]["approach"]
-        model_path = cfg["ensemble"]["models"]
-        data_path = cfg["ensemble"]["data"]
-        label_binarizer_path = cfg["ensemble"]["label_binarizer"]
-        threshold = cfg["ensemble"]["threshold"]
-        split_data = cfg["ensemble"]["split_data"]  # needs convert to bool
-        results_path = cfg["ensemble"].get("results_path", "results.json")
+        if "ensemble" in cfg:
+            approach = cfg["ensemble"]["approach"]
+            model_path = cfg["ensemble"]["models"]
+            data_path = cfg["ensemble"]["data"]
+            label_binarizer_path = cfg["ensemble"]["label_binarizer"]
+            threshold = cfg["ensemble"]["threshold"]
+            split_data = cfg["ensemble"]["split_data"]  # needs convert to bool
+            results_path = cfg["ensemble"].get("results_path", "results.json")
+        else:  # I only need to get model parameters which are necessary for loading/predicting
+            parameters = cfg["model"]["parameters"]
 
     if "," in threshold:
         threshold = [float(t) for t in threshold.split(",")]

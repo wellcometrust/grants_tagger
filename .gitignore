@@ -1,3 +1,6 @@
+# Idea
+.idea
+
 # Env
 .envrc
 
@@ -26,6 +29,7 @@ models/**
 .python-version
 .envrc
 .tox
+.ipynb_checkpoints
 
 # Build, venv and dist
 build/**

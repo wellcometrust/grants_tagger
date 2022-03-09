@@ -133,10 +133,10 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
             )
 
     def save(self, model_path):
-        model_path = str(model_path)  # In case a Posix is passed
+        model_path = str(model_path)  # In case a Posix is passed
         params_path = os.path.join(model_path, "params.json")
         vectorizer_path = os.path.join(model_path, "vectorizer.pkl")
-        with open(params_path, 'w') as f:
+        with open(params_path, "w") as f:
             json.dump(self.__dict__, f, indent=4, default=str)
 
         if self.vectorizer_library == "sklearn":
@@ -147,10 +147,10 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
         self.xlinear_model_.save(model_path)
 
     def load(self, model_path, is_predict_only=True):
-        model_path = str(model_path)  # In case a Posix is passed
+        model_path = str(model_path)  # In case a Posix is passed
         params_path = os.path.join(model_path, "params.json")
         vectorizer_path = os.path.join(model_path, "vectorizer.pkl")
-        with open(params_path, 'r') as f:
+        with open(params_path, "r") as f:
             self.__dict__.update(json.load(f))
 
         if self.vectorizer_library == "sklearn":

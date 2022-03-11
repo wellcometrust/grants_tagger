@@ -81,7 +81,7 @@ def evaluate_model(
         # Gets class reports and converts index to class names for readability
         full_report = {
             label_binarizer.classes_[int(idx)]: report
-            for idx, report in full_report.items()
+            for idx, report in full_report.items() if "avg" not in idx
         }
 
         # Put the averages back

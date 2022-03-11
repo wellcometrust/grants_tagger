@@ -2,6 +2,8 @@ import pickle
 import json
 
 import streamlit as st
+
+import seaborn as sns;
 import pandas as pd
 
 try:
@@ -15,7 +17,7 @@ except ImportError:
     )
     SHAP_IMPORTED = False
 
-#from grants_tagger.predict import predict_tags
+from grants_tagger.predict import predict_tags
 
 
 DEFAULT_TEXT = "The cell is..."
@@ -146,12 +148,22 @@ if full_report:
 
     with st.expander("Most common tags"):
         # Have to convert number of examples to integer to sort properly
-            st.table(
-                top_tags.sort_values(
-                    by='number of examples',
-                    key=lambda col: col.astype(int)
-                )[-n_top:][::-1][columns_of_interest]
-            )
+        st.table(
+            top_tags.sort_values(
+                by='number of examples',
+                key=lambda col: col.astype(int)
+            )[-n_top:][::-1][columns_of_interest]
+        )
+
+        # Eliminates everyone with "too many" and "too few" examples
+        df_sans_outliers = df[(df['number of examples'] > 50) & (df['number of examples'] < 5000)]
+
+        p = sns.regplot(
+            x=df_sans_outliers['number of examples'],
+            y=df_sans_outliers['score']
+        )
+        fig = p.get_figure()
+        st.pyplot(fig)
 
     with st.expander("Search tag performance"):
         option = st.selectbox(

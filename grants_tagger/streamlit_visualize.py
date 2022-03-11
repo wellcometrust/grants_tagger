@@ -1,4 +1,5 @@
 import pickle
+import json
 
 import streamlit as st
 import pandas as pd
@@ -9,12 +10,12 @@ try:
     SHAP_IMPORTED = True
 except ImportError:
     print(
-        "To get explanations for the predictions install shap with pip install git+https://github.com/nsorros/shap.git@dev"
+        "To get explanations for the predictions install shap "
+        "with pip install git+https://github.com/nsorros/shap.git@dev"
     )
     SHAP_IMPORTED = False
 
-from grants_tagger.models.mesh_cnn import MeshCNN
-from grants_tagger.predict import predict_tags
+#from grants_tagger.predict import predict_tags
 
 
 DEFAULT_TEXT = "The cell is..."
@@ -27,26 +28,39 @@ models = {
         "model_path": "models/disease_mesh_cnn-2021.03.1/",
         "label_binarizer_path": "models/disease_mesh_label_binarizer.pkl",
         "approach": "mesh-cnn",
+        "enabled": False
     },
     "tfidf-svm-2020.05.2": {
         "model_path": "models/tfidf-svm-2020.05.2.pkl",
         "label_binarizer_path": "models/label_binarizer.pkl",
         "approach": "tfidf-svm",
+        "enabled": False
     },
     "scibert-2020.05.5": {
         "model_path": "models/scibert-2020.05.5/",
         "label_binarizer_path": "models/label_binarizer.pkl",
         "approach": "scibert",
+        "enabled": False
     },
-    "mesh-xlinear-2021.09.0": {
-        "model_path": "models/xlinear/model-2021.09.0",
-        "label_binarizer_path": "models/xlinear/label_binarizer-2021.09.0.pkl",
+    "mesh-xlinear-2022.2.0": {
+        "model_path": "models/xlinear-0.2.3/model",
+        "full_report_path": "results/mesh_xlinear_full_report.json",
+        "label_binarizer_path": "models/xlinear-0.2.3/label_binarizer-0.2.3.pkl",
         "approach": "mesh-xlinear",
+        "enabled": True
     },
 }
 
-model_option = st.sidebar.selectbox("Model", options=list(models.keys()))
+model_option = st.sidebar.selectbox(
+    "Model",
+    options=[model_name for model_name, params in models.items() if params["enabled"]]
+)
+full_report = {}
 model = models[model_option]
+
+if model.get("full_report_path"):
+    with open(model["full_report"], "r") as f:
+        full_report = json.load(f)
 
 probabilities = st.sidebar.checkbox("Display probabilities")
 
@@ -76,6 +90,8 @@ else:
         st.button(tag)
 
 if SHAP_IMPORTED:
+    from grants_tagger.models.mesh_cnn import MeshCNN
+
     if model["approach"] == "mesh-cnn":
         mesh_cnn = MeshCNN(threshold=threshold)
         mesh_cnn.load(model["model_path"])
@@ -97,3 +113,7 @@ if SHAP_IMPORTED:
 
             html = shap.plots.text(shap_values[0, :, tag_index], display=False)
             st.components.v1.html(html, height=300, scrolling=True)
+
+
+if full_report:
+    pass  # Build the report 

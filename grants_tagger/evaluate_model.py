@@ -74,6 +74,19 @@ def evaluate_model(
         p, r, f1, _ = precision_recall_fscore_support(Y_test, Y_pred, average="micro")
         full_report = classification_report(Y_test, Y_pred, output_dict=True)
 
+        # Gets averages
+        averages = {
+            idx: report for idx, report in full_report.items() if "avg" in idx
+        }
+        # Gets class reports and converts index to class names for readability
+        full_report = {
+            label_binarizer.classes_[int(idx)]: report
+            for idx, report in full_report.items()
+        }
+
+        # Put the averages back
+        full_report = {**averages, **full_report}
+
         result = {
             "threshold": f"{th:.2f}",
             "precision": f"{p:.2f}",
@@ -115,7 +128,10 @@ def evaluate_model_cli(
         "0.5", help="threshold or comma separated thresholds used to assign tags"
     ),
     results_path: Optional[str] = typer.Option(None, help="path to save results"),
-    full_report_path: Optional[str] = typer.Option(None, help="Path to save full report, i.e. more comprehensive results than the ones saved in results_path"),
+    full_report_path: Optional[str] = typer.Option(
+        None, help="Path to save full report, i.e. "
+                   "more comprehensive results than the ones saved in results_path"
+    ),
     split_data: bool = typer.Option(
         True, help="flag on whether to split data in same way as was done in train"
     ),

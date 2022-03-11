@@ -8,7 +8,7 @@ import typer
 
 from typing import List, Optional
 from pathlib import Path
-from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import precision_recall_fscore_support, classification_report
 from wasabi import table, row
 import scipy.sparse as sp
 
@@ -35,6 +35,7 @@ def evaluate_model(
     threshold,
     split_data=True,
     results_path=None,
+    full_report_path=None,
     sparse_y=False,
     parameters=None,
 ):
@@ -71,6 +72,8 @@ def evaluate_model(
     for th in threshold:
         Y_pred = Y_pred_proba > th
         p, r, f1, _ = precision_recall_fscore_support(Y_test, Y_pred, average="micro")
+        full_report = classification_report(Y_test, Y_pred, output_dict=True)
+
         result = {
             "threshold": f"{th:.2f}",
             "precision": f"{p:.2f}",
@@ -89,7 +92,10 @@ def evaluate_model(
 
     if results_path:
         with open(results_path, "w") as f:
-            f.write(json.dumps(results))
+            f.write(json.dumps(results, indent=4))
+    if full_report_path:
+        with open(full_report_path, "w") as f:
+            f.write(json.dumps(full_report, indent=4))
 
 
 evaluate_model_app = typer.Typer()

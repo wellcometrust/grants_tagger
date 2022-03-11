@@ -58,26 +58,22 @@ model_option = st.sidebar.selectbox(
 full_report = {}
 model = models[model_option]
 
-if model.get("full_report_path"):
-    with open(model["full_report"], "r") as f:
-        full_report = json.load(f)
-
 probabilities = st.sidebar.checkbox("Display probabilities")
 
-if text == DEFAULT_TEXT:
-    st.stop()
-
 with st.spinner("Calculating tags..."):
-    tags = predict_tags(
-        [text],
-        model["model_path"],
-        model["label_binarizer_path"],
-        model["approach"],
-        probabilities=probabilities,
-        threshold=threshold,
-    )
-    tags = tags[0]
-st.success("Done!")
+    if text != DEFAULT_TEXT:
+        tags = predict_tags(
+            [text],
+            model["model_path"],
+            model["label_binarizer_path"],
+            model["approach"],
+            probabilities=probabilities,
+            threshold=threshold,
+        )
+        tags = tags[0]
+        st.success("Done!")
+    else:
+        tags = {}
 
 if probabilities:
     tag_probs = [
@@ -114,6 +110,68 @@ if SHAP_IMPORTED:
             html = shap.plots.text(shap_values[0, :, tag_index], display=False)
             st.components.v1.html(html, height=300, scrolling=True)
 
+if model.get("full_report_path"):
+    with open(model["full_report_path"], "r") as f:
+        # Loads a report and "linearises" into a list (a report has tags as keys)
+        full_report = [{**{'tag': tag}, **stats} for tag, stats in json.load(f).items()]
+
 
 if full_report:
-    pass  # Build the report 
+    n_top = 40
+    df = pd.DataFrame(full_report)
+    averages = ['micro avg', 'macro avg', 'samples avg', 'weighted avg']
+
+    df.set_index('tag', inplace=True)
+    df.rename({'f1-score': 'score', 'support': 'number of examples'}, axis=1, inplace=True)
+    df = df[df['number of examples'] > 50]
+    columns_of_interest = ['score', 'number of examples']
+
+    micro_averages = df.loc['micro avg']
+
+    # Drop averages for sorting etc
+    df.drop(averages, inplace=True)
+
+    top_tags = df.sort_values(by='score')
+
+    top_tags['precision'] = top_tags['precision'].apply(lambda x: f'{100 * x:2.0f}%')
+    top_tags['recall'] = top_tags['recall'].apply(lambda x: f'{100 * x:2.0f}%')
+    top_tags['score'] = top_tags['score'].apply(lambda x: f'{100 * x:2.0f}%')
+    top_tags['number of examples'] = top_tags['number of examples'].apply(lambda x: f'{x:.0f}')
+
+    with st.expander("Top performing tags"):
+        st.table(top_tags[-n_top:][::-1][columns_of_interest])
+
+    with st.expander("Worst performing tags"):
+        st.table(top_tags[:n_top][columns_of_interest])
+
+    with st.expander("Most common tags"):
+        # Have to convert number of examples to integer to sort properly
+            st.table(
+                top_tags.sort_values(
+                    by='number of examples',
+                    key=lambda col: col.astype(int)
+                )[-n_top:][::-1][columns_of_interest]
+            )
+
+    with st.expander("Search tag performance"):
+        option = st.selectbox(
+            "Select a MeSH tag to see how it compares to the overall performance",
+            df.index, index=100
+        )
+        precision = df.loc[option]['precision']
+        recall = df.loc[option]['recall']
+        score = df.loc[option]['score']
+        examples = df.loc[option]['number of examples']
+
+        delta_precision = precision-micro_averages['precision']
+        delta_recall = recall - micro_averages['recall']
+        delta_score = score - micro_averages['score']
+        # Below, for examples, I need median otherwise outliers will skew
+        delta_examples = examples - df['number of examples'].median()
+
+        col1, col2, col3, col4 = st.columns(4)
+
+        col1.metric('Precision', f'{100*precision:.0f}%', delta=f'{100*delta_precision:.0f}%')
+        col2.metric('Recall', f'{100 * recall:.0f}%', delta=f'{100 * delta_recall:.0f}%')
+        col3.metric('Score', f'{100 * score:.0f}%', delta=f'{100 * delta_score:.0f}%')
+        col4.metric('Examples', f'{examples:.0f}', delta=f'{delta_examples:.0f}')

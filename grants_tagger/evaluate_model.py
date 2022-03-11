@@ -115,6 +115,7 @@ def evaluate_model_cli(
         "0.5", help="threshold or comma separated thresholds used to assign tags"
     ),
     results_path: Optional[str] = typer.Option(None, help="path to save results"),
+    full_report_path: Optional[str] = typer.Option(None, help="Path to save full report, i.e. more comprehensive results than the ones saved in results_path"),
     split_data: bool = typer.Option(
         True, help="flag on whether to split data in same way as was done in train"
     ),
@@ -152,6 +153,7 @@ def evaluate_model_cli(
         threshold,
         split_data,
         results_path=results_path,
+        full_report_path=full_report_path,
         parameters=parameters,
     )
 

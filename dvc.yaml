@@ -123,7 +123,8 @@ stages:
   evaluate_mesh_xlinear:
     cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model
       data/processed/test_mesh2021.jsonl models/xlinear/label_binarizer.pkl
-      --results-path results/mesh_xlinear.json --no-split-data
+      --results-path results/mesh_xlinear.json 
+      --full-report-path results/mesh_xlinear_full_report.json--no-split-data
     deps:
     - grants_tagger/evaluate_model.py
     - models/xlinear/model

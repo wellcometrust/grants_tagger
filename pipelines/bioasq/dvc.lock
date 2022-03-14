@@ -90,19 +90,19 @@ stages:
       size: 6753545796
       nfiles: 38
     - path: ../../scripts/tag_bioasq_test_data.py
-      md5: 84a11a39cf4fc5e52fb7051a36edc0f0
-      size: 1389
+      md5: fe0d5e489c45101738e5a62935837d9f
+      size: 1383
     outs:
     - path: ../../data/processed/bioasq/tagged_data_9_xlinear.json
-      md5: 99ecbe5fdd215b38b0cba445d038a460
-      size: 16808
+      md5: 51beef4aaa89627a8543c87c20e8bd39
+      size: 516898
   submit@0:
     cmd: python ../../scripts/submit_bioasq_test_results.py 9 ../../data/processed/bioasq/tagged_data_9_xlinear.json
       Wellcome-XLinear
     deps:
     - path: ../../data/processed/bioasq/tagged_data_9_xlinear.json
-      md5: 99ecbe5fdd215b38b0cba445d038a460
-      size: 16808
+      md5: 51beef4aaa89627a8543c87c20e8bd39
+      size: 516898
     - path: ../../scripts/submit_bioasq_test_results.py
       md5: 81867d741804db4c1bbd6a70188b9817
       size: 724

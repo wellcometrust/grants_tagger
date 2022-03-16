@@ -24,12 +24,13 @@ RUN apt-get purge  -y --auto-remove git build-essential && \
     apt-get -y autoclean && \
     rm -rf /tmp/*
 
-COPY models/disease_mesh_cnn-2021.03.1/ models/disease_mesh_cnn-2021.03.1/
-COPY models/tfidf-svm-2020.05.2.pkl models/
-COPY models/scibert-2020.05.5/ models/scibert-2020.05.5/
-COPY models/label_binarizer.pkl models/
-COPY models/disease_mesh_label_binarizer.pkl models/
-COPY models/xlinear models/xlinear
+#COPY models/disease_mesh_cnn-2021.03.1/ models/disease_mesh_cnn-2021.03.1/
+#COPY models/tfidf-svm-2020.05.2.pkl models/
+#COPY models/scibert-2020.05.5/ models/scibert-2020.05.5/
+#COPY models/label_binarizer.pkl models/
+#COPY models/disease_mesh_label_binarizer.pkl models/
+COPY models/xlinear-0.2.3 models/xlinear-0.2.3
+COPY results/ results/
 
 EXPOSE 8501 850
 

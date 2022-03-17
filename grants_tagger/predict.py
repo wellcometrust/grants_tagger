@@ -15,7 +15,9 @@ from grants_tagger.models.create_model import load_model
 from typing import List, Optional
 
 
-def format_predictions(Y_pred_proba, label_binarizer, threshold=0.5, probabilities=True):
+def format_predictions(
+    Y_pred_proba, label_binarizer, threshold=0.5, probabilities=True
+):
     """
     Formats predictions to output a list of dictionaries
 
@@ -82,8 +84,9 @@ def predict_tags(
     model = load_model(approach, model_path, parameters=parameters)
     Y_pred_proba = model.predict_proba(X)
 
-    tags = format_predictions(Y_pred_proba, label_binarizer,
-                              threshold=threshold, probabilities=probabilities)
+    tags = format_predictions(
+        Y_pred_proba, label_binarizer, threshold=threshold, probabilities=probabilities
+    )
 
     return tags
 

@@ -16,7 +16,6 @@ from grants_tagger.utils import load_train_test_data, load_data
 from grants_tagger.models.create_model import load_model
 
 
-
 def predict_sparse_probs(model, X_test, batch_size=256, cutoff_prob=0.01):
     Y_pred_proba = []
     for i in range(0, X_test.shape[0], batch_size):
@@ -76,13 +75,12 @@ def evaluate_model(
         full_report = classification_report(Y_test, Y_pred, output_dict=True)
 
         # Gets averages
-        averages = {
-            idx: report for idx, report in full_report.items() if "avg" in idx
-        }
+        averages = {idx: report for idx, report in full_report.items() if "avg" in idx}
         # Gets class reports and converts index to class names for readability
         full_report = {
             label_binarizer.classes_[int(idx)]: report
-            for idx, report in full_report.items() if "avg" not in idx
+            for idx, report in full_report.items()
+            if "avg" not in idx
         }
 
         # Put the averages back
@@ -130,8 +128,9 @@ def evaluate_model_cli(
     ),
     results_path: Optional[str] = typer.Option(None, help="path to save results"),
     full_report_path: Optional[str] = typer.Option(
-        None, help="Path to save full report, i.e. "
-                   "more comprehensive results than the ones saved in results_path"
+        None,
+        help="Path to save full report, i.e. "
+        "more comprehensive results than the ones saved in results_path",
     ),
     split_data: bool = typer.Option(
         True, help="flag on whether to split data in same way as was done in train"

@@ -61,13 +61,14 @@ DEFAULT_TEXT = "The cell is..."
 text = st.text_area("Grant abstract", DEFAULT_TEXT, height=300)
 
 
-@st.cache
+@st.cache(suppress_st_warning=True)
 def load_binarizer_app():
     with open(models[model_option]["label_binarizer_path"], "rb") as f:
         binarizer = pickle.loads(f.read())
     return binarizer
 
-@st.cache
+
+@st.cache(suppress_st_warning=True)
 def load_model_app(model_option):
     # Caches model loading
     return load_model(
@@ -75,7 +76,6 @@ def load_model_app(model_option):
         model_path=models[model_option]["model_path"]
     )
 
-print("Loaded model")
 
 label_binarizer = load_binarizer_app()
 model = load_model_app(model_option)
@@ -83,7 +83,7 @@ model = load_model_app(model_option)
 probabilities = st.sidebar.checkbox("Display probabilities")
 
 with st.spinner("Calculating tags..."):
-    if text != DEFAULT_TEXT:
+    if text != DEFAULT_TEXT and len(text) > 5:  # Character limit to catch spurious texts
         Y_pred_proba = model.predict_proba([text])
 
         tags = format_predictions(

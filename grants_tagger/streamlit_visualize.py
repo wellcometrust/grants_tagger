@@ -3,7 +3,7 @@ import json
 
 import streamlit as st
 
-import seaborn as sns;
+import seaborn as sns
 import pandas as pd
 
 try:
@@ -183,7 +183,7 @@ if full_report:
 
         col1, col2, col3, col4 = st.columns(4)
 
-        col1.metric('Precision', f'{100*precision:.0f}%', delta=f'{100*delta_precision:.0f}%')
+        col1.metric('Precision', f'{100 * precision:.0f}%', delta=f'{100 * delta_precision:.0f}%')
         col2.metric('Recall', f'{100 * recall:.0f}%', delta=f'{100 * delta_recall:.0f}%')
         col3.metric('Score', f'{100 * score:.0f}%', delta=f'{100 * delta_score:.0f}%')
         col4.metric('Examples', f'{examples:.0f}', delta=f'{delta_examples:.0f}')

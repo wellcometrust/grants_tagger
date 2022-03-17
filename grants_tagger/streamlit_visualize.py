@@ -17,12 +17,13 @@ except ImportError:
     )
     SHAP_IMPORTED = False
 
-from grants_tagger.predict import predict_tags
+from grants_tagger.predict import predict_tags, format_predictions
+from grants_tagger.models.create_model import load_model
 
 
 DEFAULT_TEXT = "The cell is..."
 
-threshold = st.sidebar.slider("Threshold", min_value=0.0, max_value=1.0, value=0.5)
+threshold = st.sidebar.slider("Threshold", min_value=0.0, max_value=1.0, value=0.2)
 text = st.text_area("Grant abstract", DEFAULT_TEXT, height=300)
 
 models = {
@@ -44,7 +45,7 @@ models = {
         "approach": "scibert",
         "enabled": False
     },
-    "mesh-xlinear-2022.2.0": {
+    "mesh-xlinear-0.2.3": {
         "model_path": "models/xlinear-0.2.3/model",
         "full_report_path": "results/mesh_xlinear_full_report.json",
         "label_binarizer_path": "models/xlinear-0.2.3/label_binarizer-0.2.3.pkl",
@@ -58,20 +59,32 @@ model_option = st.sidebar.selectbox(
     options=[model_name for model_name, params in models.items() if params["enabled"]]
 )
 full_report = {}
-model = models[model_option]
+model_info = models[model_option]
+
+# Loads model globally so it doesn't need to re-start for every prediction
+model = load_model(
+    approach=models[model_option]["approach"],
+    model_path=models[model_option]["model_path"]
+)
+
+print("Loaded model")
+
+with open(models[model_option]["label_binarizer_path"], "rb") as f:
+    label_binarizer = pickle.loads(f.read())
 
 probabilities = st.sidebar.checkbox("Display probabilities")
 
 with st.spinner("Calculating tags..."):
     if text != DEFAULT_TEXT:
-        tags = predict_tags(
-            [text],
-            model["model_path"],
-            model["label_binarizer_path"],
-            model["approach"],
-            probabilities=probabilities,
+        Y_pred_proba = model.predict_proba([text])
+
+        tags = format_predictions(
+            Y_pred_proba,
+            label_binarizer,
             threshold=threshold,
+            probabilities=probabilities
         )
+
         tags = tags[0]
         st.success("Done!")
     else:
@@ -90,12 +103,12 @@ else:
 if SHAP_IMPORTED:
     from grants_tagger.models.mesh_cnn import MeshCNN
 
-    if model["approach"] == "mesh-cnn":
+    if model_info["approach"] == "mesh-cnn":
         mesh_cnn = MeshCNN(threshold=threshold)
-        mesh_cnn.load(model["model_path"])
+        mesh_cnn.load(model_info["model_path"])
         tokenizer = mesh_cnn.vectorizer.tokenizer
 
-        with open(model["label_binarizer_path"], "rb") as f:
+        with open(model_info["label_binarizer_path"], "rb") as f:
             label_binarizer = pickle.loads(f.read())
 
         with st.spinner("Calculating explanation..."):
@@ -112,8 +125,8 @@ if SHAP_IMPORTED:
             html = shap.plots.text(shap_values[0, :, tag_index], display=False)
             st.components.v1.html(html, height=300, scrolling=True)
 
-if model.get("full_report_path"):
-    with open(model["full_report_path"], "r") as f:
+if model_info.get("full_report_path"):
+    with open(model_info["full_report_path"], "r") as f:
         # Loads a report and "linearises" into a list (a report has tags as keys)
         full_report = [{**{'tag': tag}, **stats} for tag, stats in json.load(f).items()]
 

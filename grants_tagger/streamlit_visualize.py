@@ -20,11 +20,7 @@ except ImportError:
 from grants_tagger.predict import predict_tags, format_predictions
 from grants_tagger.models.create_model import load_model
 
-
-DEFAULT_TEXT = "The cell is..."
-
 threshold = st.sidebar.slider("Threshold", min_value=0.0, max_value=1.0, value=0.2)
-text = st.text_area("Grant abstract", DEFAULT_TEXT, height=300)
 
 models = {
     "disease_mesh_cnn-2021.03.1": {
@@ -60,12 +56,16 @@ model_option = st.sidebar.selectbox(
 )
 full_report = {}
 model_info = models[model_option]
+DEFAULT_TEXT = "The cell is..."
+
+text = st.text_area("Grant abstract", DEFAULT_TEXT, height=300)
 
 # Loads model globally so it doesn't need to re-start for every prediction
 model = load_model(
     approach=models[model_option]["approach"],
     model_path=models[model_option]["model_path"]
 )
+
 
 print("Loaded model")
 

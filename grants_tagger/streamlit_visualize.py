@@ -62,13 +62,13 @@ text = st.text_area("Grant abstract", DEFAULT_TEXT, height=300)
 
 
 @st.cache
-def load_binarizer():
+def load_binarizer_app():
     with open(models[model_option]["label_binarizer_path"], "rb") as f:
         binarizer = pickle.loads(f.read())
     return binarizer
 
 @st.cache
-def load_model(model_option):
+def load_model_app(model_option):
     # Caches model loading
     return load_model(
         approach=models[model_option]["approach"],
@@ -77,8 +77,8 @@ def load_model(model_option):
 
 print("Loaded model")
 
-label_binarizer = load_binarizer()
-model = load_model(model_option)
+label_binarizer = load_binarizer_app()
+model = load_model_app(model_option)
 
 probabilities = st.sidebar.checkbox("Display probabilities")
 

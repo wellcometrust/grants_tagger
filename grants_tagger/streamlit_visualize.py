@@ -60,17 +60,25 @@ DEFAULT_TEXT = "The cell is..."
 
 text = st.text_area("Grant abstract", DEFAULT_TEXT, height=300)
 
-# Loads model globally so it doesn't need to re-start for every prediction
-model = load_model(
-    approach=models[model_option]["approach"],
-    model_path=models[model_option]["model_path"]
-)
 
+@st.cache
+def load_binarizer():
+    with open(models[model_option]["label_binarizer_path"], "rb") as f:
+        binarizer = pickle.loads(f.read())
+    return binarizer
+
+@st.cache
+def load_model(model_option):
+    # Caches model loading
+    return load_model(
+        approach=models[model_option]["approach"],
+        model_path=models[model_option]["model_path"]
+    )
 
 print("Loaded model")
 
-with open(models[model_option]["label_binarizer_path"], "rb") as f:
-    label_binarizer = pickle.loads(f.read())
+label_binarizer = load_binarizer()
+model = load_model(model_option)
 
 probabilities = st.sidebar.checkbox("Display probabilities")
 

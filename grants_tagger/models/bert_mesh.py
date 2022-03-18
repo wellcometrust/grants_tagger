@@ -73,6 +73,4 @@ class WellcomeBertMesh:
         return Y_pred_proba
 
     def load(self, model_path):
-        config_path = os.path.join(f"{model_path}/config.json")
-        config = AutoConfig.from_pretrained(config_path)
-        self.model = BertMesh(config)
+        self.model = BertMesh.from_pretrained(model_path)

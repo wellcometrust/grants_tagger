@@ -29,17 +29,19 @@ def evaluate(
     if not dry_run:
         wandb.init(project="bertmesh", group=experiment_name, job_type="eval")
 
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     test_dataset = MeshDataset(x_path, y_path)
     test_data = DataLoader(test_dataset, batch_size)
 
-    config = AutoConfig.from_pretrained(f"{model_path}/config.json")
-    model = BertMesh(config)
+    model = BertMesh.from_pretrained(model_path)
+    model.to(device)
     model.eval()
 
     Y_pred_proba = []
     with torch.no_grad():
         for data in tqdm(test_data):
-            inputs, _ = data
+            inputs = data[0].to(device)
 
             outs = model(inputs)
 

@@ -1,4 +1,4 @@
-from transformers import AutoModel, PreTrainedModel
+from transformers import AutoModel, PreTrainedModel, BertConfig
 import torch
 
 
@@ -16,6 +16,8 @@ class MultiLabelAttention(torch.nn.Module):
 
 
 class BertMesh(PreTrainedModel):
+    config_class = BertConfig
+
     def __init__(
         self,
         config,

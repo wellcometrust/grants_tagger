@@ -80,8 +80,8 @@ stages:
       md5: cdec8e9be046ead8183f2a34e86c6f65
       size: 647442531
     - path: evaluate.py
-      md5: 2a614bedeb875eb74ea489173e12fbef
-      size: 2690
+      md5: ffd13afbe50cf4891248a60dbf9ae987
+      size: 2512
     params:
       params.yaml:
         train.batch_size: 64

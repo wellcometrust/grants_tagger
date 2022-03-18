@@ -13,6 +13,7 @@ import typer
 
 from grants_tagger.utils import get_ec2_instance_type
 
+
 class MultiLabelAttention(tf.keras.layers.Layer):
     def __init__(self, labels):
         super(MultiLabelAttention, self).__init__()

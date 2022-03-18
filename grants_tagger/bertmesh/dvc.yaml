@@ -30,10 +30,10 @@ stages:
             --val-y-path ${data}/processed/bertmesh/Y_test.npz --experiment-name ${experiment_name}
         deps:
         - train_torch.py
-#        - model.py
-#        - ${data}/processed/bertmesh/X.npy
-#        - ${data}/processed/bertmesh/Y.npz
-#        - ${models}/bertmesh/label_binarizer.pkl
+        - model.py
+        - ${data}/processed/bertmesh/X.npy
+        - ${data}/processed/bertmesh/Y.npz
+        - ${models}/bertmesh/label_binarizer.pkl
         params:
         - train.learning_rate
         - train.epochs

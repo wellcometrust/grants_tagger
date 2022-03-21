@@ -20,7 +20,7 @@ build-image: get-assets
 		-t $(ECR_IMAGE):$(TAG) \
 		-t $(ECR_IMAGE):$(TAG_LATEST) \
 		-f Dockerfile.streamlit \
-		-m 8g \
+		-m 16g \
 		.
 
 .PHONY: docker-push

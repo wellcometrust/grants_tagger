@@ -92,8 +92,8 @@ stages:
       models/label_binarizer.pkl --results-path results/tfidf_svm.json
     deps:
     - path: grants_tagger/evaluate_model.py
-      md5: f7ccdb7f90153a4c7258c586998f1bc9
-      size: 4606
+      md5: 515e12fec0ff108f24d59911d685c27d
+      size: 4824
     - path: models/label_binarizer.pkl
       md5: 220319a004a60bd6475e2fb617c2c1f3
       size: 1067
@@ -129,8 +129,8 @@ stages:
       models/label_binarizer.pkl --results-path results/scibert.json
     deps:
     - path: grants_tagger/evaluate_model.py
-      md5: f7ccdb7f90153a4c7258c586998f1bc9
-      size: 4606
+      md5: 515e12fec0ff108f24d59911d685c27d
+      size: 4824
     - path: models/label_binarizer.pkl
       md5: 220319a004a60bd6475e2fb617c2c1f3
       size: 1067
@@ -168,8 +168,8 @@ stages:
       --results-path results/science_ensemble.json
     deps:
     - path: grants_tagger/evaluate_model.py
-      md5: f7ccdb7f90153a4c7258c586998f1bc9
-      size: 4606
+      md5: 515e12fec0ff108f24d59911d685c27d
+      size: 4824
     - path: models/label_binarizer.pkl
       md5: 220319a004a60bd6475e2fb617c2c1f3
       size: 1067
@@ -282,12 +282,12 @@ stages:
       md5: 67d759ed4142feab2e575dc9bd3d5f54
       size: 827793
     - path: models/xlinear/model
-      md5: 39335bce321d2904889de4e1392b7a4e.dir
-      size: 3740297256
-      nfiles: 33
+      md5: 3db5df52b0ccea42837830b0578f99a8.dir
+      size: 6753545796
+      nfiles: 38
     outs:
     - path: results/mesh_xlinear_on_grants.json
-      md5: 707bfb57712b57ba5e985fb7e7278005
+      md5: 37f008e0bc8fe8dd46dc561326685597
       size: 26
   evaluate_mesh_xlinear:
     cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model data/processed/test_mesh2021.jsonl
@@ -295,15 +295,15 @@ stages:
       --no-split-data
     deps:
     - path: grants_tagger/evaluate_model.py
-      md5: f7ccdb7f90153a4c7258c586998f1bc9
-      size: 4606
+      md5: 515e12fec0ff108f24d59911d685c27d
+      size: 4824
     - path: models/xlinear/label_binarizer.pkl
       md5: 67d759ed4142feab2e575dc9bd3d5f54
       size: 827793
     - path: models/xlinear/model
-      md5: 39335bce321d2904889de4e1392b7a4e.dir
-      size: 3740297256
-      nfiles: 33
+      md5: 3db5df52b0ccea42837830b0578f99a8.dir
+      size: 6753545796
+      nfiles: 38
     outs:
     - path: results/mesh_xlinear.json
       md5: a0e6aa5fcc7b1ae79e588ce2b38c1bf3

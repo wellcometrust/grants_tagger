@@ -10,5 +10,7 @@ model.push_to_hub(
     "WellcomeBertMesh",
     organization="Wellcome",
     repo_url="https://huggingface.co/Wellcome/WellcomeBertMesh",
-    use_temp_dir=True
+#    use_temp_dir=True # for some reason this yield an authentication error
 )
+
+# note we do not push the tokenizer as we use bert pretrained one so it is unlikely to change

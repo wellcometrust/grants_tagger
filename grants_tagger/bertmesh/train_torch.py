@@ -16,13 +16,14 @@ import wandb
 
 from grants_tagger.bertmesh.data import MeshDataset
 from grants_tagger.bertmesh.model import BertMesh, MultiLabelAttention
-from grants_tagger.utils import get_ec2_instance_type
+from grants_tagger.utils import get_ec2_instance_type, load_pickle
 
 
 def train_bertmesh(
     x_path,
     y_path,
     model_path,
+    label_binarizer_path,
     hidden_size: int = 512,
     dropout: float = 0,
     multilabel_attention: bool = False,
@@ -71,6 +72,9 @@ def train_bertmesh(
         val_dataset = MeshDataset(val_x_path, val_y_path)
         val_data = DataLoader(val_dataset, batch_size=batch_size)
 
+    label_binarizer = load_pickle(label_binarizer_path)
+    id2label = {i: label for i, label in enumerate(label_binarizer.classes_)}
+
     config = AutoConfig.from_pretrained(pretrained_model)
     config.update(
         {
@@ -79,6 +83,7 @@ def train_bertmesh(
             "hidden_size": hidden_size,
             "dropout": dropout,
             "multilabel_attention": multilabel_attention,
+            "id2label": id2label
         }
     )
     model = BertMesh(config)

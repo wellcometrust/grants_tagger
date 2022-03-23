@@ -83,7 +83,7 @@ def train_bertmesh(
             "hidden_size": hidden_size,
             "dropout": dropout,
             "multilabel_attention": multilabel_attention,
-            "id2label": id2label
+            "id2label": id2label,
         }
     )
     model = BertMesh(config)

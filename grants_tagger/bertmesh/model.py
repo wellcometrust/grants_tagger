@@ -58,5 +58,12 @@ class BertMesh(PreTrainedModel):
             outs = torch.sigmoid(self.linear_out(outs))
         if return_labels:
             # TODO Vectorize
-           outs =  [[self.id2label[label_id] for label_id, label_prob in enumerate(out) if label_prob > 0.5] for out in outs]
+            outs = [
+                [
+                    self.id2label[label_id]
+                    for label_id, label_prob in enumerate(out)
+                    if label_prob > 0.5
+                ]
+                for out in outs
+            ]
         return outs

@@ -1,6 +1,6 @@
 vars:
-  - test_number: 11 # Need to update the number below as well as interpolation is not allowed
-  - data_path: "../../data/processed/bioasq/data_11.json"
+  - test_number: 12 # Need to update the number below as well as interpolation is not allowed
+  - data_path: "../../data/processed/bioasq/data_12.json"
   - mesh_metadata_path: "../../data/raw/desc2021.xml"
 
 stages:
@@ -19,7 +19,7 @@ stages:
         approach: "mesh-xlinear"
         tagged_data_path: "../../data/processed/bioasq/tagged_data_${test_number}_xlinear.json"
         threshold: 0.2
-      - model_path: "../../models/bertmesh/model.pt"
+      - model_path: "../../models/bertmesh/model/"
         label_binarizer_path: "../../models/bertmesh/label_binarizer.pkl"
         approach: "bertmesh"
         tagged_data_path: "../../data/processed/bioasq/tagged_data_${test_number}_bertmesh.json"

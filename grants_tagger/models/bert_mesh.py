@@ -28,25 +28,10 @@ class WellcomeBertMesh:
         cutoff_prob=0.1,
         threshold=0.5,
         batch_size=16,
-        pretrained_model="microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract",
-        num_labels=28761,
-        hidden_size=1024,
-        multilabel_attention=True,
     ):
         self.cutoff_prob = cutoff_prob
         self.threshold = threshold
         self.batch_size = batch_size
-
-        config = AutoConfig.from_pretrained(pretrained_model)
-        config.update(
-            {
-                "pretrained_model": pretrained_model,
-                "num_labels": num_labels,
-                "hidden_size": hidden_size,
-                "multilabel_attention": multilabel_attention,
-            }
-        )
-        self.model = BertMesh(config)
 
     def set_params(self, **params):
         self.__init__(**params)

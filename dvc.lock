@@ -238,8 +238,13 @@ stages:
       md5: 2d6f73d29ec6f98a3cae6df2c618f077
       size: 257607574
     - path: grants_tagger/models/mesh_xlinear.py
+<<<<<<< HEAD
       md5: 5bac8a0913d841a6cfc146577805cb34
       size: 5140
+=======
+      md5: a8c4abd11e2d6204c7dcfc0252521c6a
+      size: 5705
+>>>>>>> d7273e8 (Update dvc)
     - path: grants_tagger/train.py
       md5: 7ad0632959accc481d8d5300f3c9fd84
       size: 5996
@@ -258,11 +263,21 @@ stages:
         - 1
         train.mesh-xlinear.only_topk: 20
         train.mesh-xlinear.stop_words: english
+<<<<<<< HEAD
     outs:
     - path: models/xlinear/model
       md5: 39335bce321d2904889de4e1392b7a4e.dir
       size: 3740297256
       nfiles: 33
+=======
+        train.mesh-xlinear.threshold: 0.2
+        train.mesh-xlinear.vectorizer_library: pecos
+    outs:
+    - path: models/xlinear/model
+      md5: 4939257c1b5185f3eb53d20fafcf11f4.dir
+      size: 6753545796
+      nfiles: 38
+>>>>>>> d7273e8 (Update dvc)
   evaluate_mesh_xlinear_on_grants:
     cmd: grants_tagger evaluate grants mesh-xlinear models/xlinear/model data/raw/disease_tags_validation_grants.xlsx
       models/xlinear/label_binarizer.pkl --results-path results/mesh_xlinear_on_grants.json
@@ -291,22 +306,22 @@ stages:
   evaluate_mesh_xlinear:
     cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model data/processed/test_mesh2021.jsonl
       models/xlinear/label_binarizer.pkl --results-path results/mesh_xlinear.json
-      --no-split-data
+      --full-report-path results/mesh_xlinear_full_report.json --no-split-data
     deps:
     - path: grants_tagger/evaluate_model.py
-      md5: 515e12fec0ff108f24d59911d685c27d
-      size: 4824
+      md5: 906b962bd6e0eb0f59c027a5758549ee
+      size: 5786
     - path: models/xlinear/label_binarizer.pkl
       md5: 67d759ed4142feab2e575dc9bd3d5f54
       size: 827793
     - path: models/xlinear/model
-      md5: 3db5df52b0ccea42837830b0578f99a8.dir
+      md5: 4939257c1b5185f3eb53d20fafcf11f4.dir
       size: 6753545796
       nfiles: 38
     outs:
     - path: results/mesh_xlinear.json
-      md5: a0e6aa5fcc7b1ae79e588ce2b38c1bf3
-      size: 76
+      md5: b6f13676eb8af3b55a70b28477dea250
+      size: 120
   generate_validation_data_xlinear:
     cmd: python scripts/generate_validation_data_xlinear.py
     deps:

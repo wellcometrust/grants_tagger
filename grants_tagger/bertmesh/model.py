@@ -30,6 +30,7 @@ class BertMesh(PreTrainedModel):
         self.dropout = getattr(self.config, "dropout", 0.1)
         self.multilabel_attention = getattr(self.config, "multilabel_attention", False)
         self.id2label = self.config.id2label
+        self.threshold = getattr(self.config, "threshold", 0.5)
 
         self.bert = AutoModel.from_pretrained(self.pretrained_model)  # 768
         self.multilabel_attention_layer = MultiLabelAttention(
@@ -62,7 +63,7 @@ class BertMesh(PreTrainedModel):
                 [
                     self.id2label[label_id]
                     for label_id, label_prob in enumerate(out)
-                    if label_prob > 0.5
+                    if label_prob > self.threshold
                 ]
                 for out in outs
             ]

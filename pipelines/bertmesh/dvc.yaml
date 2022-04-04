@@ -3,14 +3,15 @@ vars:
     - models: "../../models/"
     - results: "../../results"
     - experiment_name: "transformers-bertmesh"
+    - scripts_folder: "./../grants_tagger/bertmesh"
 
 stages:
     prepare_data:
         cmd: |
-            python prepare_data.py ${data}/processed/train_mesh2021.jsonl ${data}/processed/bertmesh/X.npy ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/label_binarizer.pkl --years ${prepare_data.years} --pretrained-model ${train.pretrained_model}
-            python prepare_data.py ${data}/processed/train_mesh2021.jsonl ${data}/processed/bertmesh/X_test.npy ${data}/processed/bertmesh/Y_test.npz ${models}/bertmesh/label_binarizer.pkl --years ${prepare_data.test_years} --pretrained-model ${train.pretrained_model}
+            python ${scripts_folder}/prepare_data.py ${data}/processed/train_mesh2021.jsonl ${data}/processed/bertmesh/X.npy ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/label_binarizer.pkl --years ${prepare_data.years} --pretrained-model ${train.pretrained_model}
+            python ${scripts_folder}/prepare_data.py ${data}/processed/train_mesh2021.jsonl ${data}/processed/bertmesh/X_test.npy ${data}/processed/bertmesh/Y_test.npz ${models}/bertmesh/label_binarizer.pkl --years ${prepare_data.test_years} --pretrained-model ${train.pretrained_model}
         deps:
-        - prepare_data.py
+        - ${scripts_folder}/prepare_data.py
         params:
         - prepare_data.years
         - train.pretrained_model
@@ -21,7 +22,7 @@ stages:
         - ${data}/processed/bertmesh/Y_test.npz
         - ${models}/bertmesh/label_binarizer.pkl
     train:
-        cmd: python train_torch.py ${data}/processed/bertmesh/X.npy ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/model/
+        cmd: python ${scripts_folder}/train_torch.py ${data}/processed/bertmesh/X.npy ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/model/
             --train-info ${results}/bertmesh_train_info.json
             --learning-rate ${train.learning_rate} --batch-size ${train.batch_size} --epochs ${train.epochs} 
             --pretrained-model ${train.pretrained_model} --multilabel-attention --hidden-size ${train.hidden_size}
@@ -29,8 +30,8 @@ stages:
             --warmup-steps ${train.warmup_steps} --val-x-path ${data}/processed/bertmesh/X_test.npy
             --val-y-path ${data}/processed/bertmesh/Y_test.npz --experiment-name ${experiment_name}
         deps:
-        - train_torch.py
-        - model.py
+        - ${scripts_folder}/train_torch.py
+        - ${scripts_folder}/model.py
         - ${data}/processed/bertmesh/X.npy
         - ${data}/processed/bertmesh/Y.npz
         - ${models}/bertmesh/label_binarizer.pkl
@@ -50,9 +51,9 @@ stages:
         - train_metrics.json:
             cache: false
     evaluate:
-        cmd: python evaluate.py ${data}/processed/bertmesh/X_test.npy ${data}/processed/bertmesh/Y_test.npz ${models}/bertmesh/model/ --batch-size ${evaluate.batch_size} --results-path results.json --pr-curve-path pr_curve.json --experiment-name ${experiment_name}
+        cmd: python ${scripts_folder}/evaluate.py ${data}/processed/bertmesh/X_test.npy ${data}/processed/bertmesh/Y_test.npz ${models}/bertmesh/model/ --batch-size ${evaluate.batch_size} --results-path results.json --pr-curve-path pr_curve.json --experiment-name ${experiment_name}
         deps:
-        - evaluate.py
+        - ${scripts_folder}/evaluate.py
         - ${data}/processed/bertmesh/X_test.npy
         - ${data}/processed/bertmesh/Y_test.npz
         - ${models}/bertmesh/model/pytorch_model.bin

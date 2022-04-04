@@ -11,25 +11,27 @@ RUN apt-get update && \
 
 WORKDIR /code
 
-COPY grants_tagger/ /code/grants_tagger
-COPY setup.py /code
 COPY requirements.txt /code
 
 RUN pip install --upgrade pip && \
     pip install libpecos==0.1.0 && \
-    pip install -r requirements.txt && \
-    pip install . --no-dependencies
+    pip install -r requirements.txt
 
 RUN apt-get purge  -y --auto-remove git build-essential && \
     apt-get -y autoclean && \
     rm -rf /tmp/*
 
-COPY models/disease_mesh_cnn-2021.03.1/ models/disease_mesh_cnn-2021.03.1/
-COPY models/tfidf-svm-2020.05.2.pkl models/
-COPY models/scibert-2020.05.5/ models/scibert-2020.05.5/
+COPY grants_tagger/ /code/grants_tagger
+COPY setup.py /code
+RUN pip install . --no-dependencies
+
+#COPY models/disease_mesh_cnn-2021.03.1/ models/disease_mesh_cnn-2021.03.1/
+#COPY models/tfidf-svm-2020.05.2.pkl models/
+#COPY models/scibert-2020.05.5/ models/scibert-2020.05.5/
 COPY models/label_binarizer.pkl models/
-COPY models/disease_mesh_label_binarizer.pkl models/
-COPY models/xlinear models/xlinear
+#COPY models/disease_mesh_label_binarizer.pkl models/
+COPY models/xlinear-0.2.3 models/xlinear-0.2.3
+COPY results/ results/
 
 EXPOSE 8501 850
 

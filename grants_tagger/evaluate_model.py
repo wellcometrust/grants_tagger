@@ -8,7 +8,7 @@ import typer
 
 from typing import List, Optional
 from pathlib import Path
-from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import precision_recall_fscore_support, classification_report
 from wasabi import table, row
 import scipy.sparse as sp
 
@@ -35,6 +35,7 @@ def evaluate_model(
     threshold,
     split_data=True,
     results_path=None,
+    full_report_path=None,
     sparse_y=False,
     parameters=None,
 ):
@@ -71,6 +72,20 @@ def evaluate_model(
     for th in threshold:
         Y_pred = Y_pred_proba > th
         p, r, f1, _ = precision_recall_fscore_support(Y_test, Y_pred, average="micro")
+        full_report = classification_report(Y_test, Y_pred, output_dict=True)
+
+        # Gets averages
+        averages = {idx: report for idx, report in full_report.items() if "avg" in idx}
+        # Gets class reports and converts index to class names for readability
+        full_report = {
+            label_binarizer.classes_[int(idx)]: report
+            for idx, report in full_report.items()
+            if "avg" not in idx
+        }
+
+        # Put the averages back
+        full_report = {**averages, **full_report}
+
         result = {
             "threshold": f"{th:.2f}",
             "precision": f"{p:.2f}",
@@ -89,7 +104,10 @@ def evaluate_model(
 
     if results_path:
         with open(results_path, "w") as f:
-            f.write(json.dumps(results))
+            f.write(json.dumps(results, indent=4))
+    if full_report_path:
+        with open(full_report_path, "w") as f:
+            f.write(json.dumps(full_report, indent=4))
 
 
 evaluate_model_app = typer.Typer()
@@ -109,6 +127,11 @@ def evaluate_model_cli(
         "0.5", help="threshold or comma separated thresholds used to assign tags"
     ),
     results_path: Optional[str] = typer.Option(None, help="path to save results"),
+    full_report_path: Optional[str] = typer.Option(
+        None,
+        help="Path to save full report, i.e. "
+        "more comprehensive results than the ones saved in results_path",
+    ),
     split_data: bool = typer.Option(
         True, help="flag on whether to split data in same way as was done in train"
     ),
@@ -146,6 +169,7 @@ def evaluate_model_cli(
         threshold,
         split_data,
         results_path=results_path,
+        full_report_path=full_report_path,
         parameters=parameters,
     )
 

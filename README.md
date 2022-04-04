@@ -469,6 +469,23 @@ can interactively tag grants while choosing the threshold
 and the model to use. It currently works only with Wellcome
 trained models.
 
+If you want to visualise 
+
+```bash
+make build-streamlit-docker
+```
+
+And then
+```bash
+docker run -p 8501:8501 streamlitapp
+```
+
+And when you're really happy with it you can push the tag
+
+```bash
+make -f Makefile.streamlit docker-push
+```
+
 # 🧑🏻‍💻  Develop
 
 ## 📖 Data

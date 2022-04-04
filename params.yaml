@@ -25,6 +25,7 @@ train:
     max_features: 400_000
     ngram_range: [1,1]
     lowercase: True
+    threshold: 0.2
     #xlinear params
     vectorizer_library: "pecos"
     negative_sampling_scheme: "tfn"

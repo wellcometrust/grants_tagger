@@ -342,8 +342,7 @@ def test_predict_tags_mesh_xlinear(mesh_xlinear_path, mesh_label_binarizer_path)
 
 
 def test_predict_tags_bertmesh(bert_mesh_path, mesh_label_binarizer_path):
-    parameters = str({"pretrained_model": "distilbert-base-uncased", "hidden_size": 512, "num_labels": 5000, "multilabel_attention": True})
     tags = predict_tags(
         X, bert_mesh_path, mesh_label_binarizer_path,
-        approach="bertmesh", parameters=parameters)
+        approach="bertmesh")
     assert len(tags) == 5

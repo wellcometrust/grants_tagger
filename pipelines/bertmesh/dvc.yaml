@@ -3,7 +3,7 @@ vars:
     - models: "../../models/"
     - results: "../../results"
     - experiment_name: "transformers-bertmesh"
-    - scripts_folder: "./../grants_tagger/bertmesh"
+    - scripts_folder: "../../grants_tagger/bertmesh"
 
 stages:
     prepare_data:

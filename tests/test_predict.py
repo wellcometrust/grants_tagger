@@ -5,7 +5,7 @@ import pickle
 import json
 import os
 
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, AutoConfig
 import numpy as np
 import pytest
 import torch
@@ -141,12 +141,14 @@ def mesh_xlinear_path(tmp_path):
 
 @pytest.fixture
 def bert_mesh_path(tmp_path, mesh_label_binarizer_path):
-    model_path = os.path.join(tmp_path, "model.pt")
-    model = BertMesh(
-        pretrained_model="distilbert-base-uncased",
-        num_labels=5000,
-        multilabel_attention=True
-    )
+    model_path = os.path.join(tmp_path, "model")
+    config = AutoConfig.from_pretrained("distilbert-base-uncased")
+    config.update({
+        "pretrained_model": "distilbert-base-uncased",
+        "num_labels": 5000,
+        "multilabel_attention": True
+    })
+    model = BertMesh(config)
     tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
 
     with open(mesh_label_binarizer_path, "rb") as f:
@@ -163,7 +165,7 @@ def bert_mesh_path(tmp_path, mesh_label_binarizer_path):
     loss.backward()
     optimizer.step()
 
-    torch.save(model, model_path)
+    model.save_pretrained(model_path)
     return model_path
 
 @pytest.fixture
@@ -340,8 +342,7 @@ def test_predict_tags_mesh_xlinear(mesh_xlinear_path, mesh_label_binarizer_path)
 
 
 def test_predict_tags_bertmesh(bert_mesh_path, mesh_label_binarizer_path):
-    parameters = str({"pretrained_model": "distilbert-base-uncased", "hidden_size": 512, "num_labels": 5000, "multilabel_attention": True})
     tags = predict_tags(
         X, bert_mesh_path, mesh_label_binarizer_path,
-        approach="bertmesh", parameters=parameters)
+        approach="bertmesh")
     assert len(tags) == 5

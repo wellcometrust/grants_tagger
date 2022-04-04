@@ -1,11 +1,13 @@
 from typing import Optional
 from datetime import datetime
 import yaml
+import time
 import json
 
 from sklearn.metrics import precision_recall_fscore_support
 from torch.utils.data import DataLoader
 from accelerate import Accelerator
+from transformers import AutoConfig
 from tqdm import tqdm
 import transformers
 import torch
@@ -14,12 +16,14 @@ import wandb
 
 from grants_tagger.bertmesh.data import MeshDataset
 from grants_tagger.bertmesh.model import BertMesh, MultiLabelAttention
+from grants_tagger.utils import get_ec2_instance_type, load_pickle
 
 
 def train_bertmesh(
     x_path,
     y_path,
     model_path,
+    label_binarizer_path,
     hidden_size: int = 512,
     dropout: float = 0,
     multilabel_attention: bool = False,
@@ -33,10 +37,12 @@ def train_bertmesh(
     val_x_path: Optional[str] = None,
     val_y_path: Optional[str] = None,
     log_interval: int = 100,
+    train_info: str = typer.Option(None, help="path to train times and instance"),
     experiment_name=datetime.now().strftime("%d/%m/%Y"),
     accelerate: bool = False,
     dry_run: bool = False,
 ):
+    start = time.time()
     if not dry_run:
         config = {
             "hidden_size": hidden_size,
@@ -66,14 +72,23 @@ def train_bertmesh(
         val_dataset = MeshDataset(val_x_path, val_y_path)
         val_data = DataLoader(val_dataset, batch_size=batch_size)
 
-    model = BertMesh(
-        pretrained_model,
-        num_labels=dataset.num_labels,
-        hidden_size=hidden_size,
-        dropout=dropout,
-        multilabel_attention=multilabel_attention,
+    label_binarizer = load_pickle(label_binarizer_path)
+    id2label = {i: label for i, label in enumerate(label_binarizer.classes_)}
+
+    config = AutoConfig.from_pretrained(pretrained_model)
+    config.update(
+        {
+            "pretrained_model": pretrained_model,
+            "num_labels": dataset.num_labels,
+            "hidden_size": hidden_size,
+            "dropout": dropout,
+            "multilabel_attention": multilabel_attention,
+            "id2label": id2label,
+        }
     )
-    model = torch.nn.DataParallel(model)
+    model = BertMesh(config)
+    if not accelerate:
+        model = torch.nn.DataParallel(model)
     model.to(device)
 
     if not dry_run:
@@ -97,7 +112,10 @@ def train_bertmesh(
     for epoch in range(epochs):
         batches = tqdm(data, desc=f"Epoch {epoch+1:2d}/{epochs:2d}")
         for step, batch in enumerate(batches):
-            inputs, labels = batch[0].to(device), batch[1].to(device)
+            if accelerate:
+                inputs, labels = batch
+            else:
+                inputs, labels = batch[0].to(device), batch[1].to(device)
 
             optimizer.zero_grad()
 
@@ -141,8 +159,14 @@ def train_bertmesh(
             if dry_run:
                 break
 
-        epoch_model_path = model_path.replace(".pt", f"-epoch{epoch+1}.pt")
-        torch.save(model, epoch_model_path)
+        epoch_model_path = f"{model_path}/epoch-{epoch+1}/"
+        if accelerate:
+            accelerator.wait_for_everyone()
+            unwrapped_model = accelerator.unwrap_model(model)
+        else:
+            unwrapped_model = model.module
+
+        unwrapped_model.save_pretrained(epoch_model_path)
 
         if val_x_path and val_y_path:
             model.eval()
@@ -164,8 +188,15 @@ def train_bertmesh(
             val_loss /= len(val_dataset)
 
             if val_loss < best_val_loss:
-                best_model_path = model_path.replace(".pt", "-best.pt")
-                torch.save(model, best_model_path)
+                best_model_path = f"{model_path}/best/"
+
+                if accelerate:
+                    accelerator.wait_for_everyone()
+                    unwrapped_model = accelerator.unwrap_model(model)
+                else:
+                    unwrapped_model = model.module
+
+                unwrapped_model.save_pretrained(best_model_path)
 
             if not dry_run:
                 wandb.log({"val_loss": val_loss})
@@ -178,11 +209,21 @@ def train_bertmesh(
     if accelerate:
         accelerator.wait_for_everyone()
         model = accelerator.unwrap_model(model)
-    torch.save(model, model_path)
+    else:
+        model = model.module
+
+    model.save_pretrained(model_path)
 
     if train_metrics_path:
         with open(train_metrics_path, "w") as f:
             f.write(json.dumps({"metrics": metrics}))
+
+    duration = time.time() - start
+    instance = get_ec2_instance_type()
+    print(f"Took {duration:.2f} to train")
+    if train_info:
+        with open(train_info, "w") as f:
+            json.dump({"duration": duration, "ec2_instance": instance}, f)
 
 
 if __name__ == "__main__":

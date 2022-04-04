@@ -1,5 +1,7 @@
 import random
 import math
+import time
+import json
 import os
 
 from transformers import TFBertModel, AutoModel
@@ -8,6 +10,8 @@ import tensorflow as tf
 import scipy.sparse as sp
 import numpy as np
 import typer
+
+from grants_tagger.utils import get_ec2_instance_type
 
 
 class MultiLabelAttention(tf.keras.layers.Layer):
@@ -43,8 +47,10 @@ def train_bertmesh(
     batch_size: int = 256,
     learning_rate: float = 1e-4,
     epochs: int = 5,
+    train_info: str = typer.Option(None, help="path to train times and instance"),
     pretrained_model="bert-base-uncased",
 ):
+    start = time.time()
     X = np.load(x_path)
     Y = sp.load_npz(y_path)
 
@@ -95,6 +101,13 @@ def train_bertmesh(
     train_data = yield_data(X, Y, batch_size, shuffle=False)
     model.fit(train_data, epochs=epochs, steps_per_epoch=steps_per_epoch)
     model.save(model_path)
+
+    duration = time.time() - start
+    instance = get_ec2_instance_type()
+    print(f"Took {duration:.2f} to train")
+    if train_info:
+        with open(train_info, "w") as f:
+            json.dump({"duration": duration, "ec2_instance": instance}, f)
 
 
 if __name__ == "__main__":

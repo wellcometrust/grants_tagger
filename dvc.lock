@@ -238,13 +238,8 @@ stages:
       md5: 2d6f73d29ec6f98a3cae6df2c618f077
       size: 257607574
     - path: grants_tagger/models/mesh_xlinear.py
-<<<<<<< HEAD
-      md5: 5bac8a0913d841a6cfc146577805cb34
-      size: 5140
-=======
       md5: a8c4abd11e2d6204c7dcfc0252521c6a
       size: 5705
->>>>>>> d7273e8 (Update dvc)
     - path: grants_tagger/train.py
       md5: 7ad0632959accc481d8d5300f3c9fd84
       size: 5996
@@ -263,13 +258,6 @@ stages:
         - 1
         train.mesh-xlinear.only_topk: 20
         train.mesh-xlinear.stop_words: english
-<<<<<<< HEAD
-    outs:
-    - path: models/xlinear/model
-      md5: 39335bce321d2904889de4e1392b7a4e.dir
-      size: 3740297256
-      nfiles: 33
-=======
         train.mesh-xlinear.threshold: 0.2
         train.mesh-xlinear.vectorizer_library: pecos
     outs:
@@ -277,7 +265,6 @@ stages:
       md5: 4939257c1b5185f3eb53d20fafcf11f4.dir
       size: 6753545796
       nfiles: 38
->>>>>>> d7273e8 (Update dvc)
   evaluate_mesh_xlinear_on_grants:
     cmd: grants_tagger evaluate grants mesh-xlinear models/xlinear/model data/raw/disease_tags_validation_grants.xlsx
       models/xlinear/label_binarizer.pkl --results-path results/mesh_xlinear_on_grants.json

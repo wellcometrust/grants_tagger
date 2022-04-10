@@ -22,7 +22,7 @@ stages:
         - ${data}/processed/bertmesh/Y_test.npz
         - ${models}/bertmesh/label_binarizer.pkl
     train:
-        cmd: python ${scripts_folder}/train_torch.py ${data}/processed/bertmesh/X.npy ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/model/
+        cmd: python ${scripts_folder}/train_torch.py ${data}/processed/bertmesh/X.npy ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/model/ ${models}/bertmesh/label_binarizer.pkl
             --train-info ${results}/bertmesh_train_info.json
             --learning-rate ${train.learning_rate} --batch-size ${train.batch_size} --epochs ${train.epochs} 
             --pretrained-model ${train.pretrained_model} --multilabel-attention --hidden-size ${train.hidden_size}

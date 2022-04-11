@@ -25,3 +25,4 @@ wandb
 accelerate
 black==21.7b0
 flake8
+pre-commit

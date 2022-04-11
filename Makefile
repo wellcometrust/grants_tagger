@@ -37,7 +37,7 @@ sync_artifacts: sync_science_artifacts sync_mesh_artifacts ## Sync processed dat
 .PHONY: sync_science_artifacts
 sync_science_artifacts: ## Sync science processed data and models
 	echo "Sync processed data"
-	aws s3 sync data/processed s3://$(PRIVATE_PROJECT_BUCKET)/data/processed --exclude "*" --include "*science*" 
+	aws s3 sync data/processed s3://$(PRIVATE_PROJECT_BUCKET)/data/processed --exclude "*" --include "*science*"
 	aws s3 sync s3://$(PRIVATE_PROJECT_BUCKET)/data/processed data/processed --exclude "*" --include "*science*"
 	echo "Sync models"
 	aws s3 sync models/ s3://$(PRIVATE_PROJECT_BUCKET)/models/ --exclude "*" --include "*science*"
@@ -60,11 +60,12 @@ virtualenv: ## Creates virtualenv
 # As to why no identation see https://stackoverflow.com/questions/4483313/make-error-for-ifeq-syntax-error-near-unexpected-token
 ifeq ($(UNAME), Linux)
 	$(PIP) install libpecos==0.1.0
-endif		
+endif
 	$(PIP) install pytest pytest-cov tox
 	$(PIP) install -r requirements.txt
 	$(PIP) install --no-deps -e .
 	$(PIP) install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.4.0/en_core_sci_sm-0.4.0.tar.gz
+	$(VIRTUALENV)/bin/pre-commit install --hook-type pre-push --hook-type post-checkout --hook-type pre-commit
 
 update-requirements: VIRTUALENV := /tmp/update-requirements-venv/
 update-requirements: ## Updates requirement
@@ -138,7 +139,7 @@ build-streamlit-docker: ## Builds Docker with streamlit and models
 install-private-requirements: ## Install the private datascience utils
 	pip install httpx pyodbc psycopg2
 	pip install -e git+ssh://git@github.com/wellcometrust/datascience.git#egg=wellcome-datascience-common
- 
+
 
 help: ## Show help message
 	@IFS=$$'\n' ; \

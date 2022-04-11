@@ -5,11 +5,7 @@ import csv
 from grants_tagger.pretrain import pretrain
 
 
-DATA = [
-    {"synopsis": "One"},
-    {"synopsis": "Two"},
-    {"synopsis": "Three"}
-]
+DATA = [{"synopsis": "One"}, {"synopsis": "Two"}, {"synopsis": "Three"}]
 
 
 def test_pretrain_doc2vec():

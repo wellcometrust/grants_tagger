@@ -18,6 +18,7 @@ def calculate_stats(data_path):
             nb_words += len(doc)
     return {"vocab": len(doc.vocab), "words": nb_words}
 
+
 argparser = ArgumentParser(description=__file__)
 argparser.add_argument("--data", type=Path, help="JSONL dataset")
 args = argparser.parse_args()

@@ -11,6 +11,6 @@ train:
     clip_norm: 5
     dropout: 0.1
     warmup_steps: 1000
- 
+
 evaluate:
     batch_size: 8

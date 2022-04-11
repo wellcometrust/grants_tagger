@@ -12,11 +12,11 @@ from grants_tagger.evaluate_mesh_on_grants import evaluate_mesh_on_grants
 TRAIN_DATA = [
     {"text": "One", "tags": [1]},
     {"text": "One Two", "tags": [1, 2]},
-    {"text": "Three", "tags": [3]}
+    {"text": "Three", "tags": [3]},
 ]
 VAL_DATA = [
     {"Title": "One", "Synopsis": " ", "Tags KW1": 1},
-    {"Title": "Two", "Synopsis": " ", "Tags KW2": 2}
+    {"Title": "Two", "Synopsis": " ", "Tags KW2": 2},
 ]
 
 

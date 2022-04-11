@@ -22,21 +22,21 @@ runner = CliRunner()
 DATA = [
     {"text": "One", "tags": ["1"], "meta": {"Tagger1_tags": ["1"]}},
     {"text": "One Two", "tags": ["1", "2"], "meta": {"Tagger1_tags": ["2"]}},
-    {"text": "Three", "tags": ["3"], "meta": {"Tagger1_tags": ["1"]}}
+    {"text": "Three", "tags": ["3"], "meta": {"Tagger1_tags": ["1"]}},
 ]
 
 
 BIOASQ_DATA = {
     "articles": [
         {"abstractText": "Malaria", "MeshMajor": ["Malaria"]},
-        {"abstractText": "HIV", "MeshMajor": ["HIV"]}
+        {"abstractText": "HIV", "MeshMajor": ["HIV"]},
     ]
 }
 
 
 PRETRAIN_DATA = [
     {"synopsis": "Malaria is a disase"},
-    {"synopsis": "HIV is another disease"}
+    {"synopsis": "HIV is another disease"},
 ]
 
 
@@ -45,19 +45,13 @@ MTI_DATA = [
     ("0", "T2", "", ""),
     ("1", "T1", "", ""),
     ("2", "T2", "", ""),
-    ("2", "T3", "", "")
+    ("2", "T3", "", ""),
 ]
 
 
 MESH_TAGS = [
-    {
-        "DescriptorUI": "D008288",
-        "DescriptorName": "Malaria"
-    },
-    {
-        "DescriptorUI": "D006678",
-        "DescriptorName": "HIV"
-    }
+    {"DescriptorUI": "D008288", "DescriptorName": "Malaria"},
+    {"DescriptorUI": "D006678", "DescriptorName": "HIV"},
 ]
 
 
@@ -65,12 +59,12 @@ MESH_DATA = [
     {
         "text": "Malaria is a mosquito-borne infectious disease that affects humans and other animals. Malaria causes symptoms that typically include fever, tiredness, vomiting, and headaches. In severe cases it can cause yellow skin, seizures, coma, or death",
         "tags": ["Malaria"],
-        "meta": {}
+        "meta": {},
     },
     {
         "text": "The human immunodeficiency viruses are two species of Lentivirus that infect humans. Without treatment, average survival time after infection with HIV is estimated to be 9 to 11 years, depending on the HIV subtype.",
         "tags": ["HIV"],
-        "meta": {}
+        "meta": {},
     },
 ]
 
@@ -78,14 +72,13 @@ MESH_DATA = [
 def write_jsonl(data_path, data):
     with open(data_path, "w") as f:
         for line in data:
-            f.write(json.dumps(line)+"\n")
+            f.write(json.dumps(line) + "\n")
 
 
 def write_csv(data_path, data, delimiter=","):
     fieldnames = list(data[0].keys())
     with open(data_path, "w") as f:
-        csvwriter = csv.DictWriter(
-            f, delimiter=delimiter, fieldnames=fieldnames)
+        csvwriter = csv.DictWriter(f, delimiter=delimiter, fieldnames=fieldnames)
         csvwriter.writeheader()
         for line in data:
             csvwriter.writerow(line)
@@ -131,18 +124,21 @@ def test_train_command():
 
         write_jsonl(data_path, DATA)
 
-        result = runner.invoke(app, [
-            "train",
-            data_path,
-            label_binarizer_path,
-            model_path,
-            "--approach",
-            "tfidf-svm",
-            "--parameters",
-            "{'tfidf__min_df': 1, 'tfidf__stop_words': None}",
-            "--train-info",
-            train_info_path
-        ])
+        result = runner.invoke(
+            app,
+            [
+                "train",
+                data_path,
+                label_binarizer_path,
+                model_path,
+                "--approach",
+                "tfidf-svm",
+                "--parameters",
+                "{'tfidf__min_df': 1, 'tfidf__stop_words': None}",
+                "--train-info",
+                train_info_path,
+            ],
+        )
         assert result.exit_code == 0
         assert os.path.isfile(model_path)
         assert os.path.isfile(label_binarizer_path)
@@ -171,11 +167,11 @@ def test_convert_dvc_to_sklearn_params():
 
     params = {
         "tfidf": {"ngrams": [1, 2]},
-        "svm": {"estimator__class_weight": "balanced"}
+        "svm": {"estimator__class_weight": "balanced"},
     }
     expected_params = {
-        "tfidf__ngrams": [1,2],
-        "svm__estimator__class_weight": "balanced"
+        "tfidf__ngrams": [1, 2],
+        "svm__estimator__class_weight": "balanced",
     }
     sklearn_params = convert_dvc_to_sklearn_params(params)
     assert sklearn_params == expected_params
@@ -188,11 +184,7 @@ def test_pretrain_command():
 
         write_csv(data_path, PRETRAIN_DATA)
 
-        result = runner.invoke(app, [
-            "pretrain",
-            data_path,
-            model_path
-        ])
+        result = runner.invoke(app, ["pretrain", data_path, model_path])
         assert result.exit_code == 0
         assert os.path.isdir(model_path)
 
@@ -206,13 +198,9 @@ def test_predict_command():
         create_model(model_path, label_binarizer_path, DATA)
 
         text = "malaria"
-        result = runner.invoke(app, [
-            "predict",
-            text,
-            model_path,
-            label_binarizer_path,
-            "mesh-cnn"
-        ])
+        result = runner.invoke(
+            app, ["predict", text, model_path, label_binarizer_path, "mesh-cnn"]
+        )
         print(result)
         assert result.exit_code == 0
 
@@ -227,14 +215,17 @@ def test_evaluate_model_command():
         create_model(model_path, label_binarizer_path, MESH_DATA)
         write_jsonl(data_path, MESH_DATA)
 
-        result = runner.invoke(app, [
-            "evaluate",
-            "model",
-            "mesh-cnn",
-            model_path,
-            data_path,
-            label_binarizer_path
-        ])
+        result = runner.invoke(
+            app,
+            [
+                "evaluate",
+                "model",
+                "mesh-cnn",
+                model_path,
+                data_path,
+                label_binarizer_path,
+            ],
+        )
         assert result.exit_code == 0
 
 
@@ -246,12 +237,9 @@ def test_evaluate_human_command():
         create_label_binarizer(label_binarizer_path, DATA)
         write_jsonl(data_path, DATA)
 
-        result = runner.invoke(app, [
-            "evaluate",
-            "human",
-            data_path,
-            label_binarizer_path
-        ])
+        result = runner.invoke(
+            app, ["evaluate", "human", data_path, label_binarizer_path]
+        )
         assert result.exit_code == 0
 
 
@@ -267,13 +255,16 @@ def test_evaluate_scispacy_command():
         write_jsonl(mesh_metadata_path, MESH_TAGS)
         create_label_binarizer(label_binarizer_path, MESH_DATA)
 
-        result = runner.invoke(app, [
-            "evaluate",
-            "scispacy",
-            mesh_data_path,
-            label_binarizer_path,
-            mesh_metadata_path
-        ])
+        result = runner.invoke(
+            app,
+            [
+                "evaluate",
+                "scispacy",
+                mesh_data_path,
+                label_binarizer_path,
+                mesh_metadata_path,
+            ],
+        )
         assert result.exit_code == 0
 
 
@@ -285,17 +276,13 @@ def test_evaluate_mti_command():
 
         with open(mti_data_path, "w") as f:
             for line in MTI_DATA:
-                f.write("|".join(line)+"\n")
+                f.write("|".join(line) + "\n")
         write_jsonl(data_path, DATA)
         create_label_binarizer(label_binarizer_path, DATA)
 
-        result = runner.invoke(app, [
-            "evaluate",
-            "mti",
-            data_path,
-            label_binarizer_path,
-            mti_data_path
-        ])
+        result = runner.invoke(
+            app, ["evaluate", "mti", data_path, label_binarizer_path, mti_data_path]
+        )
         assert result.exit_code == 0
 
 
@@ -310,15 +297,18 @@ def test_tune_threshold_command():
         create_label_binarizer(label_binarizer_path, MESH_DATA, sparse_labels=True)
         create_model(model_path, label_binarizer_path, MESH_DATA)
 
-        result = runner.invoke(app, [
-            "tune",
-            "threshold",
-            "mesh-cnn",
-            data_path,
-            model_path,
-            label_binarizer_path,
-            thresholds_path,
-        ])
+        result = runner.invoke(
+            app,
+            [
+                "tune",
+                "threshold",
+                "mesh-cnn",
+                data_path,
+                model_path,
+                label_binarizer_path,
+                thresholds_path,
+            ],
+        )
         assert result.exit_code == 0
         assert os.path.isfile(thresholds_path)
 

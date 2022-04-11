@@ -40,6 +40,7 @@ def evaluate_model_on_different_lengths(model, X_test, Y_test, random_sample=Fal
 
     return results
 
+
 def evaluate_performance_by_text_length(data_path, label_binarizer_path, figure_path):
     with open("models/label_binarizer.pkl", "rb") as f:
         label_binarizer = pickle.loads(f.read())
@@ -52,10 +53,15 @@ def evaluate_performance_by_text_length(data_path, label_binarizer_path, figure_
             text.append(item["text"])
             tags.append(item["tags"])
 
-    pipeline = Pipeline([
-        ("vec", TfidfVectorizer(min_df=5, ngram_range=(1,2), stop_words="english")),
-        ("svm", OneVsRestClassifier(SVC(kernel="linear", class_weight="balanced")))
-    ])
+    pipeline = Pipeline(
+        [
+            (
+                "vec",
+                TfidfVectorizer(min_df=5, ngram_range=(1, 2), stop_words="english"),
+            ),
+            ("svm", OneVsRestClassifier(SVC(kernel="linear", class_weight="balanced"))),
+        ]
+    )
 
     X = text
     Y = label_binarizer.transform(tags)
@@ -63,12 +69,14 @@ def evaluate_performance_by_text_length(data_path, label_binarizer_path, figure_
     pipeline.fit(X_train, Y_train)
 
     results = evaluate_model_on_different_lengths(pipeline, X_test, Y_test)
-    results_random_sample = evaluate_model_on_different_lengths(pipeline, X_test, Y_test, random_sample=True)
+    results_random_sample = evaluate_model_on_different_lengths(
+        pipeline, X_test, Y_test, random_sample=True
+    )
     x, y = zip(*results)
     x_random, y_sample = zip(*results_random_sample)
 
     def shift_x(x, distance):
-        return [x_+distance for x_ in x]
+        return [x_ + distance for x_ in x]
 
     _, ax = plt.subplots()
     ax.bar(shift_x(x, -10), y, width=20, label="first n words")
@@ -82,6 +90,7 @@ def evaluate_performance_by_text_length(data_path, label_binarizer_path, figure_
 
     plt.savefig(figure_path)
 
+
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser(description=__doc__.strip())
     argparser.add_argument("--label_binarizer", type=Path)
@@ -89,4 +98,6 @@ if __name__ == "__main__":
     argparser.add_argument("--figure_path", type=Path)
     args = argparser.parse_args()
 
-    evaluate_performance_by_text_length(args.data_path, args.label_binarizer, args.figure_path)
+    evaluate_performance_by_text_length(
+        args.data_path, args.label_binarizer, args.figure_path
+    )

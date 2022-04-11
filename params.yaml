@@ -33,4 +33,3 @@ train:
     beam_size: 30
     only_topk: 200
     min_weight_value: 0.1
-

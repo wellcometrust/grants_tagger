@@ -11,20 +11,8 @@ from grants_tagger.evaluate_model import evaluate_model
 from grants_tagger.models.create_model import create_model
 from grants_tagger.utils import load_pickle
 
-X = [
-    "all",
-    "one two",
-    "two",
-    "four",
-    "twenty four"
-]
-Y = [
-    [str(i) for i in range(24)],
-    ["1", "2"],
-    ["2"],
-    ["4"],
-    ["24"]
-]
+X = ["all", "one two", "two", "four", "twenty four"]
+Y = [[str(i) for i in range(24)], ["1", "2"], ["2"], ["4"], ["24"]]
 
 
 def binarize_Y(Y, label_binarizer_path):
@@ -50,7 +38,7 @@ def data_path(tmp_path):
     with open(data_path, "w") as f:
         for x, y in zip(X, Y):
             item = json.dumps({"text": x, "tags": y, "meta": ""})
-            f.write(item+"\n")
+            f.write(item + "\n")
     return data_path
 
 
@@ -74,8 +62,15 @@ def model_path(tmp_path, label_binarizer_path):
 
 
 def test_evaluate_model(results_path, data_path, label_binarizer_path, model_path):
-    evaluate_model("mesh-cnn", model_path, data_path, label_binarizer_path, 0.5, results_path=results_path)
-    
+    evaluate_model(
+        "mesh-cnn",
+        model_path,
+        data_path,
+        label_binarizer_path,
+        0.5,
+        results_path=results_path,
+    )
+
     with open(results_path) as f:
         results = json.loads(f.read())
 
@@ -87,8 +82,13 @@ def test_evaluate_model(results_path, data_path, label_binarizer_path, model_pat
     assert "recall" in result
 
 
-def test_evaluate_model_multiple_thresholds(data_path, label_binarizer_path, model_path):
-    evaluate_model("mesh-cnn", model_path, data_path, label_binarizer_path, [0,1, 0.5, 0.9])
+def test_evaluate_model_multiple_thresholds(
+    data_path, label_binarizer_path, model_path
+):
+    evaluate_model(
+        "mesh-cnn", model_path, data_path, label_binarizer_path, [0, 1, 0.5, 0.9]
+    )
+
 
 def test_evalaute_model_sparse_y():
     pass

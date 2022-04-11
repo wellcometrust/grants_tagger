@@ -284,7 +284,7 @@ https://arxiv.org/abs/1811.05475
 This paper was published prior BERT and investigates an end to end approach to Multi label text classification.
 It applies Hierarchical attention networks to the problem which were introduced by Microsoft research as a
 means to capture the hierarchical nature of text i.e. words combine to sentences and sentences to documents.
-Hierarchical attention networks combine the words of a sentence using a BiLSTM layer and one attention layer 
+Hierarchical attention networks combine the words of a sentence using a BiLSTM layer and one attention layer
 into a sentence embeddings. These embeddings are similarly combined to document via a similar layer.
 On top of the hierarchical attention network which produces document embeddings the author train two neural
 networks, one that predicts the number of labels for a document and the other that scores how likely a label is.
@@ -292,7 +292,7 @@ This novel architecture aims to remove the need of having a threshold that needs
 
 ![Model architecture](https://user-images.githubusercontent.com/4975761/73938687-73c71800-48f0-11ea-9067-d1dec411330e.png)
 
-They test their approach to three datasets one of which is ICD and the other being less than 50 labels in total, 
+They test their approach to three datasets one of which is ICD and the other being less than 50 labels in total,
 one is cancer classification, the other is chemical exposure.
 They achieve a 10%, 1% and 3% boost in f1 from the strong baseline of tiff-svm. Interestingly the get the most
 boost in the dataset with the few examples.
@@ -331,7 +331,7 @@ due to BERT as performance had plateaued in last two competitions in around 66%.
 DeepMesh uses doc2vec, tfidf embeddings as well as the mesh label system and learning to rank which are described in separate papers.
 This year the authors incorporated AttentionXML which is again work described on a different paper.
 
-Another interesting approach from NLP uses a CNN to improve MTI combining text embeddings with journal information and year, the 
+Another interesting approach from NLP uses a CNN to improve MTI combining text embeddings with journal information and year, the
 last to account for concept drift over the years.
 
 Todo

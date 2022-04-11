@@ -1,0 +1,68 @@
+vars:
+    - data: "../../data/"
+    - models: "../../models/"
+    - results: "../../results"
+    - experiment_name: "transformers-bertmesh"
+    - scripts_folder: "../../grants_tagger/bertmesh"
+
+stages:
+    prepare_data:
+        cmd: |
+            python ${scripts_folder}/prepare_data.py ${data}/processed/train_mesh2021.jsonl ${data}/processed/bertmesh/X.npy ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/label_binarizer.pkl --years ${prepare_data.years} --pretrained-model ${train.pretrained_model}
+            python ${scripts_folder}/prepare_data.py ${data}/processed/train_mesh2021.jsonl ${data}/processed/bertmesh/X_test.npy ${data}/processed/bertmesh/Y_test.npz ${models}/bertmesh/label_binarizer.pkl --years ${prepare_data.test_years} --pretrained-model ${train.pretrained_model}
+        deps:
+        - ${scripts_folder}/prepare_data.py
+        params:
+        - prepare_data.years
+        - train.pretrained_model
+        outs:
+        - ${data}/processed/bertmesh/X.npy
+        - ${data}/processed/bertmesh/Y.npz
+        - ${data}/processed/bertmesh/X_test.npy
+        - ${data}/processed/bertmesh/Y_test.npz
+        - ${models}/bertmesh/label_binarizer.pkl
+    train:
+        cmd: python ${scripts_folder}/train_torch.py ${data}/processed/bertmesh/X.npy ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/model/ ${models}/bertmesh/label_binarizer.pkl
+            --train-info ${results}/bertmesh_train_info.json
+            --learning-rate ${train.learning_rate} --batch-size ${train.batch_size} --epochs ${train.epochs} 
+            --pretrained-model ${train.pretrained_model} --multilabel-attention --hidden-size ${train.hidden_size}
+            --clip-norm ${train.clip_norm} --dropout ${train.dropout} --train-metrics-path train_metrics.json
+            --warmup-steps ${train.warmup_steps} --val-x-path ${data}/processed/bertmesh/X_test.npy
+            --val-y-path ${data}/processed/bertmesh/Y_test.npz --experiment-name ${experiment_name}
+        deps:
+        - ${scripts_folder}/train_torch.py
+        - ${scripts_folder}/model.py
+        - ${data}/processed/bertmesh/X.npy
+        - ${data}/processed/bertmesh/Y.npz
+        - ${models}/bertmesh/label_binarizer.pkl
+        params:
+        - train.learning_rate
+        - train.epochs
+        - train.batch_size
+        - train.pretrained_model
+        - train.hidden_size
+        - train.clip_norm
+        - train.dropout
+        - train.warmup_steps
+        outs:
+        - ${models}/bertmesh/model/pytorch_model.bin
+        - ${models}/bertmesh/model/config.json
+        plots:
+        - train_metrics.json:
+            cache: false
+    evaluate:
+        cmd: python ${scripts_folder}/evaluate.py ${data}/processed/bertmesh/X_test.npy ${data}/processed/bertmesh/Y_test.npz ${models}/bertmesh/model/ --batch-size ${evaluate.batch_size} --results-path results.json --pr-curve-path pr_curve.json --experiment-name ${experiment_name}
+        deps:
+        - ${scripts_folder}/evaluate.py
+        - ${data}/processed/bertmesh/X_test.npy
+        - ${data}/processed/bertmesh/Y_test.npz
+        - ${models}/bertmesh/model/pytorch_model.bin
+        - ${models}/bertmesh/model/config.json
+        params:
+        - train.batch_size
+        metrics:
+        - results.json:
+            cache: false
+        plots:
+        - pr_curve.json:
+            cache: false

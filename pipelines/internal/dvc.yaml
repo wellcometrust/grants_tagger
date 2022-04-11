@@ -10,7 +10,7 @@ stages:
   generate_validation_data_xlinear:
     cmd: python ${root_folder}/scripts/generate_validation_data_xlinear.py
     deps:
-    - ${root_folder}scripts/generate_validation_data_xlinear.py
+    - ${root_folder}/scripts/generate_validation_data_xlinear.py
     - ${root_folder}/data/raw/grants.csv
     - ${root_folder}/data/interim/mesh_pipeline_result.csv
     outs:

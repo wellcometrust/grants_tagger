@@ -1,1 +1,8 @@
-[{"threshold": "0.50", "precision": "0.82", "recall": "0.65", "f1": "0.72"}]
+[
+    {
+        "threshold": "0.50",
+        "precision": "0.82",
+        "recall": "0.65",
+        "f1": "0.72"
+    }
+]

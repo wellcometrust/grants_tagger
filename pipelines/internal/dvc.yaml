@@ -1,14 +1,17 @@
-get_grants:
-  cmd: python scripts/get_grants.py
-  deps:
-  - scripts/get_grants.py
-  outs:
-  - data/raw/grants.csv
-generate_validation_data_xlinear:
-  cmd: python scripts/generate_validation_data_xlinear.py
-  deps:
-  - scripts/generate_validation_data_xlinear.py
-  - data/raw/grants.csv
-  - data/interim/mesh_pipeline_result.csv
-  outs:
-  - data/processed/merged_mesh_predictions_mesh_xlinear_for_validation.xlsx
+vars:
+  - root_folder: "../.."
+stages:
+  get_grants:
+    cmd: python ${root_folder}/scripts/get_grants.py
+    deps:
+    - ${root_folder}/scripts/get_grants.py
+    outs:
+    - ${root_folder}/data/raw/grants.csv
+  generate_validation_data_xlinear:
+    cmd: python ${root_folder}/scripts/generate_validation_data_xlinear.py
+    deps:
+    - ${root_folder}scripts/generate_validation_data_xlinear.py
+    - ${root_folder}/data/raw/grants.csv
+    - ${root_folder}/data/interim/mesh_pipeline_result.csv
+    outs:
+    - ${root_folder}/data/processed/merged_mesh_predictions_mesh_xlinear_for_validation.xlsx

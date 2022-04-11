@@ -38,7 +38,7 @@ descriptors = {
 }
 
 predictions = pd.read_csv(os.path.join(here, f'../data/interim/{predictions_file}'))
-predicitons = predictions[predictions['Prob'] > 0.04]
+predictions = predictions[predictions['Prob'] > 0.1]
 predictions.rename({'Grant id': 'Grant ID'}, axis=1, inplace=True)
 
 merged_predictions_metadata = pd.merge(left=grants, right=predictions, how='right', on='Grant ID')

@@ -20,6 +20,7 @@ models/**
 **/*.npy
 **/*.npz
 !results/*.json
+!pipelines/bertmesh/*.json
 
 # Hidden files
 .DS_Store

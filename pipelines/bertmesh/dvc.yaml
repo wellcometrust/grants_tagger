@@ -24,7 +24,7 @@ stages:
     train:
         cmd: python ${scripts_folder}/train_torch.py ${data}/processed/bertmesh/X.npy ${data}/processed/bertmesh/Y.npz ${models}/bertmesh/model/ ${models}/bertmesh/label_binarizer.pkl
             --train-info ${results}/bertmesh_train_info.json
-            --learning-rate ${train.learning_rate} --batch-size ${train.batch_size} --epochs ${train.epochs} 
+            --learning-rate ${train.learning_rate} --batch-size ${train.batch_size} --epochs ${train.epochs}
             --pretrained-model ${train.pretrained_model} --multilabel-attention --hidden-size ${train.hidden_size}
             --clip-norm ${train.clip_norm} --dropout ${train.dropout} --train-metrics-path train_metrics.json
             --warmup-steps ${train.warmup_steps} --val-x-path ${data}/processed/bertmesh/X_test.npy

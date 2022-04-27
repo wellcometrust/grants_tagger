@@ -5,7 +5,7 @@
 
 Bug fixes:
 - Fix download_model to download version specific mesh model
-- #152 Fix grants_tagger package which was failing due to missing dependencies 
+- #152 Fix grants_tagger package which was failing due to missing dependencies
 
 ## v0.2.0
 
@@ -20,7 +20,7 @@ Improvements:
 
 ## v0.1.x
 
-This is the first release that packages everything developed 
+This is the first release that packages everything developed
 to this point. Grants tagger comes with a nice CLI, commands
 are
 * preprocess

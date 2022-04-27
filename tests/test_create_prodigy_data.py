@@ -8,9 +8,7 @@ from sklearn.preprocessing import MultiLabelBinarizer
 from grants_tagger.create_prodigy_data import create_prodigy_data
 
 
-DATA = [
-    {"text": "One", "tags": ["T1", "T2"], "meta": {"Grant_ID": 1}}
-]
+DATA = [{"text": "One", "tags": ["T1", "T2"], "meta": {"Grant_ID": 1}}]
 
 
 def test_create_prodigy_data_teach():
@@ -28,7 +26,7 @@ def test_create_prodigy_data_teach():
 
         with open(data_path, "w") as f:
             for line in DATA:
-                f.write(json.dumps(line)+"\n")
+                f.write(json.dumps(line) + "\n")
 
         create_prodigy_data(data_path, label_binarizer_path, output_path, mode)
 
@@ -58,7 +56,7 @@ def test_create_prodigy_data_train():
 
         with open(data_path, "w") as f:
             for line in DATA:
-                f.write(json.dumps(line)+"\n")
+                f.write(json.dumps(line) + "\n")
 
         create_prodigy_data(data_path, label_binarizer_path, output_path, mode)
 

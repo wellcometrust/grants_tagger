@@ -17,7 +17,7 @@ Version   | Approach    | Micro f1 | Description
 2020.04.3 | cnn | 0.54 | same data as above trained with our cnn architecture
 2020.05.0 | tfidf-svm | 0.66 | same as 2020.2.0 with min_df=5
 2020.05.1 | tfidf-svm | 0.70 | same as 2020.5.0 with class_weight="balanced"
-2020.05.2 | tfidf-svm | 0.71 | same as 2020.5.1 with ngram_range=(1,2) 
+2020.05.2 | tfidf-svm | 0.71 | same as 2020.5.1 with ngram_range=(1,2)
 2020.05.3 | bert | 0.58 | same data as 2020.2.0 but model is fine tuned bert.
 2020.05.4 | scibert | 0.68 | same as 2020.05.3 but using scibert as pretrained bert
 2020.05.5 | scibert | 0.71 | same as 2020.05.4 but learning rate 2e-5 and 10 epochs
@@ -738,7 +738,7 @@ Version   | Approach    | Micro f1 | Description
 ## 2020.05.6
 
 ```
-                                                         precision    recall  f1-score   support                                                                                                                                  
+                                                         precision    recall  f1-score   support
                                               10: Fungi       0.00      0.00      0.00         7
                                           11: Parasites       0.85      0.38      0.52        29
                      12: Brain Cells Circuits & Systems       0.79      0.76      0.78        84
@@ -774,7 +774,7 @@ Version   | Approach    | Micro f1 | Description
 ## 2020.05.7
 
 ```
-                                                         precision    recall  f1-score   support                             
+                                                         precision    recall  f1-score   support
 
                                               10: Fungi       1.00      0.14      0.25         7
                                           11: Parasites       0.84      0.72      0.78        29
@@ -810,7 +810,7 @@ Version   | Approach    | Micro f1 | Description
 ## 2020.05.8
 
 ```
-                                                         precision    recall  f1-score   support 
+                                                         precision    recall  f1-score   support
 
                                               10: Fungi       1.00      0.29      0.44         7
                                           11: Parasites       0.81      0.86      0.83        29
@@ -846,7 +846,7 @@ Version   | Approach    | Micro f1 | Description
 ## 2020.05.9
 
 ```
-                                                         precision    recall  f1-score   support                      
+                                                         precision    recall  f1-score   support
 
                                               10: Fungi       1.00      0.29      0.44         7
                                           11: Parasites       0.92      0.76      0.83        29

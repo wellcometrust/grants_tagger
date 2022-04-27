@@ -17,8 +17,9 @@ def create_month_data(month_path):
         f.write(json.dumps({"item": "fake"}))
         f.write("\n")
 
-@mock.patch('grants_tagger.download_epmc.get_hit_count', return_value=5)
-@mock.patch('grants_tagger.download_epmc.yield_results', return_value=["item"])
+
+@mock.patch("grants_tagger.download_epmc.get_hit_count", return_value=5)
+@mock.patch("grants_tagger.download_epmc.yield_results", return_value=["item"])
 def test_download_epmc(mock_get_hit_count, mock_yield_results, download_path):
     year = 2020
     download_epmc(download_path, year)
@@ -27,8 +28,8 @@ def test_download_epmc(mock_get_hit_count, mock_yield_results, download_path):
         assert os.path.exists(month_path)
 
 
-@mock.patch('grants_tagger.download_epmc.get_hit_count', return_value=5)
-@mock.patch('grants_tagger.download_epmc.yield_results', return_value=["item"])
+@mock.patch("grants_tagger.download_epmc.get_hit_count", return_value=5)
+@mock.patch("grants_tagger.download_epmc.yield_results", return_value=["item"])
 def test_download_epmc_skip(mock_get_hit_count, mock_yield_results, download_path):
     year = 2020
     year_path = os.path.join(download_path, str(year))
@@ -43,8 +44,10 @@ def test_download_epmc_skip(mock_get_hit_count, mock_yield_results, download_pat
     assert item["item"] == "fake"
 
 
-@mock.patch('grants_tagger.download_epmc.get_hit_count', return_value=5)
-@mock.patch('grants_tagger.download_epmc.yield_results', return_value=[{"item": "not fake"}])
+@mock.patch("grants_tagger.download_epmc.get_hit_count", return_value=5)
+@mock.patch(
+    "grants_tagger.download_epmc.yield_results", return_value=[{"item": "not fake"}]
+)
 def test_download_redownload_tmp(mock_get_hit_count, mock_yield_results, download_path):
     year = 2020
     year_path = os.path.join(download_path, str(year))
@@ -58,4 +61,3 @@ def test_download_redownload_tmp(mock_get_hit_count, mock_yield_results, downloa
             item = json.loads(line)
             break
     assert item["item"] == "not fake"
-    

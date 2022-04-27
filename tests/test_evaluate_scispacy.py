@@ -8,32 +8,28 @@ from sklearn.preprocessing import MultiLabelBinarizer
 import pytest
 
 from grants_tagger.evaluate_scispacy_meshtagger import evaluate_scispacy_meshtagger
+
 try:
     import scispacy
+
     SCISPACY_INSTALLED = True
 except ModuleNotFoundError:
     SCISPACY_INSTALLED = False
 
 MESH_TAGS = [
-    {
-        "DescriptorUI": "D008288",
-        "DescriptorName": "Malaria"
-    },
-    {
-        "DescriptorUI": "D006678",
-        "DescriptorName": "HIV"
-    }
+    {"DescriptorUI": "D008288", "DescriptorName": "Malaria"},
+    {"DescriptorUI": "D006678", "DescriptorName": "HIV"},
 ]
 DATA = [
     {
         "text": "Malaria is a mosquito-borne infectious disease that affects humans and other animals. Malaria causes symptoms that typically include fever, tiredness, vomiting, and headaches. In severe cases it can cause yellow skin, seizures, coma, or death",
         "tags": ["Malaria"],
-        "meta": {}
+        "meta": {},
     },
     {
         "text": "The human immunodeficiency viruses are two species of Lentivirus that infect humans. Without treatment, average survival time after infection with HIV is estimated to be 9 to 11 years, depending on the HIV subtype.",
         "tags": ["HIV"],
-        "meta": {}
+        "meta": {},
     },
 ]
 
@@ -58,6 +54,6 @@ def test_evaluate_scispacy_meshtagger():
 
         with open(data_path, "w") as f:
             for line in DATA:
-                f.write(json.dumps(line)+"\n")
+                f.write(json.dumps(line) + "\n")
 
         evaluate_scispacy_meshtagger(label_binarizer_path, mesh_tags_path, data_path)

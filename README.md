@@ -9,7 +9,7 @@ assigns biomedically related tags to grants proposals.
 Those tags can be custom to the organisation
 or based upon a preexisting ontology like MeSH.
 
-The tool is current being developed internally at the 
+The tool is current being developed internally at the
 Wellcome Trust for internal use but both the models and the
 code will be made available in a reusable manner.
 
@@ -133,7 +133,7 @@ Options:
 ### 🔥 Train
 
 Train acts as the entry point command for training all models. You can control
-which model you want to use with an `--approach` flag. This is convenient but 
+which model you want to use with an `--approach` flag. This is convenient but
 also not ideal as different models require different params and considerations.
 This will change in the future and the approach will be a subcommand so each
 model will trigger a different train and have different params.
@@ -206,8 +206,8 @@ are sometimes split inside train, the same splitting is performed in evaluate.
 Evaluate only supports some models, in particular those that have made it to
 production. These are: `tfidf-svm`, `scibert`, `science-ensemble`, `mesh-tfidf-svm`
 and `mesh-cnn`. Note that train also outputs evaluation scores so for models
-not made into production this is the way to evaluate. The plan is to extend 
-evaluate to all models when train starts training explicit model approaches. 
+not made into production this is the way to evaluate. The plan is to extend
+evaluate to all models when train starts training explicit model approaches.
 
 ```
 Usage: grants_tagger evaluate model [OPTIONS] APPROACH MODEL_PATH DATA_PATH
@@ -256,7 +256,7 @@ Options:
 #### MTI
 
 MTI is the automatic mesh indexer from NLM. https://ii.nlm.nih.gov/MTI/
-To get MTI annotations you need to submit grants for tagging through an 
+To get MTI annotations you need to submit grants for tagging through an
 email service and get the results which you can use here for evaluation.
 The service is called Batch MetaMap and to use it you need to have an
 account https://uts.nlm.nih.gov/uts/
@@ -276,10 +276,10 @@ Options:
 
 #### SciSpacy
 
-SciSpacy is a tool developed by AllenAI that identifies mainly entities in 
+SciSpacy is a tool developed by AllenAI that identifies mainly entities in
 biomedical text using Spacy with almost state of the art accuracy. These
 entities are linked to various ontologies some of which is MeSH. Even though
-NER combined with Entity linking and Multilabel text classification are not 
+NER combined with Entity linking and Multilabel text classification are not
 the same problem, this command evaluate how SciSpacy would perform on our
 problem.
 
@@ -390,7 +390,7 @@ future a language model like BERT from unlabeled training examples.
 
 It allows us to leverage transfer learning in domains with limited
 data. It applies more to wellcome-science than bioasq-mesh since the
-latter contains enough examples to not being in need of transfer 
+latter contains enough examples to not being in need of transfer
 learning.
 
 ```
@@ -426,7 +426,7 @@ Available models:
 
 * mesh
 
-### 🔍 Explain 
+### 🔍 Explain
 
 This command produces shap values for global or local expanations
 for a model (currently only mesh-cnn) and a given label. It saves
@@ -434,7 +434,7 @@ the explanations into an html to visualise them.
 
 Note that global explanations take time to compute so passing a
 txt with 100 examples take a bit less than 1 hour. Take care to
-ask for explanations for a label that is predicted in the txt 
+ask for explanations for a label that is predicted in the txt
 examples provided otherwise explanations might be less useful
 
 ```
@@ -469,7 +469,7 @@ can interactively tag grants while choosing the threshold
 and the model to use. It currently works only with Wellcome
 trained models.
 
-If you want to visualise 
+If you want to visualise
 
 ```bash
 make build-streamlit-docker
@@ -514,7 +514,7 @@ and development. It will also install grants tagger in editable mode.
 If you want to add additional dependencies, add the library to
 `unpinned_requirements.txt` and run `make update-requirements`. This
 will ensure that all requirements in the development enviroment are pinned
-to exact versions which ensures the code will continue running as 
+to exact versions which ensures the code will continue running as
 expected in the future when newer versions will have been published.
 
 ## 📋 Env variables
@@ -539,7 +539,7 @@ use [direnv](https://direnv.net) then you can use it to populate
 your `.envrc` which will export the variables automatically, otherwise
 ensure you export every time or include in your bash profile.
 
-Note that aws keys are not included as there are various ways to 
+Note that aws keys are not included as there are various ways to
 setup aws, for example using `aws configure` or `AWS_PROFILE` and
 `.aws/credentials`
 
@@ -579,7 +579,7 @@ and you would be able to run `grants_tagger preprocess epmc_mesh ...`
 
 To use grants_tagger with your own model you need to define a class
 for your model that adheres to the sklearn api so implements a
-`fit`, `predict`, `predict_proba` and `set_params` but also a `save` 
+`fit`, `predict`, `predict_proba` and `set_params` but also a `save`
 and `load`. Each custom model is defined in their own python script inside
 the `grants_tagger/models` folder.
 
@@ -603,7 +603,7 @@ elif approach == 'bilstm-attention':
 
 To make our experiments reproducible we use a config system (not DVC).
 As such you need to create a new config that describes all parameters
-for the various steps and run each step with the config or use 
+for the various steps and run each step with the config or use
 `./scripts/run_science_config.sh` or `./scripts/run_mesh_config.sh`
 depending on whether you want to reproduce a wellcome science or mesh
 model.
@@ -624,7 +624,7 @@ a separate command that pushes models to a public bucket so others
 can download.
 
 Thus the recommended way for producing models that are released is
-through DVC repro and as such you need to define the params that 
+through DVC repro and as such you need to define the params that
 produce it in the params.yaml as well as the pipeline that produces
 it in `dvc.yaml`. The `params.yaml` is the equivalent of a config file and
 `dvc.yaml` is the equivalent of `run_config.sh`

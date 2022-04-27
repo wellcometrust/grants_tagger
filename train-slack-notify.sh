@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-   
+
 # Do not send slack message if command fails
 set -e
 

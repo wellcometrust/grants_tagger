@@ -138,7 +138,7 @@ pathy==0.6.1
 pexpect==4.8.0
 phonenumbers==8.12.46
 pickleshare==0.7.5
-Pillow==9.1.0
+Pillow==9.1.1
 pkginfo==1.8.2
 platformdirs==2.5.1
 pox==0.3.0

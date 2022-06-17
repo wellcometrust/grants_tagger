@@ -121,7 +121,7 @@ nest-asyncio==1.5.5
 networkx==2.8
 nmslib==2.1.1
 nodeenv==1.6.0
-notebook==6.4.10
+notebook==6.4.12
 numba==0.55.1
 numpy==1.19.5
 oauthlib==3.2.0

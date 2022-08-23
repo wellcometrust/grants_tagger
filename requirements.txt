@@ -114,7 +114,7 @@ multiprocess==0.70.12.2
 murmurhash==1.0.6
 nanotime==0.5.2
 nbclient==0.5.13
-nbconvert==6.5.0
+nbconvert==6.5.1
 nbformat==5.3.0
 nervaluate==0.1.8
 nest-asyncio==1.5.5

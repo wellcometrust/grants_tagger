@@ -7,7 +7,6 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 
 from pecos.xmc.xlinear.model import XLinearModel
 from pecos.xmc import Indexer, LabelEmbeddingFactory
-from pecos.utils.featurization.text.vectorizers import Tfidf
 
 from grants_tagger.utils import save_pickle, load_pickle
 
@@ -67,6 +66,10 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
                 lowercase=self.lowercase,
             )
         elif self.vectorizer_library == "pecos":
+            # Let it raise an error if it doesn't have the right dependencies,
+            # But only import Tfidf if necessary
+            from pecos.utils.featurization.text.vectorizers import Tfidf
+
             self.vectorizer_ = Tfidf()
         else:
             raise ValueError("Vectorizer library has to be pecos or sklearn")

@@ -674,3 +674,20 @@ To do
 - [ ] Test training on aws
   - [ ] Turn on AWS
   - [ ] Put it to train
+
+
+```bash
+docker build -f Dockerfile.xlinear -t xlinear .
+```
+
+Then run mounting the model volumes
+
+```bash
+docker run -v $(PWD)/models/:/code/models -d -t xlinear
+```
+
+Get your image number, and ssh into the container to debug
+
+```bash
+predict_tags(['This is a malaria grant'], model_path='models/xlinear-0.2.3', label_binarizer_path='models/label_binarizer.pkl', probabilities=True, threshold=0.01)
+```

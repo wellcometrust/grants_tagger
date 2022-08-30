@@ -335,3 +335,24 @@ stages:
     - path: data/raw/grants.csv
       md5: 9732c21dd1954cce8baaf3746f301ead
       size: 152523849
+  preprocess_bioasq_mesh_toy:
+    cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/train_mesh2021_toy.jsonl
+      models/label_binarizer_toy.pkl --test-split 0.01 --test-output-path data/processed/test_mesh2021_toy.jsonl
+      --n-max 1000
+    deps:
+    - path: data/raw/allMeSH_2021.json
+      md5: e827a6b8062d1312664dcf075c12d89f
+      size: 27547042745
+    - path: grants_tagger/preprocess_mesh.py
+      md5: c03d969be5989ff0bc72db8e57ff9304
+      size: 5379
+    outs:
+    - path: data/processed/test_mesh2021_toy.jsonl
+      md5: 5878dee1d8d1af8849adfc145e2f5194
+      size: 177552565
+    - path: data/processed/train_mesh2021_toy.jsonl
+      md5: 1f1a8b7362316df6f7fcda88753ac331
+      size: 17575598357
+    - path: models/label_binarizer_toy.pkl
+      md5: c09a03fcaeeb0ffb7693187e06ace015
+      size: 621636

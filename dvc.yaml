@@ -97,6 +97,17 @@ stages:
     - data/processed/train_mesh2021.jsonl
     - data/processed/test_mesh2021.jsonl
     - models/xlinear/label_binarizer.pkl
+  preprocess_bioasq_mesh_toy:  # Creates toy data to help iterating/testing code
+      cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/train_mesh2021_toy.jsonl
+        models/label_binarizer_toy.pkl --test-split 0.01 --test-output-path data/processed/test_mesh2021_toy.jsonl
+        --n-max 1000
+      deps:
+        - data/raw/allMeSH_2021.json
+        - grants_tagger/preprocess_mesh.py
+      outs:
+        - data/processed/train_mesh2021_toy.jsonl
+        - data/processed/test_mesh2021_toy.jsonl
+        - models/label_binarizer_toy.pkl
   train_mesh_xlinear:
     cmd: grants_tagger train data/processed/train_mesh2021.jsonl
       models/xlinear/label_binarizer.pkl models/xlinear/model

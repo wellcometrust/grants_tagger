@@ -2,7 +2,7 @@ vars:
     - data: "../../data/"
     - models: "../../models/"
     - results: "../../results"
-    - grants_tagger: "../../"
+    - grants_tagger: "../../grants_tagger/"
 stages:
     preprocess_wellcome_science:
       cmd: grants_tagger preprocess wellcome-science ${data}/raw/science_tags_full_version.xlsx

@@ -67,7 +67,11 @@ def yield_data(input_path, filter_tags, filter_years, buffer_size=10_000):
 
 
 def preprocess_mesh(
-    raw_data_path, processed_data_path, mesh_tags_path=None, filter_years=None
+    raw_data_path,
+    processed_data_path,
+    mesh_tags_path=None,
+    filter_years=None,
+    n_max=None,
 ):
     if mesh_tags_path:
         filter_tags_data = pd.read_csv(mesh_tags_path)
@@ -81,8 +85,12 @@ def preprocess_mesh(
         filter_years = [int(min_year), int(max_year)]
 
     with open(processed_data_path, "w") as f:
-        for data_batch in yield_data(raw_data_path, filter_tags, filter_years):
+        for i, data_batch in enumerate(
+            yield_data(raw_data_path, filter_tags, filter_years)
+        ):
             write_jsonl(f, data_batch)
+            if n_max and i > n_max:
+                break
 
 
 preprocess_mesh_app = typer.Typer()
@@ -111,6 +119,10 @@ def preprocess_mesh_cli(
     ),
     config: Optional[Path] = typer.Option(
         None, help="path to config files that defines arguments"
+    ),
+    n_max: Optional[int] = typer.Option(
+        None,
+        help="Maximum limit on the number of datapoints in the set (including training and test)",
     ),
 ):
 
@@ -151,6 +163,7 @@ def preprocess_mesh_cli(
         temporary_output_path,
         mesh_tags_path=mesh_tags_path,
         filter_years=filter_years,
+        n_max=n_max,
     )
     create_label_binarizer(temporary_output_path, label_binarizer_path, sparse=True)
 

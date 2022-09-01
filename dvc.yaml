@@ -25,7 +25,7 @@ stages:
       models/xlinear/label_binarizer.pkl models/xlinear/model
       --approach mesh-xlinear --sparse-labels --train-info results/mesh_xlinear_train_info.json
     deps:
-    - data/processed/test_mesh2021.jsonl
+    - data/processed/train_mesh2021.jsonl
     - grants_tagger/train.py
     - grants_tagger/models/mesh_xlinear.py
     params:

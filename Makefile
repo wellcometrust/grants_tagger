@@ -82,7 +82,7 @@ update-requirements: ## Updates requirement
 .PHONY: test
 test: ## Run tests
 	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov=grants_tagger
-	$(VIRTUALENV)/bin/tox
+#	$(VIRTUALENV)/bin/tox # Tox is not needed, as it's repeating the tests
 
 
 .PHONY: build

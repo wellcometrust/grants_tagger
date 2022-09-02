@@ -661,3 +661,16 @@ help                 Show help message
 Additional scripts, mostly related to Wellcome Trust-specific code can be
 found in `/scripts`. Please refer to the [readme](scripts/README.md) therein for more info
 on how to run those.
+
+## 🏋️ Slim
+
+To do
+
+- [x] Make setup.py completely with no dependencies
+- [x] Make a small test docker file to xlinear
+- [ ] Make slim/mesh_xlinear.py model to train and predict on this specific model
+  - [ ] Predict
+  - [ ] Train
+- [ ] Test training on aws
+  - [ ] Turn on AWS
+  - [ ] Put it to train

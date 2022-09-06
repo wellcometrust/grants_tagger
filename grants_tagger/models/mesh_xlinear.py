@@ -159,6 +159,8 @@ class MeshXLinear(BaseEstimator, ClassifierMixin):
         if self.vectorizer_library == "sklearn":
             self.vectorizer_ = load_pickle(vectorizer_path)
         else:
+            from pecos.utils.featurization.text.vectorizers import Tfidf
+
             self.vectorizer_ = Tfidf()
             self.vectorizer_ = self.vectorizer_.load(model_path)
 

@@ -1,3 +1,7 @@
+from scipy import sparse as sp
+import numpy as np
+
+
 def get_params_for_component(params, component):
     """
     Returns a dictionary of all params for one component defined

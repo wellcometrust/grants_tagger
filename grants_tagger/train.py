@@ -2,9 +2,6 @@
 """
 Train a spacy or sklearn model and pickle it
 """
-from scipy import sparse as sp
-import numpy as np
-
 from pathlib import Path
 import pickle
 import os.path

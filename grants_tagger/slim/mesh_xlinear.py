@@ -106,6 +106,8 @@ def train_and_evaluate(
         with open(full_report_path, "w") as f:
             f.write(json.dumps(full_report, indent=4))
 
+    return model
+
 
 def predict_tags(
     X: Union[List, str],

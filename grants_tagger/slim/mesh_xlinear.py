@@ -27,15 +27,13 @@ def read_config(config_path):
 
 def evaluate(
     model,
-    label_binarizer_path,
+    label_binarizer,
     train_data_path,
     test_data_path,
     results_path,
     full_report_path,
     threshold=0.5,
 ):
-    with open(label_binarizer_path, "rb") as f:
-        label_binarizer = pickle.loads(f.read())
 
     _, X_test, _, Y_test = load_train_test_data(
         train_data_path=train_data_path,

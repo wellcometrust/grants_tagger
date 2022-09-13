@@ -25,7 +25,60 @@ def read_config(config_path):
     return parameters
 
 
-def train_and_evaluate(
+def evaluate(
+    model,
+    label_binarizer_path,
+    train_data_path,
+    test_data_path,
+    results_path,
+    full_report_path,
+    threshold=0.5,
+):
+    with open(label_binarizer_path, "rb") as f:
+        label_binarizer = pickle.loads(f.read())
+
+    _, X_test, _, Y_test = load_train_test_data(
+        train_data_path=train_data_path,
+        test_data_path=test_data_path,
+        label_binarizer=label_binarizer,
+    )
+
+    print("Evaluating model")
+    Y_pred_proba = model.predict_proba(X_test)
+    Y_pred = Y_pred_proba > threshold
+    p, r, f1, _ = precision_recall_fscore_support(Y_test, Y_pred, average="micro")
+    full_report = classification_report(Y_test, Y_pred, output_dict=True)
+
+    # Gets averages
+    averages = {idx: report for idx, report in full_report.items() if "avg" in idx}
+    # Gets class reports and converts index to class names for readability
+    full_report = {
+        label_binarizer.classes_[int(idx)]: report
+        for idx, report in full_report.items()
+        if "avg" not in idx
+    }
+
+    # Put the averages back
+    full_report = {**averages, **full_report}
+
+    result = {
+        "threshold": f"{threshold:.2f}",
+        "precision": f"{p:.2f}",
+        "recall": f"{r:.2f}",
+        "f1": f"{f1:.2f}",
+    }
+
+    if results_path:
+        with open(results_path, "w") as f:
+            f.write(json.dumps(result, indent=4))
+    if full_report_path:
+        with open(full_report_path, "w") as f:
+            f.write(json.dumps(full_report, indent=4))
+
+    return result, full_report
+
+
+def train(
     train_data_path: str,
     test_data_path: str,
     label_binarizer_path: str,
@@ -60,9 +113,8 @@ def train_and_evaluate(
     model.set_params(**parameters)
 
     # X can be (numpy arrays, lists) or generators
-    X_train, X_test, Y_train, Y_test = load_train_test_data(
+    X_train, _, Y_train, _ = load_train_test_data(
         train_data_path=train_data_path,
-        test_data_path=test_data_path,
         label_binarizer=label_binarizer,
     )
 
@@ -74,39 +126,7 @@ def train_and_evaluate(
     print("Saving model")
     model.save(model_path)
 
-    print("Evaluating model")
-    Y_pred_proba = model.predict_proba(X_test)
-    Y_pred = Y_pred_proba > threshold
-    p, r, f1, _ = precision_recall_fscore_support(Y_test, Y_pred, average="micro")
-    full_report = classification_report(Y_test, Y_pred, output_dict=True)
-
-    # Gets averages
-    averages = {idx: report for idx, report in full_report.items() if "avg" in idx}
-    # Gets class reports and converts index to class names for readability
-    full_report = {
-        label_binarizer.classes_[int(idx)]: report
-        for idx, report in full_report.items()
-        if "avg" not in idx
-    }
-
-    # Put the averages back
-    full_report = {**averages, **full_report}
-
-    result = {
-        "threshold": f"{threshold:.2f}",
-        "precision": f"{p:.2f}",
-        "recall": f"{r:.2f}",
-        "f1": f"{f1:.2f}",
-    }
-
-    if results_path:
-        with open(results_path, "w") as f:
-            f.write(json.dumps(result, indent=4))
-    if full_report_path:
-        with open(full_report_path, "w") as f:
-            f.write(json.dumps(full_report, indent=4))
-
-    return model
+    return model, label_binarizer
 
 
 def predict_tags(

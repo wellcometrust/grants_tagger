@@ -9,14 +9,22 @@ import typer
 
 logger = logging.getLogger(__name__)
 
-
-from grants_tagger.train import train_cli
+try:
+    from grants_tagger.train import train_cli
+except ModuleNotFoundError as e:
+    logger.warning(
+        "Train_cli couldn't be imported, probably due to a missing dependency."
+        " See error below (you can probably still use train_slim)"
+    )
+    logger.debug(e)
 
 try:
     from grants_tagger.train_with_sagemaker import train_with_sagemaker_cli
 except ModuleNotFoundError as e:
     logger.warning("Sagemaker missing so training with sagemaker not working.")
     logger.debug(e)
+
+from grants_tagger.slim import mesh_xlinear
 
 from grants_tagger.preprocess_mesh import preprocess_mesh_cli
 from grants_tagger.preprocess_wellcome import preprocess_wellcome_cli
@@ -65,13 +73,27 @@ def train(
         None, help="path to cache data transformartions"
     ),
     config: Path = None,
+    slim: bool = typer.Option(
+        False,
+        help="flag to tell whether the model is slim (at the moment just xlinear)",
+    ),
     cloud: bool = typer.Option(False, help="flag to train using Sagemaker"),
     instance_type: str = typer.Option(
         "local", help="instance type to use when training with Sagemaker"
     ),
 ):
+    if slim:
+        mesh_xlinear.train(
+            train_data_path=data_path,
+            label_binarizer_path=label_binarizer_path,
+            model_path=model_path,
+            parameters=parameters,
+            config=config,
+            threshold=threshold,
+            sparse_labels=sparse_labels,
+        )
 
-    if cloud:
+    elif cloud:
         train_with_sagemaker_cli(
             data_path=data_path,
             label_binarizer_path=label_binarizer_path,

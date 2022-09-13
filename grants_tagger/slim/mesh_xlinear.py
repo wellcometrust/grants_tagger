@@ -35,7 +35,7 @@ def train_and_evaluate(
     parameters: Optional[Dict[str, Any]] = None,
     config: Optional[str] = None,
     threshold: float = 0.5,
-    sparse_labels: bool = False,
+    sparse_labels: bool = True,
 ):
     if os.path.exists(label_binarizer_path):
         print(f"{label_binarizer_path} exists. Loading existing")

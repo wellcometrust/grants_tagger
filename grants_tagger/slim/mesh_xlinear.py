@@ -80,14 +80,10 @@ def evaluate(
 
 def train(
     train_data_path: str,
-    test_data_path: str,
     label_binarizer_path: str,
     model_path: str,
-    results_path: str,
-    full_report_path: str,
     parameters: Optional[Dict[str, Any]] = None,
     config: Optional[str] = None,
-    threshold: float = 0.5,
     sparse_labels: bool = True,
 ):
     if os.path.exists(label_binarizer_path):

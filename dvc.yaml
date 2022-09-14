@@ -23,25 +23,13 @@ stages:
   train_mesh_xlinear:
     cmd: grants_tagger train data/processed/train_mesh2021.jsonl
       models/xlinear/label_binarizer.pkl models/xlinear/model
-      --approach mesh-xlinear --sparse-labels --train-info results/mesh_xlinear_train_info.json
+      --approach mesh-xlinear --sparse-labels --train-info results/mesh_xlinear_train_info.json --slim true
     deps:
     - data/processed/train_mesh2021.jsonl
     - grants_tagger/train.py
-    - grants_tagger/models/mesh_xlinear.py
+    - grants_tagger/slim/mesh_xlinear.py
     params:
-    - train.mesh-xlinear.stop_words
-    - train.mesh-xlinear.min_df
-    - train.mesh-xlinear.max_df
-    - train.mesh-xlinear.max_features
-    - train.mesh-xlinear.ngram_range
-    - train.mesh-xlinear.lowercase
-    - train.mesh-xlinear.vectorizer_library
-    - train.mesh-xlinear.cluster_chain
-    - train.mesh-xlinear.negative_sampling_scheme
-    - train.mesh-xlinear.beam_size
-    - train.mesh-xlinear.only_topk
-    - train.mesh-xlinear.min_weight_value
-    - train.mesh-xlinear.threshold
+    - train.mesh-xlinear.config
     outs:
     - models/xlinear/model
   evaluate_mesh_xlinear:

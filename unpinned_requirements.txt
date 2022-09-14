@@ -10,7 +10,7 @@ scipy==1.4.1
 wasabi
 typer
 scispacy
-dvc[s3]
+dvc[s3]>=2.25.0
 tqdm
 scikit-multilearn
 arff

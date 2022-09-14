@@ -6,7 +6,6 @@ from pathlib import Path
 import pickle
 import os.path
 import json
-import ast
 import typer
 import logging
 import time
@@ -16,8 +15,8 @@ import configparser
 
 logger = logging.getLogger(__name__)
 
-from typing import List, Optional
-from sklearn.metrics import f1_score, classification_report
+import dvc.api
+from typing import Optional
 
 from grants_tagger.label_binarizer import create_label_binarizer
 from grants_tagger.models.create_model import create_model
@@ -117,12 +116,17 @@ def train_cli(
 ):
 
     start = time.time()
-    params_path = os.path.join(os.path.dirname(__file__), "../params.yaml")
-    with open(params_path) as f:
-        params = yaml.safe_load(f)
 
+    params = dvc.api.params_show()
+
+    if params.get("train", {}).get(approach, {}).get("config"):
+        config = os.path.join(
+            os.path.dirname(__file__),
+            "../configs",
+            params["train"]["mesh-xlinear"]["config"],
+        )
     # If parameters not provided from user we initialise from DVC
-    if not parameters:
+    if not parameters and not config:
         parameters = params["train"].get(approach)
         parameters = convert_dvc_to_sklearn_params(parameters)
         parameters = str(parameters)

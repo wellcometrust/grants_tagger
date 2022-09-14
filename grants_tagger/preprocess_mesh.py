@@ -86,7 +86,8 @@ def preprocess_mesh(
         filter_years = [int(min_year), int(max_year)]
 
     # If only using a tiny set of data, need to reduce buffer size
-    buffer_size = min(buffer_size, n_max)
+    if n_max is not None and n_max < buffer_size:
+        buffer_size = n_max
 
     with open(processed_data_path, "w") as f:
         for i, data_batch in enumerate(

@@ -82,6 +82,7 @@ def train(
         "local", help="instance type to use when training with Sagemaker"
     ),
 ):
+    print(slim)
     if slim:
         mesh_xlinear.train(
             train_data_path=data_path,

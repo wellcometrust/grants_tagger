@@ -23,7 +23,7 @@ stages:
   train_mesh_xlinear:
     cmd: grants_tagger train data/processed/train_mesh2021.jsonl
       models/xlinear/label_binarizer.pkl models/xlinear/model
-      --approach mesh-xlinear --sparse-labels --train-info results/mesh_xlinear_train_info.json --slim true
+      --approach mesh-xlinear --sparse-labels --train-info results/mesh_xlinear_train_info.json --slim
     deps:
     - data/processed/train_mesh2021.jsonl
     - grants_tagger/train.py

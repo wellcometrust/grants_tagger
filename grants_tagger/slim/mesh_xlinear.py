@@ -83,6 +83,7 @@ def train(
     parameters: Optional[Dict[str, Any]] = None,
     config: Optional[str] = None,
     sparse_labels: bool = True,
+    threshold: float = 0.5,
 ):
     if os.path.exists(label_binarizer_path):
         print(f"{label_binarizer_path} exists. Loading existing")
@@ -105,6 +106,7 @@ def train(
     parameters = parameters or {}
 
     model.set_params(**parameters)
+    model.threshold = threshold
 
     # X can be (numpy arrays, lists) or generators
     X_train, _, Y_train, _ = load_train_test_data(

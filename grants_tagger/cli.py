@@ -5,7 +5,7 @@ import logging
 import os
 
 import typer
-
+import dvc.api
 
 logger = logging.getLogger(__name__)
 
@@ -82,8 +82,13 @@ def train(
         "local", help="instance type to use when training with Sagemaker"
     ),
 ):
-    print(slim)
     if slim:
+        dvc_params = dvc.api.params_show()
+
+        config = config or dvc_params.get("train", {}).get(approach, {}).get("config")
+
+        logging.info(f"Training with config file: {config}")
+
         mesh_xlinear.train(
             train_data_path=data_path,
             label_binarizer_path=label_binarizer_path,

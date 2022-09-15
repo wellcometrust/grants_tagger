@@ -85,8 +85,13 @@ def train(
     if slim:
         dvc_params = dvc.api.params_show()
 
-        config = config or dvc_params.get("train", {}).get(approach, {}).get("config")
+        config = config or dvc_params.get("params.yaml:train", {}).get(
+            approach, {}
+        ).get("config")
 
+        import pdb
+
+        pdb.set_trace()
         logging.info(f"Training with config file: {config}")
 
         mesh_xlinear.train(

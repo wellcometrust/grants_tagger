@@ -85,6 +85,15 @@ def train(
     sparse_labels: bool = True,
     threshold: float = 0.5,
 ):
+    if config:
+        # For some models, it might be necessary to see the parameters before loading it
+        config_dict = read_config(config)
+        parameters = config_dict["params"]
+        model_path = model_path or config_dict["model_path"]
+        label_binarizer_path = (
+            label_binarizer_path or config_dict["label_binarizer_path"]
+        )
+
     if os.path.exists(label_binarizer_path):
         print(f"{label_binarizer_path} exists. Loading existing")
         with open(label_binarizer_path, "rb") as f:
@@ -95,14 +104,6 @@ def train(
         )
 
     # Reads from config file (if needs be)
-    if config:
-        # For some models, it might be necessary to see the parameters before loading it
-        config_dict = read_config(config)
-        params = config_dict["params"]
-        model_path = model_path or config_dict["model_path"]
-        label_binarizer_path = (
-            label_binarizer_path or config_dict["label_binarizer_path"]
-        )
 
     # Loads model and sets parameters appropriately
     model = MeshXLinear()

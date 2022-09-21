@@ -3,6 +3,8 @@ from pathlib import Path
 import subprocess
 import logging
 import os
+import time
+import json
 
 import typer
 import dvc.api
@@ -40,6 +42,8 @@ from grants_tagger.optimise_params import tune_params_cli
 from grants_tagger.download_epmc import download_epmc_cli
 from grants_tagger.download_model import download_model_cli
 from grants_tagger.explain import explain_cli
+
+from grants_tagger.utils import get_ec2_instance_type
 
 app = typer.Typer()
 
@@ -82,6 +86,7 @@ def train(
         "local", help="instance type to use when training with Sagemaker"
     ),
 ):
+    start = time.time()
     if slim:
         dvc_params = dvc.api.params_show()
 
@@ -133,6 +138,13 @@ def train(
             cache_path=cache_path,
             config=config,
         )
+
+    duration = time.time() - start
+    instance = get_ec2_instance_type()
+    print(f"Took {duration:.2f} to train")
+    if train_info:
+        with open(train_info, "w") as f:
+            json.dump({"duration": duration, "ec2_instance": instance}, f)
 
 
 preprocess_app = typer.Typer()

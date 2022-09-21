@@ -8,7 +8,6 @@ import os.path
 import json
 import typer
 import logging
-import time
 import yaml
 import configparser
 
@@ -23,7 +22,7 @@ from grants_tagger.models.create_model import create_model
 from grants_tagger.utils import load_train_test_data, yield_tags
 
 from tensorflow.random import set_seed
-from grants_tagger.utils import convert_dvc_to_sklearn_params, get_ec2_instance_type
+from grants_tagger.utils import convert_dvc_to_sklearn_params
 
 
 # TODO: Remove when WellcomeML implements setting random_seed inside models
@@ -115,8 +114,6 @@ def train_cli(
     config: Path = None,
 ):
 
-    start = time.time()
-
     params = dvc.api.params_show()
 
     if params.get("train", {}).get(approach, {}).get("config"):
@@ -165,13 +162,6 @@ def train_cli(
             sparse_labels=sparse_labels,
             cache_path=cache_path,
         )
-
-    duration = time.time() - start
-    instance = get_ec2_instance_type()
-    print(f"Took {duration:.2f} to train")
-    if train_info:
-        with open(train_info, "w") as f:
-            json.dump({"duration": duration, "ec2_instance": instance}, f)
 
 
 if __name__ == "__main__":

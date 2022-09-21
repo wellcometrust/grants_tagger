@@ -119,7 +119,7 @@ def train(
 
     os.makedirs(model_path, exist_ok=True)
 
-    print("Saving model")
+    print(f"Saving model on {model_path}")
     model.save(model_path)
 
     return model, label_binarizer

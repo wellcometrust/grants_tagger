@@ -22,7 +22,6 @@ stages:
         - models/label_binarizer_toy.pkl
   train_mesh_xlinear:
     cmd: grants_tagger train data/processed/train_mesh2021.jsonl
-      models/xlinear/label_binarizer.pkl models/xlinear/model
       --approach mesh-xlinear --sparse-labels --train-info results/mesh_xlinear_train_info.json --slim
     deps:
     - data/processed/train_mesh2021.jsonl
@@ -33,8 +32,8 @@ stages:
     outs:
     - models/xlinear/model
   evaluate_mesh_xlinear:
-    cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model
-      data/processed/test_mesh2021.jsonl models/xlinear/label_binarizer.pkl
+    cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model-2022.9.0
+      data/processed/test_mesh2021.jsonl models/xlinear/label_binarizer-2022.9.0.pkl
       --results-path results/mesh_xlinear.json
       --full-report-path results/mesh_xlinear_full_report.json --no-split-data
     deps:

@@ -94,9 +94,6 @@ def train(
             approach, {}
         ).get("config")
 
-        import pdb
-
-        pdb.set_trace()
         logging.info(f"Training with config file: {config}")
 
         mesh_xlinear.train(

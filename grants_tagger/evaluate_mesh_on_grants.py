@@ -67,6 +67,9 @@ def evaluate_mesh_on_grants(
     texts = get_texts(data)
 
     model = load_model(approach, model_path, parameters=parameters)
+    if getattr(model, "threshold") is None:
+        model.threshold = 0.5
+
     Y_pred = model.predict(texts)
 
     if mesh_tags_path:

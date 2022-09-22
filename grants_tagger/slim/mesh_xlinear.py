@@ -19,10 +19,9 @@ def read_config(config_path):
     # For some models, it might be necessary to see the parameters before loading it
     cfg = configparser.ConfigParser(allow_no_value=True)
     cfg.read(config_path)
-    parameters = cfg["model"]["parameters"]
-    parameters = ast.literal_eval(parameters)
+    model_dict = cfg["model"]
 
-    return parameters
+    return model_dict
 
 
 def evaluate(
@@ -88,7 +87,7 @@ def train(
     if config:
         # For some models, it might be necessary to see the parameters before loading it
         config_dict = read_config(config)
-        parameters = config_dict["params"]
+        parameters = ast.literal_eval(config_dict["parameters"])
         model_path = model_path or config_dict["model_path"]
         label_binarizer_path = (
             label_binarizer_path or config_dict["label_binarizer_path"]

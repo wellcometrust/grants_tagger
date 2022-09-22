@@ -2,4 +2,4 @@ preprocess_bioasq_mesh:
   mesh_tags_path: null
 train:
   mesh-xlinear:
-    config: 'mesh/2022.9.0.ini' # Path to config file inside `configs` folder
+    config: 'configs/mesh/2022.9.0.ini' # Path to config file

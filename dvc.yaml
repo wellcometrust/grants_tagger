@@ -22,37 +22,24 @@ stages:
         - models/label_binarizer_toy.pkl
   train_mesh_xlinear:
     cmd: grants_tagger train data/processed/train_mesh2021.jsonl
-      models/xlinear/label_binarizer.pkl models/xlinear/model
-      --approach mesh-xlinear --sparse-labels --train-info results/mesh_xlinear_train_info.json
+      --approach mesh-xlinear --sparse-labels --train-info results/mesh_xlinear_train_info.json --slim
     deps:
     - data/processed/train_mesh2021.jsonl
     - grants_tagger/train.py
-    - grants_tagger/models/mesh_xlinear.py
+    - grants_tagger/slim/mesh_xlinear.py
     params:
-    - train.mesh-xlinear.stop_words
-    - train.mesh-xlinear.min_df
-    - train.mesh-xlinear.max_df
-    - train.mesh-xlinear.max_features
-    - train.mesh-xlinear.ngram_range
-    - train.mesh-xlinear.lowercase
-    - train.mesh-xlinear.vectorizer_library
-    - train.mesh-xlinear.cluster_chain
-    - train.mesh-xlinear.negative_sampling_scheme
-    - train.mesh-xlinear.beam_size
-    - train.mesh-xlinear.only_topk
-    - train.mesh-xlinear.min_weight_value
-    - train.mesh-xlinear.threshold
+    - train.mesh-xlinear.config
     outs:
-    - models/xlinear/model
+    - models/xlinear/model-2022.9.0
   evaluate_mesh_xlinear:
-    cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model
-      data/processed/test_mesh2021.jsonl models/xlinear/label_binarizer.pkl
+    cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model-2022.9.0
+      data/processed/test_mesh2021.jsonl models/xlinear/label_binarizer-2022.9.0.pkl
       --results-path results/mesh_xlinear.json
       --full-report-path results/mesh_xlinear_full_report.json --no-split-data
     deps:
     - grants_tagger/evaluate_model.py
-    - models/xlinear/model
-    - models/xlinear/label_binarizer.pkl
+    - models/xlinear/model-2022.9.0
+    - models/xlinear/label_binarizer-2022.9.0.pkl
     metrics:
     - results/mesh_xlinear.json:
         cache: false
@@ -63,16 +50,16 @@ stages:
     outs:
     - data/processed/mesh_disease_tags.csv
   evaluate_mesh_xlinear_on_grants:
-    cmd: grants_tagger evaluate grants mesh-xlinear models/xlinear/model
-      data/raw/disease_tags_validation_grants.xlsx models/xlinear/label_binarizer.pkl
+    cmd: grants_tagger evaluate grants mesh-xlinear models/xlinear/model-2022.9.0
+      data/raw/disease_tags_validation_grants.xlsx models/xlinear/label_binarizer-2022.9.0.pkl
       --results-path results/mesh_xlinear_on_grants.json
       --mesh-tags-path data/processed/mesh_disease_tags.csv
     deps:
     - data/raw/disease_tags_validation_grants.xlsx
     - data/processed/mesh_disease_tags.csv
     - grants_tagger/evaluate_mesh_on_grants.py
-    - models/xlinear/model
-    - models/xlinear/label_binarizer.pkl
+    - models/xlinear/model-2022.9.0
+    - models/xlinear/label_binarizer-2022.9.0.pkl
     metrics:
     - results/mesh_xlinear_on_grants.json:
         cache: false

@@ -231,4 +231,4 @@ xlrd==2.0.1
 yarl==1.8.1
 zc.lockfile==2.0
 zipp==3.8.1
-git+https://github.com/nsorros/shap.git@dev
+# git+https://github.com/nsorros/shap.git@dev

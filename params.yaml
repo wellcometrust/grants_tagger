@@ -2,18 +2,4 @@ preprocess_bioasq_mesh:
   mesh_tags_path: null
 train:
   mesh-xlinear:
-    #tfidf params
-    min_df: 5
-    max_df: 1.0
-    stop_words: "english"
-    max_features: 400_000
-    ngram_range: [1,1]
-    lowercase: True
-    threshold: 0.2
-    #xlinear params
-    vectorizer_library: "pecos"
-    negative_sampling_scheme: "tfn"
-    cluster_chain: True
-    beam_size: 30
-    only_topk: 200
-    min_weight_value: 0.1
+    config: 'configs/mesh/2022.9.0.ini' # Path to config file

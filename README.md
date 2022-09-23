@@ -661,3 +661,41 @@ help                 Show help message
 Additional scripts, mostly related to Wellcome Trust-specific code can be
 found in `/scripts`. Please refer to the [readme](scripts/README.md) therein for more info
 on how to run those.
+
+## 🏋️ Slim
+
+```bash
+docker build -f Dockerfile.xlinear -t xlinear .
+```
+
+Then run mounting the model volumes
+
+```bash
+docker run -v $(PWD)/models/:/code/models -d -t xlinear
+```
+
+Get your image number, and ssh into the container to debug
+
+```bash
+predict_tags(['This is a malaria grant'], model_path='models/xlinear-0.2.3', label_binarizer_path='models/label_binarizer.pkl', probabilities=True, threshold=0.01)
+```
+
+### Train a slim model
+
+To train a xlinear model, you can use the following functionality:
+
+```python
+from grants_tagger.slim.mesh_xlinear import train_and_evaluate
+
+parameters={'ngram_range': (1, 1), 'beam_size': 30, 'only_topk': 200, 'min_weight_value': 0.1, 'max_features': 400_000}
+
+train_and_evaluate(train_data_path='data/processed/train_mesh2021_toy.jsonl',
+                   test_data_path='data/processed/test_mesh_2021_toy.jsonl',
+                   label_binarizer_path='models/label_binarizer_toy.pkl',
+                   model_path='models/xlinear-toy',
+                   results_path='results/mesh_xlinear_toy.json',
+                   full_report_path='results/mesh_xlinear_toy_full_report.json')
+```
+
+If you want to change the parameters, you can either pass it as a dictionary to `train_and_evaluate`, as above,
+or create a config file (check `configs/mesh/2022.3.0.ini`).

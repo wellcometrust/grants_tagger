@@ -72,6 +72,7 @@ def preprocess_mesh(
     mesh_tags_path=None,
     filter_years=None,
     n_max=None,
+    buffer_size=10_000,
 ):
     if mesh_tags_path:
         filter_tags_data = pd.read_csv(mesh_tags_path)
@@ -84,12 +85,18 @@ def preprocess_mesh(
         min_year, max_year = filter_years.split(",")
         filter_years = [int(min_year), int(max_year)]
 
+    # If only using a tiny set of data, need to reduce buffer size
+    if n_max is not None and n_max < buffer_size:
+        buffer_size = n_max
+
     with open(processed_data_path, "w") as f:
         for i, data_batch in enumerate(
-            yield_data(raw_data_path, filter_tags, filter_years)
+            yield_data(
+                raw_data_path, filter_tags, filter_years, buffer_size=buffer_size
+            )
         ):
             write_jsonl(f, data_batch)
-            if n_max and i > n_max:
+            if n_max and (i + 1) * buffer_size >= n_max:
                 break
 
 

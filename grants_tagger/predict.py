@@ -12,44 +12,8 @@ import scipy.sparse as sp
 import numpy as np
 
 from grants_tagger.models.create_model import load_model
-from typing import List, Optional
-
-
-def format_predictions(
-    Y_pred_proba, label_binarizer, threshold=0.5, probabilities=True
-):
-    """
-    Formats predictions to output a list of dictionaries
-
-    Y_pred_proba: sparse array or list of predicted probabilites or class
-    (i.e. the output of  `.predict` or `.predict_proba` classifier)
-    label_binarizer: A sklearn fitted label binarizer
-    threshold: Float between 0 and 1
-    probabilities: Whether Y_pred_proba will contain probabilities or just predictions
-
-    Returns:
-        A list of dictionaries for each prediction, e.g.
-        [{"tag": "Malaria", "Probability": 0.5}, ...]
-    """
-    tags = []
-    for y_pred_proba in Y_pred_proba:
-        if sp.issparse(y_pred_proba):
-            y_pred_proba = np.asarray(y_pred_proba.todense()).ravel()
-        if probabilities:
-            tags_i = {
-                tag: prob
-                for tag, prob in zip(label_binarizer.classes_, y_pred_proba)
-                if prob >= threshold
-            }
-        else:
-            tags_i = [
-                tag
-                for tag, prob in zip(label_binarizer.classes_, y_pred_proba)
-                if prob >= threshold
-            ]
-        tags.append(tags_i)
-
-    return tags
+from grants_tagger.models.utils import format_predictions
+from typing import Optional
 
 
 def predict_tags(

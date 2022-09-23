@@ -1,0 +1,17 @@
+FROM python:3.8-slim-buster
+
+ENV LANG=en_US.UTF-8 \
+    LC_ALL=en_US.UTF-8
+
+RUN apt-get update && \
+    apt-get install -y git build-essential
+
+WORKDIR /code
+
+RUN pip install --upgrade pip && \
+    pip install libpecos==0.1.0
+
+COPY setup.py /code
+COPY grants_tagger/ /code/grants_tagger
+
+RUN pip install .

@@ -3,20 +3,30 @@ from pathlib import Path
 import subprocess
 import logging
 import os
+import time
+import json
 
 import typer
-
+import dvc.api
 
 logger = logging.getLogger(__name__)
 
-
-from grants_tagger.train import train_cli
+try:
+    from grants_tagger.train import train_cli
+except ModuleNotFoundError as e:
+    logger.warning(
+        "Train_cli couldn't be imported, probably due to a missing dependency."
+        " See error below (you can probably still use train_slim)"
+    )
+    logger.debug(e)
 
 try:
     from grants_tagger.train_with_sagemaker import train_with_sagemaker_cli
 except ModuleNotFoundError as e:
     logger.warning("Sagemaker missing so training with sagemaker not working.")
     logger.debug(e)
+
+from grants_tagger.slim import mesh_xlinear
 
 from grants_tagger.preprocess_mesh import preprocess_mesh_cli
 from grants_tagger.preprocess_wellcome import preprocess_wellcome_cli
@@ -32,6 +42,8 @@ from grants_tagger.optimise_params import tune_params_cli
 from grants_tagger.download_epmc import download_epmc_cli
 from grants_tagger.download_model import download_model_cli
 from grants_tagger.explain import explain_cli
+
+from grants_tagger.utils import get_ec2_instance_type
 
 app = typer.Typer()
 
@@ -65,13 +77,36 @@ def train(
         None, help="path to cache data transformartions"
     ),
     config: Path = None,
+    slim: bool = typer.Option(
+        False,
+        help="flag to tell whether the model is slim (at the moment just xlinear)",
+    ),
     cloud: bool = typer.Option(False, help="flag to train using Sagemaker"),
     instance_type: str = typer.Option(
         "local", help="instance type to use when training with Sagemaker"
     ),
 ):
+    start = time.time()
+    if slim:
+        dvc_params = dvc.api.params_show()
 
-    if cloud:
+        config = config or dvc_params.get("params.yaml:train", {}).get(
+            approach, {}
+        ).get("config")
+
+        logging.info(f"Training with config file: {config}")
+
+        mesh_xlinear.train(
+            train_data_path=data_path,
+            label_binarizer_path=label_binarizer_path,
+            model_path=model_path,
+            parameters=parameters,
+            config=config,
+            threshold=threshold,
+            sparse_labels=sparse_labels,
+        )
+
+    elif cloud:
         train_with_sagemaker_cli(
             data_path=data_path,
             label_binarizer_path=label_binarizer_path,
@@ -100,6 +135,13 @@ def train(
             cache_path=cache_path,
             config=config,
         )
+
+    duration = time.time() - start
+    instance = get_ec2_instance_type()
+    print(f"Took {duration:.2f} to train")
+    if train_info:
+        with open(train_info, "w") as f:
+            json.dump({"duration": duration, "ec2_instance": instance}, f)
 
 
 preprocess_app = typer.Typer()

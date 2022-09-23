@@ -133,7 +133,7 @@ pre-commit==2.20.0
 preshed==3.0.7
 promise==2.3
 prompt-toolkit==3.0.30
-protobuf==3.19.4
+protobuf==3.19.5
 protobuf3-to-dict==0.1.5
 psutil==5.9.1
 pyarrow==9.0.0

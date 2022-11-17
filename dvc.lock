@@ -324,8 +324,11 @@ stages:
   preprocess_bioasq_mesh_toy:
     cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/train_mesh2021_toy.jsonl
       models/label_binarizer_toy.pkl --test-split 0.01 --test-output-path data/processed/test_mesh2021_toy.jsonl
-      --n-max 1000
+      --n-max 1000 --mesh-tags-path data/processed/wt_tags_used.csv
     deps:
+    - path: data/processed/wt_tags_used.csv
+      md5: e7616add322c0f2a9e01d44acb47d3f5
+      size: 638476
     - path: data/raw/allMeSH_2021.json
       md5: e827a6b8062d1312664dcf075c12d89f
       size: 27547042745
@@ -334,11 +337,11 @@ stages:
       size: 5675
     outs:
     - path: data/processed/test_mesh2021_toy.jsonl
-      md5: 4854f52928e0f018e9c062ccf7479d75
+      md5: 29a4e0d97b99a51fe955da8d8aafe830
       size: 17777
     - path: data/processed/train_mesh2021_toy.jsonl
-      md5: 76794bc0196dc76873a7b201c3ded238
-      size: 1926754
+      md5: 198b40f4ff158060a063678f25482359
+      size: 1925921
     - path: models/label_binarizer_toy.pkl
-      md5: 283840651200a26d659e579dc289d608
-      size: 66407
+      md5: e91d57c42b5b7ce970c66e2b4857704b
+      size: 65665

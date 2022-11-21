@@ -324,7 +324,7 @@ stages:
   preprocess_bioasq_mesh_toy:
     cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/train_mesh2021_toy.jsonl
       models/label_binarizer_toy.pkl --test-split 0.01 --test-output-path data/processed/test_mesh2021_toy.jsonl
-      --n-max 1000 --mesh-tags-path data/processed/wt_tags_used.csv
+      --n-max 1000
     deps:
     - path: data/processed/wt_tags_used.csv
       md5: e7616add322c0f2a9e01d44acb47d3f5
@@ -337,11 +337,35 @@ stages:
       size: 5675
     outs:
     - path: data/processed/test_mesh2021_toy.jsonl
-      md5: 29a4e0d97b99a51fe955da8d8aafe830
+      md5: 4854f52928e0f018e9c062ccf7479d75
       size: 17777
     - path: data/processed/train_mesh2021_toy.jsonl
-      md5: 198b40f4ff158060a063678f25482359
-      size: 1925921
+      md5: 76794bc0196dc76873a7b201c3ded238
+      size: 1926754
     - path: models/label_binarizer_toy.pkl
-      md5: e91d57c42b5b7ce970c66e2b4857704b
-      size: 65665
+      md5: 283840651200a26d659e579dc289d608
+      size: 66407
+  preprocess_bioasq_mesh_wt_only:
+    cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/train_mesh2021_wt.jsonl
+      models/xlinear/label_binarizer_wt.pkl --test-split 0.01 --test-output-path data/processed/test_mesh2021_wt.jsonl
+      --mesh-tags-path data/processed/wt_tags_used.csv
+    deps:
+    - path: data/processed/wt_tags_used.csv
+      md5: e7616add322c0f2a9e01d44acb47d3f5
+      size: 638476
+    - path: data/raw/allMeSH_2021.json
+      md5: e827a6b8062d1312664dcf075c12d89f
+      size: 27547042745
+    - path: grants_tagger/preprocess_mesh.py
+      md5: 4a6539c093e465852206e4455e67cda3
+      size: 5675
+    outs:
+    - path: data/processed/test_mesh2021_wt.jsonl
+      md5: ff5e8803b5dcaa6e7cab18bddb041e92
+      size: 257234938
+    - path: data/processed/train_mesh2021_wt.jsonl
+      md5: a0041b985d83f4648a7cc5160c7416e1
+      size: 25474740225
+    - path: models/xlinear/label_binarizer_wt.pkl
+      md5: 8dc9c7fb601edcc704218a54dbaeb42a
+      size: 541399

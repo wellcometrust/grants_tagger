@@ -145,6 +145,7 @@ stages:
   preprocess_bioasq_mesh:
     cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/train_mesh2021.jsonl
       models/xlinear/label_binarizer.pkl --test-split 0.01 --test-output-path data/processed/test_mesh2021.jsonl
+      --mesh-tags-path data/processed/descriptors_to_use.csv
     deps:
     - path: data/raw/allMeSH_2021.json
       md5: e827a6b8062d1312664dcf075c12d89f
@@ -154,14 +155,14 @@ stages:
       size: 5675
     outs:
     - path: data/processed/test_mesh2021.jsonl
-      md5: 2d6f73d29ec6f98a3cae6df2c618f077
-      size: 257607574
+      md5: 115bd2bd5160abcd694e8db2e3c58a37
+      size: 256267517
     - path: data/processed/train_mesh2021.jsonl
-      md5: 3fb0ddb59e11c40c0c34fd104b1815fb
-      size: 25488153802
+      md5: 406d3a55e34626957d0cb78ac290ca42
+      size: 25370915640
     - path: models/xlinear/label_binarizer.pkl
-      md5: fd76765990862184bef555e9b008dc90
-      size: 622958
+      md5: e724374be69ab326b744992e83f4101a
+      size: 622342
   evaluate_science_ensemble:
     cmd: grants_tagger evaluate model science-ensemble models/tfidf-svm.pkl,models/scibert
       data/processed/science_grants_tagged_title_synopsis.jsonl models/label_binarizer.pkl
@@ -235,8 +236,8 @@ stages:
       --sparse-labels --train-info results/mesh_xlinear_train_info.json --slim
     deps:
     - path: data/processed/train_mesh2021.jsonl
-      md5: 3fb0ddb59e11c40c0c34fd104b1815fb
-      size: 25488153802
+      md5: 406d3a55e34626957d0cb78ac290ca42
+      size: 25370915640
     - path: grants_tagger/slim/mesh_xlinear.py
       md5: 56a24b32c2a49032be5009ffab01f3f7
       size: 5735
@@ -248,8 +249,8 @@ stages:
         train.mesh-xlinear.config: configs/mesh/2022.9.0.ini
     outs:
     - path: models/xlinear/model-2022.9.0
-      md5: adf0e50f15d4c0a94dc7089d80399591.dir
-      size: 3712815049
+      md5: 5171e58ce5db427d5d198d134757b551.dir
+      size: 3714100920
       nfiles: 34
   evaluate_mesh_xlinear_on_grants:
     cmd: grants_tagger evaluate grants mesh-xlinear models/xlinear/model-2022.9.0

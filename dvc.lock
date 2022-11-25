@@ -289,12 +289,12 @@ stages:
       md5: fd76765990862184bef555e9b008dc90
       size: 622958
     - path: models/xlinear/model-2022.9.0
-      md5: adf0e50f15d4c0a94dc7089d80399591.dir
-      size: 3712815049
+      md5: 5171e58ce5db427d5d198d134757b551.dir
+      size: 3714100920
       nfiles: 34
     outs:
     - path: results/mesh_xlinear.json
-      md5: b6f13676eb8af3b55a70b28477dea250
+      md5: 2b10d4aa18e14776d1d1008a88e36bf7
       size: 120
   generate_validation_data_xlinear:
     cmd: python scripts/generate_validation_data_xlinear.py

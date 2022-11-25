@@ -2,6 +2,7 @@ stages:
   preprocess_bioasq_mesh:
     cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/train_mesh2021.jsonl
         models/xlinear/label_binarizer.pkl --test-split 0.01 --test-output-path data/processed/test_mesh2021.jsonl
+        --mesh-tags-path data/processed/descriptors_to_use.csv
     deps:
     - data/raw/allMeSH_2021.json
     - grants_tagger/preprocess_mesh.py

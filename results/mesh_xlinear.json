@@ -1,8 +1,8 @@
 [
     {
         "threshold": "0.50",
-        "precision": "0.74",
-        "recall": "0.41",
-        "f1": "0.53"
+        "precision": "0.73",
+        "recall": "0.39",
+        "f1": "0.51"
     }
 ]

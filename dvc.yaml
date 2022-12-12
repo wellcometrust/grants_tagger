@@ -12,7 +12,7 @@ stages:
 
   preprocess_bioasq_mesh:
     cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/train_mesh2021.jsonl
-        models/xlinear/label_binarizer.pkl --test-split 0.01 --test-output-path data/processed/test_mesh2021.jsonl
+        models/xlinear/label_binarizer-${version_number}.pkl --test-split 0.01 --test-output-path data/processed/test_mesh2021.jsonl
         --mesh-tags-path data/processed/descriptors_to_use.csv
     deps:
     - data/raw/allMeSH_2021.json
@@ -20,7 +20,7 @@ stages:
     outs:
     - data/processed/train_mesh2021.jsonl
     - data/processed/test_mesh2021.jsonl
-    - models/xlinear/label_binarizer.pkl
+    - models/xlinear/label_binarizer-${version_number}.pkl
 
   preprocess_bioasq_mesh_wt_only: # only train on tags that are used in Wellcome's active portfolio
     cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/train_mesh2021_wt.jsonl
@@ -49,7 +49,7 @@ stages:
         - models/xlinear-toy/label_binarizer_toy.pkl
 
   train_mesh_xlinear:
-    cmd: grants_tagger train data/processed/train_mesh2021.jsonl models/xlinear/label_binarizer.pkl models/xlinear/model-${version_number}
+    cmd: grants_tagger train data/processed/train_mesh2021.jsonl models/xlinear/label_binarizer-${version_number}.pkl models/xlinear/model-${version_number}
       --approach mesh-xlinear --sparse-labels --train-info results/mesh_xlinear_train_info.json --slim
     deps:
     - data/processed/train_mesh2021.jsonl
@@ -73,7 +73,7 @@ stages:
     - models/xlinear-toy/model-${version_number}
 
   train_mesh_xlinear_wt_only:
-    cmd: grants_tagger train data/processed/train_mesh2021_wt.jsonl models/xlinear-wt/label_binarizer_toy.pkl models/xlinear-wt/model-${version_number}
+    cmd: grants_tagger train data/processed/train_mesh2021_wt.jsonl models/xlinear-wt/label_binarizer_wt.pkl models/xlinear-wt/model-${version_number}
       --approach mesh-xlinear --sparse-labels --train-info results/mesh_xlinear_train_info_wt.json --slim
     deps:
     - data/processed/train_mesh2021_wt.jsonl

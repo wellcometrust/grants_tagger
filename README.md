@@ -79,6 +79,16 @@ preprocessing so the current preprocess works with the wellcome-science dataset 
 the bioasq-mesh one. If you want to use a different dataset see section on bringing
 your own data under development.
 
+### inclusion list
+
+The preprocessing step, described below, can also exlcude terms we do not want to use
+in training. Such terms can be
+  1) terms that have an attribute that contains "DO NOT USE", which are there to help
+  catalogue or organise the tree structure. These terms should not be used for tagging
+  however
+  2) terms that we manually want to exclude. These can be stored in a .csv which can
+  feed into `create_inclusion_list.py`
+
 
 #### wellcome-science
 ```

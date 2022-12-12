@@ -7,6 +7,7 @@
 # Models
 models/**
 !models/bertmesh/model/epoch-3.dvc
+!models/xlinear/model-2022.12.0.dvc
 
 # Data
 **/*.jsonl

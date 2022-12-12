@@ -13,7 +13,7 @@ import pandas as pd
 from pathlib import Path
 
 
-def inclusion(xml_path, exclusion_list_path, out_path):
+def inclusion(xml_path, out_path):
 
     # parse the xml tree
     mesh_tree = ET.parse(xml_path)

@@ -83,7 +83,6 @@ google-auth==2.11.0
 google-auth-oauthlib==0.4.6
 google-pasta==0.2.0
 grandalf==0.6
--e git+ssh://git@github.com/wellcometrust/grants_tagger.git@99ab85cbe616fc22e0d7202dd2bbae1cdbf96e5c#egg=grants_tagger
 grpcio==1.32.0
 h5py==2.10.0
 huggingface-hub==0.9.1

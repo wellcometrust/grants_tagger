@@ -14,6 +14,17 @@ from pathlib import Path
 
 
 def inclusion(xml_path, out_path):
+    """
+    Creates an inclusion list based on a manual exclusion list and a filter
+    to filter out terms which have an attribute mentioning "Do not use"
+
+      Args:
+      - xml_path: path to the xml which contains the MeSH tree and term attributes
+      - out_path: path to .csv which contains list of MeSH terms to use
+
+      Returns:
+        csv in the out_path
+    """
 
     # parse the xml tree
     mesh_tree = ET.parse(xml_path)
@@ -34,12 +45,12 @@ def inclusion(xml_path, out_path):
 
     # read in the list of descriptors we would like to drop manually:
     exclusion_df = pd.read_csv(exclusion_list_path)
-    exclusion_list = list(exclusion_df["DescriptorName"].values)
+    exclusion_list = exclusion_df["DescriptorName"].tolist()
 
     # make a list of the descriptors we want to use
     for descriptor, annotation in descriptors_set:
         if (
-            "Do not use" not in annotation and descriptor not in exclusion_list
+            ": Do not use" not in annotation and descriptor not in exclusion_list
         ):  # by excluding these
             descriptors_to_use.append(descriptor)
 

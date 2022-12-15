@@ -13,13 +13,14 @@ import pandas as pd
 from pathlib import Path
 
 
-def inclusion(xml_path, out_path):
+def inclusion(xml_path, exclusion_list_path, out_path):
     """
     Creates an inclusion list based on a manual exclusion list and a filter
     to filter out terms which have an attribute mentioning "Do not use"
 
       Args:
       - xml_path: path to the xml which contains the MeSH tree and term attributes
+      - exclusion_list_path: path to .csv with terms we manually want to exclude
       - out_path: path to .csv which contains list of MeSH terms to use
 
       Returns:

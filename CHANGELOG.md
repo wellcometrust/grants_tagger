@@ -1,5 +1,10 @@
 ## v0.2.2
 
+- excludes terms that have the attribute "Do not use"
+- excludes terms that we manually want to exclude using `descriptors_not_to_use_manual.csv`
+
+## v0.2.2
+
 - #180: Bug fix
 ## v0.2.1
 

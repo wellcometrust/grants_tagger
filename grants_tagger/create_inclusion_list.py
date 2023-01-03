@@ -6,7 +6,6 @@ given a link to the MeSH xml file
 import typer
 
 import os
-import httpx
 import uuid
 import xml.etree.ElementTree as ET  # this is a library that can parse xml easily
 import pandas as pd

@@ -144,8 +144,8 @@ stages:
       size: 120
   preprocess_bioasq_mesh:
     cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/train_mesh2021.jsonl
-      models/xlinear/label_binarizer-2022.12.0.pkl --test-split 0.01 --test-output-path
-      data/processed/test_mesh2021.jsonl --mesh-tags-path data/processed/descriptors_to_use.csv
+      models/xlinear/label_binarizer.pkl --test-split 0.01 --test-output-path data/processed/test_mesh2021.jsonl
+      --mesh-tags-path data/processed/descriptors_to_use.csv
     deps:
     - path: data/raw/allMeSH_2021.json
       md5: e827a6b8062d1312664dcf075c12d89f
@@ -155,14 +155,14 @@ stages:
       size: 5675
     outs:
     - path: data/processed/test_mesh2021.jsonl
-      md5: 88855edea9e34c5332a76305717a10f5
-      size: 255377463
+      md5: 01c96f3be37e5329d72e6dfd52668787
+      size: 255517412
     - path: data/processed/train_mesh2021.jsonl
-      md5: 3b2607b9d2501834875c7a4b9a10f5f2
-      size: 25271312893
-    - path: models/xlinear/label_binarizer-2022.12.0.pkl
-      md5: 1cccae2c4a4056eb683cf5668702265d
-      size: 622330
+      md5: 55e2cb37296169499491b58ee1e8fa67
+      size: 25271198680
+    - path: models/xlinear/label_binarizer.pkl
+      md5: 17de879cfa59aa3b0da81cf29bcb4584
+      size: 622349
   evaluate_science_ensemble:
     cmd: grants_tagger evaluate model science-ensemble models/tfidf-svm.pkl,models/scibert
       data/processed/science_grants_tagged_title_synopsis.jsonl models/label_binarizer.pkl
@@ -232,13 +232,13 @@ stages:
       md5: 4311b12fb4f381ffab1d76f55069683d
       size: 260080
   train_mesh_xlinear:
-    cmd: grants_tagger train data/processed/train_mesh2021.jsonl models/xlinear/label_binarizer-2022.12.0.pkl
-      models/xlinear/model-2022.12.0 --approach mesh-xlinear --sparse-labels --train-info
-      results/mesh_xlinear_train_info.json --slim
+    cmd: grants_tagger train data/processed/train_mesh2021.jsonl models/xlinear/label_binarizer.pkl
+      models/xlinear/model --approach mesh-xlinear --sparse-labels --train-info results/mesh_xlinear_train_info.json
+      --slim
     deps:
     - path: data/processed/train_mesh2021.jsonl
-      md5: 3b2607b9d2501834875c7a4b9a10f5f2
-      size: 25271312893
+      md5: 55e2cb37296169499491b58ee1e8fa67
+      size: 25271198680
     - path: grants_tagger/slim/mesh_xlinear.py
       md5: 56a24b32c2a49032be5009ffab01f3f7
       size: 5735
@@ -249,14 +249,14 @@ stages:
       params.yaml:
         train.mesh-xlinear.config: configs/mesh/2022.9.0.ini
     outs:
-    - path: models/xlinear/model-2022.12.0
-      md5: 5f136953f85e8ee671f972b597cabc89.dir
-      size: 3712224885
+    - path: models/xlinear/model
+      md5: 7d889f5b6ce7af8f18997d7c72991d0b.dir
+      size: 3711702599
       nfiles: 34
   evaluate_mesh_xlinear_on_grants:
-    cmd: grants_tagger evaluate grants mesh-xlinear models/xlinear/model-2022.12.0
-      data/raw/disease_tags_validation_grants.xlsx models/xlinear/label_binarizer-2022.12.0.pkl
-      --results-path results/mesh_xlinear_on_grants.json --mesh-tags-path data/processed/mesh_disease_tags.csv
+    cmd: grants_tagger evaluate grants mesh-xlinear models/xlinear/model data/raw/disease_tags_validation_grants.xlsx
+      models/xlinear/label_binarizer.pkl --results-path results/mesh_xlinear_on_grants.json
+      --mesh-tags-path data/processed/mesh_disease_tags.csv
     deps:
     - path: data/processed/mesh_disease_tags.csv
       md5: 4311b12fb4f381ffab1d76f55069683d
@@ -267,32 +267,31 @@ stages:
     - path: grants_tagger/evaluate_mesh_on_grants.py
       md5: f19ad62ab308aa3534d7eb7718b8b701
       size: 4218
-    - path: models/xlinear/label_binarizer-2022.12.0.pkl
-      md5: 1cccae2c4a4056eb683cf5668702265d
-      size: 622330
-    - path: models/xlinear/model-2022.12.0
-      md5: 5f136953f85e8ee671f972b597cabc89.dir
-      size: 3712224885
+    - path: models/xlinear/label_binarizer.pkl
+      md5: 17de879cfa59aa3b0da81cf29bcb4584
+      size: 622349
+    - path: models/xlinear/model
+      md5: 7d889f5b6ce7af8f18997d7c72991d0b.dir
+      size: 3711702599
       nfiles: 34
     outs:
     - path: results/mesh_xlinear_on_grants.json
-      md5: c670711ac726ed766c512a377f776106
+      md5: 0bba58131d082341832bbe5d97a5bfaf
       size: 26
   evaluate_mesh_xlinear:
-    cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model-2022.12.0
-      data/processed/test_mesh2021.jsonl models/xlinear/label_binarizer-2022.12.0.pkl
-      --results-path results/mesh_xlinear.json --full-report-path results/mesh_xlinear_full_report.json
-      --no-split-data
+    cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model data/processed/test_mesh2021.jsonl
+      models/xlinear/label_binarizer.pkl --results-path results/mesh_xlinear.json
+      --full-report-path results/mesh_xlinear_full_report.json --no-split-data
     deps:
     - path: grants_tagger/evaluate_model.py
       md5: d184ff6cda5a492977586d85d9b19328
       size: 5774
-    - path: models/xlinear/label_binarizer-2022.12.0.pkl
-      md5: 1cccae2c4a4056eb683cf5668702265d
-      size: 622330
-    - path: models/xlinear/model-2022.12.0
-      md5: 5f136953f85e8ee671f972b597cabc89.dir
-      size: 3712224885
+    - path: models/xlinear/label_binarizer.pkl
+      md5: 17de879cfa59aa3b0da81cf29bcb4584
+      size: 622349
+    - path: models/xlinear/model
+      md5: 7d889f5b6ce7af8f18997d7c72991d0b.dir
+      size: 3711702599
       nfiles: 34
     outs:
     - path: results/mesh_xlinear.json
@@ -385,7 +384,7 @@ stages:
       size: 746295
   train_mesh_xlinear_toy:
     cmd: grants_tagger train data/processed/train_mesh2021_toy.jsonl models/xlinear-toy/label_binarizer_toy.pkl
-      models/xlinear-toy/model-2022.12.0 --approach mesh-xlinear --sparse-labels --train-info
+      models/xlinear-toy/model --approach mesh-xlinear --sparse-labels --train-info
       results/mesh_xlinear_train_info_toy.json --slim
     deps:
     - path: data/processed/train_mesh2021_toy.jsonl
@@ -401,8 +400,8 @@ stages:
       params.yaml:
         train.mesh-xlinear.config: configs/mesh/2022.9.0.ini
     outs:
-    - path: models/xlinear-toy/model-2022.12.0
-      md5: 187f4c28dc2f8b671707f3aa87be7acf.dir
+    - path: models/xlinear-toy/model
+      md5: 4358025265067e229f8d82629429b937.dir
       size: 2645142
       nfiles: 25
   train_mesh_xlinear_wt_only:

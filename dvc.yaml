@@ -1,8 +1,4 @@
-vars:
-  - version_number: "2022.12.0"
-
 stages:
-
   create_inclusion_list:
     cmd: python grants_tagger/create_inclusion_list.py data/raw/desc2021.xml data/processed/descriptors_not_to_use_manual.csv data/processed/descriptors_to_use.csv
     deps:
@@ -12,7 +8,7 @@ stages:
 
   preprocess_bioasq_mesh:
     cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/train_mesh2021.jsonl
-        models/xlinear/label_binarizer-${version_number}.pkl --test-split 0.01 --test-output-path data/processed/test_mesh2021.jsonl
+        models/xlinear/label_binarizer.pkl --test-split 0.01 --test-output-path data/processed/test_mesh2021.jsonl
         --mesh-tags-path data/processed/descriptors_to_use.csv
     deps:
     - data/raw/allMeSH_2021.json
@@ -20,20 +16,7 @@ stages:
     outs:
     - data/processed/train_mesh2021.jsonl
     - data/processed/test_mesh2021.jsonl
-    - models/xlinear/label_binarizer-${version_number}.pkl
-
-  preprocess_bioasq_mesh_wt_only: # only train on tags that are used in Wellcome's active portfolio
-    cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/train_mesh2021_wt.jsonl
-        models/xlinear-wt/label_binarizer_wt.pkl --test-split 0.01 --test-output-path data/processed/test_mesh2021_wt.jsonl
-         --mesh-tags-path data/processed/wt_tags_used.csv
-    deps:
-    - data/raw/allMeSH_2021.json
-    - grants_tagger/preprocess_mesh.py
-    - data/processed/wt_tags_used.csv
-    outs:
-    - data/processed/train_mesh2021_wt.jsonl
-    - data/processed/test_mesh2021_wt.jsonl
-    - models/xlinear-wt/label_binarizer_wt.pkl
+    - models/xlinear/label_binarizer.pkl
 
   preprocess_bioasq_mesh_toy:  # Creates toy data to help iterating/testing code
       cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/train_mesh2021_toy.jsonl
@@ -49,7 +32,7 @@ stages:
         - models/xlinear-toy/label_binarizer_toy.pkl
 
   train_mesh_xlinear:
-    cmd: grants_tagger train data/processed/train_mesh2021.jsonl models/xlinear/label_binarizer-${version_number}.pkl models/xlinear/model-${version_number}
+    cmd: grants_tagger train data/processed/train_mesh2021.jsonl models/xlinear/label_binarizer.pkl models/xlinear/model
       --approach mesh-xlinear --sparse-labels --train-info results/mesh_xlinear_train_info.json --slim
     deps:
     - data/processed/train_mesh2021.jsonl
@@ -58,10 +41,10 @@ stages:
     params:
     - train.mesh-xlinear.config
     outs:
-    - models/xlinear/model-${version_number}
+    - models/xlinear/model
 
   train_mesh_xlinear_toy:
-    cmd: grants_tagger train data/processed/train_mesh2021_toy.jsonl models/xlinear-toy/label_binarizer_toy.pkl models/xlinear-toy/model-${version_number}
+    cmd: grants_tagger train data/processed/train_mesh2021_toy.jsonl models/xlinear-toy/label_binarizer_toy.pkl models/xlinear-toy/model
       --approach mesh-xlinear --sparse-labels --train-info results/mesh_xlinear_train_info_toy.json --slim
     deps:
     - data/processed/train_mesh2021_toy.jsonl
@@ -70,44 +53,19 @@ stages:
     params:
     - train.mesh-xlinear.config
     outs:
-    - models/xlinear-toy/model-${version_number}
-
-  train_mesh_xlinear_wt_only:
-    cmd: grants_tagger train data/processed/train_mesh2021_wt.jsonl models/xlinear-wt/label_binarizer_wt.pkl models/xlinear-wt/model-${version_number}
-      --approach mesh-xlinear --sparse-labels --train-info results/mesh_xlinear_train_info_wt.json --slim
-    deps:
-    - data/processed/train_mesh2021_wt.jsonl
-    - grants_tagger/train.py
-    - grants_tagger/slim/mesh_xlinear.py
-    params:
-    - train.mesh-xlinear.config
-    outs:
-    - models/xlinear-wt/model-${version_number}
+    - models/xlinear-toy/model
 
   evaluate_mesh_xlinear:
-    cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model-${version_number}
-      data/processed/test_mesh2021.jsonl models/xlinear/label_binarizer-${version_number}.pkl
+    cmd: grants_tagger evaluate model mesh-xlinear models/xlinear/model
+      data/processed/test_mesh2021.jsonl models/xlinear/label_binarizer.pkl
       --results-path results/mesh_xlinear.json
       --full-report-path results/mesh_xlinear_full_report.json --no-split-data
     deps:
     - grants_tagger/evaluate_model.py
-    - models/xlinear/model-${version_number}
-    - models/xlinear/label_binarizer-${version_number}.pkl
+    - models/xlinear/model
+    - models/xlinear/label_binarizer.pkl
     metrics:
     - results/mesh_xlinear.json:
-        cache: false
-
-  evaluate_mesh_xlinear_wt_only:
-    cmd: grants_tagger evaluate model mesh-xlinear models/xlinear-wt/model-${version_number}
-      data/processed/test_mesh2021_wt.jsonl models/xlinear-wt/label_binarizer_wt.pkl
-      --results-path results/mesh_xlinear_wt_only.json
-      --full-report-path results/mesh_xlinear_full_report_wt_only.json --no-split-data
-    deps:
-    - grants_tagger/evaluate_model.py
-    - models/xlinear-wt/model-${version_number}
-    - models/xlinear-wt/label_binarizer_wt.pkl
-    metrics:
-    - results/mesh_xlinear_wt_only.json:
         cache: false
 
   filter_mesh_tags:
@@ -118,16 +76,60 @@ stages:
     - data/processed/mesh_disease_tags.csv
 
   evaluate_mesh_xlinear_on_grants:
-    cmd: grants_tagger evaluate grants mesh-xlinear models/xlinear/model-${version_number}
-      data/raw/disease_tags_validation_grants.xlsx models/xlinear/label_binarizer-${version_number}.pkl
+    cmd: grants_tagger evaluate grants mesh-xlinear models/xlinear/model
+      data/raw/disease_tags_validation_grants.xlsx models/xlinear/label_binarizer.pkl
       --results-path results/mesh_xlinear_on_grants.json
       --mesh-tags-path data/processed/mesh_disease_tags.csv
     deps:
     - data/raw/disease_tags_validation_grants.xlsx
     - data/processed/mesh_disease_tags.csv
     - grants_tagger/evaluate_mesh_on_grants.py
-    - models/xlinear/model-${version_number}
-    - models/xlinear/label_binarizer-${version_number}.pkl
+    - models/xlinear/model
+    - models/xlinear/label_binarizer.pkl
     metrics:
     - results/mesh_xlinear_on_grants.json:
         cache: false
+
+#####
+# uncomment the section below if you would like to create a model that only predicts MeSH tags
+# used by Wellcome (Wellcome uses c. 85% of all MeSH tags). This improves accuracy but won't recognise
+# potential MeSH tags Wellcome hasn't seen before in its portfolio
+#####
+
+  # preprocess_bioasq_mesh_wt_only: # only train on tags that are used in Wellcome's active portfolio
+    # cmd: grants_tagger preprocess bioasq-mesh data/raw/allMeSH_2021.json data/processed/train_mesh2021_wt.jsonl
+    #     models/xlinear-wt/label_binarizer_wt.pkl --test-split 0.01 --test-output-path data/processed/test_mesh2021_wt.jsonl
+    #      --mesh-tags-path data/processed/wt_tags_used.csv
+    # deps:
+    # - data/raw/allMeSH_2021.json
+    # - grants_tagger/preprocess_mesh.py
+    # - data/processed/wt_tags_used.csv
+    # outs:
+    # - data/processed/train_mesh2021_wt.jsonl
+    # - data/processed/test_mesh2021_wt.jsonl
+    # - models/xlinear-wt/label_binarizer_wt.pkl
+
+  # train_mesh_xlinear_wt_only:
+  #   cmd: grants_tagger train data/processed/train_mesh2021_wt.jsonl models/xlinear-wt/label_binarizer_wt.pkl models/xlinear-wt/model
+  #     --approach mesh-xlinear --sparse-labels --train-info results/mesh_xlinear_train_info_wt.json --slim
+  #   deps:
+  #   - data/processed/train_mesh2021_wt.jsonl
+  #   - grants_tagger/train.py
+  #   - grants_tagger/slim/mesh_xlinear.py
+  #   params:
+  #   - train.mesh-xlinear.config
+  #   outs:
+  #   - models/xlinear-wt/model
+
+  # evaluate_mesh_xlinear_wt_only:
+  #   cmd: grants_tagger evaluate model mesh-xlinear models/xlinear-wt/model
+  #     data/processed/test_mesh2021_wt.jsonl models/xlinear-wt/label_binarizer_wt.pkl
+  #     --results-path results/mesh_xlinear_wt_only.json
+  #     --full-report-path results/mesh_xlinear_full_report_wt_only.json --no-split-data
+  #   deps:
+  #   - grants_tagger/evaluate_model.py
+  #   - models/xlinear-wt/model
+  #   - models/xlinear-wt/label_binarizer_wt.pkl
+  #   metrics:
+  #   - results/mesh_xlinear_wt_only.json:
+  #       cache: false

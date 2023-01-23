@@ -3,6 +3,10 @@ from grants_tagger.utils import save_pickle, load_pickle
 from grants_tagger.models.mesh_xlinear import MeshXLinear
 
 
+class ApproachNotImplemented(Exception):
+    pass
+
+
 def create_model(approach, parameters=None):
     if approach == "mesh-xlinear":
         model = MeshXLinear()

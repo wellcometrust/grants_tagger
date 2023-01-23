@@ -18,16 +18,16 @@ import dvc.api
 from typing import Optional
 
 from grants_tagger.label_binarizer import create_label_binarizer
-from grants_tagger.models.create_model import create_model
+from grants_tagger.models.create_model_xlinear import create_model
 from grants_tagger.utils import load_train_test_data, yield_tags
 
-from tensorflow.random import set_seed
+# from tensorflow.random import set_seed
 from grants_tagger.utils import convert_dvc_to_sklearn_params
 
 
 # TODO: Remove when WellcomeML implements setting random_seed inside models
 # replace with param in configs then
-set_seed(41)
+# set_seed(41)
 
 
 def train(

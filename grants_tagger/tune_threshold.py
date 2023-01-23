@@ -25,7 +25,7 @@ from typing import List, Optional
 from pathlib import Path
 
 
-from grants_tagger.models.create_model import load_model
+from grants_tagger.models.create_model_xlinear import load_model
 from grants_tagger.utils import load_train_test_data, load_data
 
 logger = logging.getLogger(__name__)

@@ -16,7 +16,7 @@ from typing import List, Optional
 from sklearn.metrics import f1_score
 import pandas as pd
 
-from grants_tagger.models.create_model import load_model
+from grants_tagger.models.create_model_xlinear import load_model
 
 
 def get_tags(data, annotator):

@@ -11,7 +11,7 @@ import typer
 import scipy.sparse as sp
 import numpy as np
 
-from grants_tagger.models.create_model import load_model
+from grants_tagger.models.create_model_xlinear import load_model
 from grants_tagger.models.utils import format_predictions
 from typing import Optional
 
@@ -45,6 +45,7 @@ def predict_tags(
 
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
+
     model = load_model(approach, model_path, parameters=parameters)
     Y_pred_proba = model.predict_proba(X)
 

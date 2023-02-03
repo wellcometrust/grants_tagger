@@ -61,18 +61,18 @@ def test_create_label_binarizer_sparse(tmp_path, data_path):
 
 
 def test_train_and_evaluate(data_path, label_binarizer_path):
-    approach = "tfidf-svm"
+    approach = "mesh-xlinear"
 
     train(
         data_path,
         label_binarizer_path,
         approach,
-        parameters="{'tfidf__min_df': 1, 'tfidf__stop_words': None}",
+        parameters="{'vectorizer_library': 'sklearn', 'ngram_range': (1, 1), 'beam_size': 30, 'threshold': 0.1, 'only_topk': 200, 'min_weight_value': 0.1, 'max_features': 400_000}",
     )
 
 
 def test_train_pickle_save(tmp_path, data_path, label_binarizer_path):
-    approach = "tfidf-svm"
+    approach = "mesh-xlinear"
 
     model_path = os.path.join(tmp_path, "model.pkl")
     train(
@@ -80,20 +80,20 @@ def test_train_pickle_save(tmp_path, data_path, label_binarizer_path):
         label_binarizer_path,
         approach=approach,
         model_path=model_path,
-        parameters="{'tfidf__min_df': 1, 'tfidf__stop_words': None}",
+        parameters="{'vectorizer_library': 'sklearn', 'ngram_range': (1, 1), 'beam_size': 30, 'threshold': 0.1, 'only_topk': 200, 'min_weight_value': 0.1, 'max_features': 400_000}",
     )
     assert os.path.exists(model_path)
 
 
 def test_train_model_save(tmp_path, data_path, label_binarizer_path):
-    approach = "mesh-cnn"
+    approach = "mesh-xlinear"
 
     train(
         data_path,
         label_binarizer_path,
         approach,
         model_path=tmp_path,
-        sparse_labels=True,
+        parameters="{'vectorizer_library': 'sklearn', 'ngram_range': (1, 1), 'beam_size': 30, 'threshold': 0.1, 'only_topk': 200, 'min_weight_value': 0.1, 'max_features': 400_000}",
     )
 
     expected_vectorizer_path = os.path.join(tmp_path, "vectorizer.pkl")
@@ -105,20 +105,20 @@ def test_train_model_save(tmp_path, data_path, label_binarizer_path):
 
 
 def test_train_and_evaluate_generator(data_path, label_binarizer_path):
-    approach = "mesh-cnn"
+    approach = "mesh-xlinear"
 
     train(
         data_path,
         label_binarizer_path,
         approach,
         data_format="generator",
-        sparse_labels=True,
+        parameters="{'vectorizer_library': 'sklearn', 'ngram_range': (1, 1), 'beam_size': 30, 'threshold': 0.1, 'only_topk': 200, 'min_weight_value': 0.1, 'max_features': 400_000}",
     )
 
 
 def test_train_and_evaluate_generator_non_sparse_labels(
     data_path, label_binarizer_path
 ):
-    approach = "mesh-cnn"
+    approach = "mesh-xlinear"
 
     train(data_path, label_binarizer_path, approach, data_format="generator")

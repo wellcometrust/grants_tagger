@@ -113,7 +113,7 @@ nmslib==2.1.1
 nodeenv==1.7.0
 numba==0.56.0
 numpy==1.19.5
-oauthlib==3.2.0
+oauthlib==3.2.2
 omegaconf==2.2.3
 openpyxl==3.0.10
 opt-einsum==3.3.0

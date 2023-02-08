@@ -447,7 +447,7 @@ which only works on Linux.
 
 As such, a user might want to create a docker image which can run
 grants-tagger. In order to do so, you need to create a Dockerfile,
-which sets up a linxu environment. E.g.
+which sets up a linux environment. E.g.
 ```
 FROM python:3.8-slim-bullseye
 ```

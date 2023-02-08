@@ -42,8 +42,6 @@ from grants_tagger.optimise_params import tune_params_cli
 from grants_tagger.download_epmc import download_epmc_cli
 from grants_tagger.download_model import download_model_cli
 
-# from grants_tagger.explain import explain_cli
-
 from grants_tagger.utils import get_ec2_instance_type
 
 app = typer.Typer()

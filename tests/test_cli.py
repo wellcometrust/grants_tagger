@@ -14,15 +14,43 @@ import pytest
 
 from grants_tagger.cli import app
 from grants_tagger.utils import convert_dvc_to_sklearn_params
-from grants_tagger.models.mesh_cnn import MeshCNN
+from grants_tagger.models.mesh_xlinear import MeshXLinear
 
 runner = CliRunner()
 
 
 DATA = [
-    {"text": "One", "tags": ["1"], "meta": {"Tagger1_tags": ["1"]}},
-    {"text": "One Two", "tags": ["1", "2"], "meta": {"Tagger1_tags": ["2"]}},
-    {"text": "Three", "tags": ["3"], "meta": {"Tagger1_tags": ["1"]}},
+    {
+        "text": "this grant is about Malaria",
+        "tags": ["Malaria"],
+        "meta": {"Tagger1_tags": ["1"]},
+    },
+    {
+        "text": "this one is about Malaria and Cholera",
+        "tags": ["Malaria", "Cholera"],
+        "meta": {"Tagger1_tags": ["2"]},
+    },
+    {
+        "text": "mainly about Hepatitis",
+        "tags": ["Hepatitis"],
+        "meta": {"Tagger1_tags": ["3"]},
+    },
+    {
+        "text": "both Cholera and Hepatitis and maybe about Arbovirus too",
+        "tags": ["Cholera", "Hepatitis", "Arbovirus"],
+        "meta": {"Tagger1_tags": ["4"]},
+    },
+    {"text": "new one Dengue", "tags": ["Dengue"], "meta": {"Tagger1_tags": ["5"]}},
+    {
+        "text": "both Dengue Malaria",
+        "tags": ["Dengue", "Malaria"],
+        "meta": {"Tagger1_tags": ["6"]},
+    },
+    {
+        "text": "this grant is about Arbovirus",
+        "tags": ["Arbovirus"],
+        "meta": {"Tagger1_tags": ["7"]},
+    },
 ]
 
 
@@ -42,10 +70,12 @@ PRETRAIN_DATA = [
 
 MTI_DATA = [
     ("0", "T1", "", ""),
-    ("0", "T2", "", ""),
     ("1", "T1", "", ""),
-    ("2", "T2", "", ""),
-    ("2", "T3", "", ""),
+    ("2", "T1", "", ""),
+    ("3", "T1", "", ""),
+    ("4", "T1", "", ""),
+    ("5", "T1", "", ""),
+    ("6", "T1", "", ""),
 ]
 
 
@@ -96,7 +126,7 @@ def read_pickle(path):
 
 
 def create_model(model_path, label_binarizer_path, data):
-    model = MeshCNN()
+    model = MeshXLinear(min_df=1, max_df=10)
     X = [example["text"] for example in data]
 
     tags = [example["tags"] for example in data]
@@ -132,15 +162,17 @@ def test_train_command():
                 label_binarizer_path,
                 model_path,
                 "--approach",
-                "tfidf-svm",
+                "mesh-xlinear-test",
                 "--parameters",
-                "{'tfidf__min_df': 1, 'tfidf__stop_words': None}",
+                "{'vectorizer_library': 'sklearn', 'ngram_range': (1, 1),'beam_size': 30, 'threshold': 0.1, 'only_topk': 200, 'min_weight_value': 0.1, 'max_features':200}",
                 "--train-info",
                 train_info_path,
+                "--sparse-labels",
+                "--slim",
             ],
         )
         assert result.exit_code == 0
-        assert os.path.isfile(model_path)
+        assert os.path.exists(model_path)
         assert os.path.isfile(label_binarizer_path)
         assert os.path.isfile(train_info_path)
 
@@ -199,7 +231,7 @@ def test_predict_command():
 
         text = "malaria"
         result = runner.invoke(
-            app, ["predict", text, model_path, label_binarizer_path, "mesh-cnn"]
+            app, ["predict", text, model_path, label_binarizer_path, "mesh-xlinear"]
         )
         print(result)
         assert result.exit_code == 0
@@ -220,7 +252,7 @@ def test_evaluate_model_command():
             [
                 "evaluate",
                 "model",
-                "mesh-cnn",
+                "mesh-xlinear",
                 model_path,
                 data_path,
                 label_binarizer_path,
@@ -302,7 +334,7 @@ def test_tune_threshold_command():
             [
                 "tune",
                 "threshold",
-                "mesh-cnn",
+                "mesh-xlinear",
                 data_path,
                 model_path,
                 label_binarizer_path,

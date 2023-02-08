@@ -8,11 +8,27 @@ from sklearn.preprocessing import MultiLabelBinarizer
 import pytest
 
 from grants_tagger.evaluate_model import evaluate_model
-from grants_tagger.models.create_model import create_model
+from grants_tagger.models.create_model_xlinear import create_model
 from grants_tagger.utils import load_pickle
 
-X = ["all", "one two", "two", "four", "twenty four"]
-Y = [[str(i) for i in range(24)], ["1", "2"], ["2"], ["4"], ["24"]]
+X = [
+    "this grant is about Malaria",
+    "this one is about Malaria and Cholera",
+    "mainly about Hepatitis",
+    "both Cholera and Hepatitis and maybe about Arbovirus too",
+    "new one Dengue",
+    "both Dengue Malaria",
+    "this grant is about Arbovirus",
+]
+Y = [
+    ["Malaria"],
+    ["Malaria", "Cholera"],
+    ["Hepatitis"],
+    ["Cholera", "Hepatitis", "Arbovirus"],
+    ["Dengue"],
+    ["Dengue", "Malaria"],
+    ["Arbovirus"],
+]
 
 
 def binarize_Y(Y, label_binarizer_path):
@@ -50,25 +66,30 @@ def results_path(tmp_path):
 
 @pytest.fixture
 def model_path(tmp_path, label_binarizer_path):
-    model = create_model("mesh-cnn")
+    model = create_model(
+        "mesh-xlinear",
+        parameters="{'vectorizer_library': 'sklearn', 'ngram_range': (1, 1),'beam_size': 30, 'threshold': 0.1, 'only_topk': 200, 'min_df':1, 'min_weight_value': 0.1, 'max_features':200}",
+    )
     label_binarizer = load_pickle(label_binarizer_path)
 
     Y_vec = label_binarizer.transform(Y)
     model.fit(X, Y_vec)
 
-    model_path = os.path.join(tmp_path, "model")
+    model_path = os.path.join(tmp_path)
     model.save(model_path)
     return model_path
 
 
 def test_evaluate_model(results_path, data_path, label_binarizer_path, model_path):
     evaluate_model(
-        "mesh-cnn",
+        "mesh-xlinear",
         model_path,
         data_path,
         label_binarizer_path,
         0.5,
         results_path=results_path,
+        sparse_y=False,
+        parameters="{'vectorizer_library': 'sklearn', 'ngram_range': (1, 1),'beam_size': 30, 'threshold': 0.1, 'only_topk': 200, 'min_df':1, 'min_weight_value': 0.1, 'max_features':200}",
     )
 
     with open(results_path) as f:
@@ -86,7 +107,12 @@ def test_evaluate_model_multiple_thresholds(
     data_path, label_binarizer_path, model_path
 ):
     evaluate_model(
-        "mesh-cnn", model_path, data_path, label_binarizer_path, [0, 1, 0.5, 0.9]
+        "mesh-xlinear",
+        model_path,
+        data_path,
+        label_binarizer_path,
+        [0, 1, 0.5, 0.9],
+        sparse_y=False,
     )
 
 

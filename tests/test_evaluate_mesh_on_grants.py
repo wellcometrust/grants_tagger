@@ -5,14 +5,42 @@ import pickle
 from sklearn.preprocessing import MultiLabelBinarizer
 import pandas as pd
 
-from grants_tagger.models.mesh_cnn import MeshCNN
+from grants_tagger.models.mesh_xlinear import MeshXLinear
 from grants_tagger.evaluate_mesh_on_grants import evaluate_mesh_on_grants
 
 
 TRAIN_DATA = [
-    {"text": "One", "tags": [1]},
-    {"text": "One Two", "tags": [1, 2]},
-    {"text": "Three", "tags": [3]},
+    {
+        "text": "this grant is about Malaria",
+        "tags": ["Malaria"],
+        "meta": {"Tagger1_tags": ["1"]},
+    },
+    {
+        "text": "this one is about Malaria and Cholera",
+        "tags": ["Malaria", "Cholera"],
+        "meta": {"Tagger1_tags": ["2"]},
+    },
+    {
+        "text": "mainly about Hepatitis",
+        "tags": ["Hepatitis"],
+        "meta": {"Tagger1_tags": ["3"]},
+    },
+    {
+        "text": "both Cholera and Hepatitis and maybe about Arbovirus too",
+        "tags": ["Cholera", "Hepatitis", "Arbovirus"],
+        "meta": {"Tagger1_tags": ["4"]},
+    },
+    {"text": "new one Dengue", "tags": ["Dengue"], "meta": {"Tagger1_tags": ["5"]}},
+    {
+        "text": "both Dengue Malaria",
+        "tags": ["Dengue", "Malaria"],
+        "meta": {"Tagger1_tags": ["6"]},
+    },
+    {
+        "text": "this grant is about Arbovirus",
+        "tags": ["Arbovirus"],
+        "meta": {"Tagger1_tags": ["7"]},
+    },
 ]
 VAL_DATA = [
     {"Title": "One", "Synopsis": " ", "Tags KW1": 1},
@@ -37,11 +65,13 @@ def test_evaluate_mesh_on_grants():
         X = texts
         Y = label_binarizer.transform(tags)
 
-        model = MeshCNN()
+        model = MeshXLinear(min_df=1, max_df=10)
         model.fit(X, Y)
-        model.save(model_path)
+        model.save(tmp_dir)
 
         data = pd.DataFrame.from_records(VAL_DATA)
         data.to_excel(data_path, engine="openpyxl")
 
-        evaluate_mesh_on_grants("mesh-cnn", data_path, model_path, label_binarizer_path)
+        evaluate_mesh_on_grants(
+            "mesh-xlinear", data_path, tmp_dir, label_binarizer_path
+        )

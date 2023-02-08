@@ -1,5 +1,5 @@
 import ast
-from grants_tagger.utils import save_pickle, load_pickle
+from grants_tagger.utils import load_pickle
 from grants_tagger.models.mesh_xlinear import MeshXLinear
 
 

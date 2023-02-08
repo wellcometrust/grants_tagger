@@ -2,4 +2,6 @@ preprocess_bioasq_mesh:
   mesh_tags_path: null
 train:
   mesh-xlinear:
-    config: 'configs/mesh/2022.9.0.ini' # Path to config file
+    config: 'configs/mesh/2023.1.0.ini' # Path to config file
+  mesh-xlinear-test:
+    config: 'configs/mesh/test_train.ini' # Path to config file

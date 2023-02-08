@@ -6,7 +6,7 @@ setup(
     name="grants-tagger",
     author="Arne Robben",
     author_email="a.robben@wellcome.ac.uk",
-    description="A machine learning model to tag grants",
+    long_description="A machine learning model to tag grants. You can find more information on https://github.com/wellcometrust/grants_tagger",
     packages=find_packages(),
     version=__version__,
     entry_points={"console_scripts": "grants_tagger=grants_tagger.__main__:app"},

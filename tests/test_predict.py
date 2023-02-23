@@ -46,7 +46,6 @@ def mesh_xlinear_path(tmp_path):
     train(
         mesh_data_path,
         label_binarizer_path,
-        approach="mesh-xlinear",
         model_path=model_path,
         sparse_labels=True,
         verbose=False,
@@ -84,7 +83,6 @@ def test_predict_tags_mesh_xlinear(mesh_xlinear_path, mesh_label_binarizer_path)
         X,
         mesh_xlinear_path,
         mesh_label_binarizer_path,
-        approach="mesh-xlinear",
         parameters=parameters,
     )
     assert len(tags) == 5
@@ -92,7 +90,6 @@ def test_predict_tags_mesh_xlinear(mesh_xlinear_path, mesh_label_binarizer_path)
         X,
         mesh_xlinear_path,
         mesh_label_binarizer_path,
-        approach="mesh-xlinear",
         parameters=parameters,
         probabilities=True,
     )
@@ -103,7 +100,6 @@ def test_predict_tags_mesh_xlinear(mesh_xlinear_path, mesh_label_binarizer_path)
         X,
         mesh_xlinear_path,
         mesh_label_binarizer_path,
-        approach="mesh-xlinear",
         threshold=0,
         parameters=parameters,
     )
@@ -113,7 +109,6 @@ def test_predict_tags_mesh_xlinear(mesh_xlinear_path, mesh_label_binarizer_path)
         X,
         mesh_xlinear_path,
         mesh_label_binarizer_path,
-        approach="mesh-xlinear",
         threshold=1,
         parameters=parameters,
     )

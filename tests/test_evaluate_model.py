@@ -67,7 +67,6 @@ def results_path(tmp_path):
 @pytest.fixture
 def model_path(tmp_path, label_binarizer_path):
     model = create_model(
-        "mesh-xlinear",
         parameters="{'vectorizer_library': 'sklearn', 'ngram_range': (1, 1),'beam_size': 30, 'threshold': 0.1, 'only_topk': 200, 'min_df':1, 'min_weight_value': 0.1, 'max_features':200}",
     )
     label_binarizer = load_pickle(label_binarizer_path)
@@ -82,7 +81,6 @@ def model_path(tmp_path, label_binarizer_path):
 
 def test_evaluate_model(results_path, data_path, label_binarizer_path, model_path):
     evaluate_model(
-        "mesh-xlinear",
         model_path,
         data_path,
         label_binarizer_path,
@@ -104,16 +102,25 @@ def test_evaluate_model(results_path, data_path, label_binarizer_path, model_pat
 
 
 def test_evaluate_model_multiple_thresholds(
-    data_path, label_binarizer_path, model_path
+    results_path, data_path, label_binarizer_path, model_path
 ):
     evaluate_model(
-        "mesh-xlinear",
         model_path,
         data_path,
         label_binarizer_path,
         [0, 1, 0.5, 0.9],
         sparse_y=False,
+        results_path=results_path,
     )
+
+    with open(results_path) as f:
+        results = json.loads(f.read())
+
+    assert len(results) == 4
+    result = results[0]
+    assert "f1" in result
+    assert "precision" in result
+    assert "recall" in result
 
 
 def test_evalaute_model_sparse_y():

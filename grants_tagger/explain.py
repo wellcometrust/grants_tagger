@@ -15,7 +15,6 @@ from grants_tagger.models.mesh_cnn import MeshCNN
 
 
 def explain(
-    approach,
     data_path,
     model_path,
     label_binarizer_path,
@@ -23,35 +22,35 @@ def explain(
     label,
     global_explanations=True,
 ):
-    if approach == "mesh-cnn":
-        mesh_cnn = MeshCNN(cutoff_prob=None)
-        mesh_cnn.load(model_path)
-        tokenizer = mesh_cnn.vectorizer.tokenizer
+    # if approach == "mesh-cnn":
+    #     mesh_cnn = MeshCNN(cutoff_prob=None)
+    #     mesh_cnn.load(model_path)
+    #     tokenizer = mesh_cnn.vectorizer.tokenizer
 
-        with open(label_binarizer_path, "rb") as f:
-            label_binarizer = pickle.loads(f.read())
+    #     with open(label_binarizer_path, "rb") as f:
+    #         label_binarizer = pickle.loads(f.read())
 
-        with open(data_path) as f:
-            texts = f.readlines()
+    #     with open(data_path) as f:
+    #         texts = f.readlines()
 
-        if len(texts) > 50:
-            print("Data contains >50 examples. Explanations might take a while...")
+    #     if len(texts) > 50:
+    #         print("Data contains >50 examples. Explanations might take a while...")
 
-        masker = shap.maskers.Text(tokenizer, mask_token="")
-        explainer = shap.Explainer(
-            mesh_cnn.predict_proba, masker, output_names=label_binarizer.classes_
-        )
-        shap_values = explainer(texts)
+    #     masker = shap.maskers.Text(tokenizer, mask_token="")
+    #     explainer = shap.Explainer(
+    #         mesh_cnn.predict_proba, masker, output_names=label_binarizer.classes_
+    #     )
+    #     shap_values = explainer(texts)
 
-        if global_explanations:
-            plt = shap.plots.bar(shap_values[:, :, label], show=False)
-            plt.savefig(explanation_path, format="svg")
-        else:
-            html = shap.plots.text(shap_values[0, :, label], display=False)
-            with open(explanation_path, "w") as f:
-                f.write(html)
-    else:
-        raise NotImplementedError
+    #     if global_explanations:
+    #         plt = shap.plots.bar(shap_values[:, :, label], show=False)
+    #         plt.savefig(explanation_path, format="svg")
+    #     else:
+    #         html = shap.plots.text(shap_values[0, :, label], display=False)
+    #         with open(explanation_path, "w") as f:
+    #             f.write(html)
+    # else:
+    raise NotImplementedError
 
 
 explain_app = typer.Typer()
@@ -65,7 +64,6 @@ def explain_cli(
     label: str = typer.Argument(
         ..., help="label to explain with local or global explanations"
     ),
-    approach: str = typer.Argument(..., help="model approach e.g. mesh-cnn"),
     model_path: Path = typer.Argument(..., help="path to model to explain"),
     label_binarizer_path: Path = typer.Argument(
         ..., help="path to label binarizer associated with mode"
@@ -79,7 +77,6 @@ def explain_cli(
 ):
 
     explain(
-        approach,
         texts_path,
         model_path,
         label_binarizer_path,

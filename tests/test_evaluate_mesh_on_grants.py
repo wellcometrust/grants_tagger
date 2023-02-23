@@ -1,6 +1,8 @@
 import tempfile
 import os.path
 import pickle
+import pytest
+import json
 
 from sklearn.preprocessing import MultiLabelBinarizer
 import pandas as pd
@@ -48,7 +50,13 @@ VAL_DATA = [
 ]
 
 
-def test_evaluate_mesh_on_grants():
+@pytest.fixture
+def results_path(tmp_path):
+    results_path = os.path.join(tmp_path, "results.json")
+    return results_path
+
+
+def test_evaluate_mesh_on_grants(results_path):
     with tempfile.TemporaryDirectory() as tmp_dir:
         data_path = os.path.join(tmp_dir, "data.xlsx")
         model_path = os.path.join(tmp_dir, "model")
@@ -72,6 +80,10 @@ def test_evaluate_mesh_on_grants():
         data = pd.DataFrame.from_records(VAL_DATA)
         data.to_excel(data_path, engine="openpyxl")
 
-        evaluate_mesh_on_grants(
-            "mesh-xlinear", data_path, tmp_dir, label_binarizer_path
-        )
+        evaluate_mesh_on_grants(data_path, tmp_dir, label_binarizer_path, results_path)
+
+        with open(results_path) as f:
+            results = json.loads(f.read())
+
+        assert len(results) == 1
+        assert "f1" in results

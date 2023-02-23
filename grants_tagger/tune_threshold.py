@@ -208,7 +208,6 @@ def optimise_threshold(Y_test, Y_pred_proba, nb_thresholds=None):
 
 
 def tune_threshold(
-    approach,
     data_path,
     model_path,
     label_binarizer_path,
@@ -234,7 +233,7 @@ def tune_threshold(
 
     X_val, Y_val, X_test, Y_test = val_test_split(X_test, Y_test, val_size)
 
-    model = load_model(approach, model_path)
+    model = load_model(model_path)
     Y_pred_proba = model.predict_proba(X_val)
     Y_pred = Y_pred_proba > init_threshold
 
@@ -260,7 +259,6 @@ tune_threshold_app = typer.Typer()
 
 @tune_threshold_app.command()
 def tune_threshold_cli(
-    approach: str = typer.Argument(..., help="modelling approach e.g. mesh-cnn"),
     data_path: Path = typer.Argument(
         ..., help="path to data in jsonl to train and test model"
     ),
@@ -284,7 +282,6 @@ def tune_threshold_cli(
 ):
 
     tune_threshold(
-        approach,
         data_path,
         model_path,
         label_binarizer_path,

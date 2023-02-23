@@ -59,7 +59,6 @@ def train(
     model_path: Optional[Path] = typer.Argument(
         None, help="path to output model.pkl or dir to save model"
     ),
-    approach: str = typer.Option("tfidf-svm", help="tfidf-svm, scibert, cnn, ..."),
     parameters: str = typer.Option(
         None, help="model params in sklearn format e.g. {'svm__kernel: linear'}"
     ),
@@ -90,7 +89,7 @@ def train(
         dvc_params = dvc.api.params_show()
 
         config = config or dvc_params.get("params.yaml:train", {}).get(
-            approach, {}
+            "mesh-xlinear", {}
         ).get("config")
 
         logging.info(f"Training with config file: {config}")
@@ -110,7 +109,6 @@ def train(
             data_path=data_path,
             label_binarizer_path=label_binarizer_path,
             model_path=model_path,
-            approach=approach,
             parameters=parameters,
             threshold=threshold,
             data_format=data_format,
@@ -125,7 +123,6 @@ def train(
             data_path=data_path,
             label_binarizer_path=label_binarizer_path,
             model_path=model_path,
-            approach=approach,
             parameters=parameters,
             threshold=threshold,
             data_format=data_format,

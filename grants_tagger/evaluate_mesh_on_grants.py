@@ -37,11 +37,10 @@ def get_texts(data):
 
 
 def evaluate_mesh_on_grants(
-    approach,
     data_path,
     model_path,
     label_binarizer_path,
-    results_path="mesh_on_grants_results.json",
+    results_path,
     mesh_tags_path=None,
     parameters=None,
 ):
@@ -66,7 +65,7 @@ def evaluate_mesh_on_grants(
 
     texts = get_texts(data)
 
-    model = load_model(approach, model_path, parameters=parameters)
+    model = load_model(model_path, parameters=parameters)
     if getattr(model, "threshold") is None:
         model.threshold = 0.5
 
@@ -92,7 +91,6 @@ evaluate_mesh_on_grants_app = typer.Typer()
 
 @evaluate_mesh_on_grants_app.command()
 def evaluate_mesh_on_grants_cli(
-    approach: str = typer.Argument(..., help="model approach e.g.mesh-cnn"),
     model_path: str = typer.Argument(
         ..., help="comma separated paths to pretrained models"
     ),
@@ -117,7 +115,6 @@ def evaluate_mesh_on_grants_cli(
         cfg = configparser.ConfigParser(allow_no_value=True)
         cfg.read(config)
 
-        approach = cfg["ensemble"]["approach"]
         model_path = cfg["ensemble"]["models"]
         data_path = cfg["ensemble"]["data"]
         label_binarizer_path = cfg["ensemble"]["label_binarizer"]
@@ -130,11 +127,10 @@ def evaluate_mesh_on_grants_cli(
         threshold = float(threshold)
 
     evaluate_mesh_on_grants(
-        approach,
         data_path,
         model_path,
         label_binarizer_path,
-        results_path=results_path,
+        results_path="mesh_on_grants_results.json",
         mesh_tags_path=mesh_tags_path,
         parameters=parameters,
     )

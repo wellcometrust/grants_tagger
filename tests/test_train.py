@@ -79,9 +79,7 @@ def test_create_label_binarizer_sparse(tmp_path, data_path):
 
 
 def test_train_and_evaluate(data_path, tmp_path, label_binarizer_path):
-    approach = "mesh-xlinear"
     train(
-        approach=approach,
         train_data_path=data_path,
         label_binarizer_path=label_binarizer_path,
         sparse_labels=True,
@@ -90,11 +88,9 @@ def test_train_and_evaluate(data_path, tmp_path, label_binarizer_path):
 
 
 def test_train_pickle_save(tmp_path, data_path, label_binarizer_path):
-    approach = "mesh-xlinear"
     model_path = tmp_path
     os.makedirs(model_path, exist_ok=True)
     train(
-        approach=approach,
         train_data_path=data_path,
         model_path=model_path,
         label_binarizer_path=label_binarizer_path,
@@ -105,11 +101,9 @@ def test_train_pickle_save(tmp_path, data_path, label_binarizer_path):
 
 
 def test_train_model_save(tmp_path, data_path, label_binarizer_path):
-    approach = "mesh-xlinear"
     model_path = tmp_path
     os.makedirs(model_path, exist_ok=True)
     train(
-        approach=approach,
         train_data_path=data_path,
         model_path=model_path,
         label_binarizer_path=label_binarizer_path,

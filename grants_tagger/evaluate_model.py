@@ -28,7 +28,6 @@ def predict_sparse_probs(model, X_test, batch_size=256, cutoff_prob=0.01):
 
 
 def evaluate_model(
-    approach,
     model_path,
     data_path,
     label_binarizer_path,
@@ -54,7 +53,7 @@ def evaluate_model(
     # Some models (e.g. MeshXLinear) need to know the parameters beforehand, to know which
     # Load function to use
 
-    model = load_model(approach, model_path, parameters=parameters)
+    model = load_model(model_path, parameters=parameters)
 
     if sparse_y:
         predict_sparse_probs(model, X_test)
@@ -115,7 +114,6 @@ evaluate_model_app = typer.Typer()
 
 @evaluate_model_app.command()
 def evaluate_model_cli(
-    approach: str = typer.Argument(..., help="model approach e.g.mesh-cnn"),
     model_path: str = typer.Argument(
         ..., help="comma separated paths to pretrained models"
     ),
@@ -146,7 +144,6 @@ def evaluate_model_cli(
         cfg = configparser.ConfigParser(allow_no_value=True)
         cfg.read(config)
         if "ensemble" in cfg:
-            approach = cfg["ensemble"]["approach"]
             model_path = cfg["ensemble"]["models"]
             data_path = cfg["ensemble"]["data"]
             label_binarizer_path = cfg["ensemble"]["label_binarizer"]
@@ -162,7 +159,6 @@ def evaluate_model_cli(
         threshold = float(threshold)
 
     evaluate_model(
-        approach,
         model_path,
         data_path,
         label_binarizer_path,

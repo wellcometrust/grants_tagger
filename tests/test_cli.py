@@ -161,14 +161,14 @@ def test_train_command():
                 data_path,
                 label_binarizer_path,
                 model_path,
-                "--approach",
-                "mesh-xlinear-test",
                 "--parameters",
-                "{'vectorizer_library': 'sklearn', 'ngram_range': (1, 1),'beam_size': 30, 'threshold': 0.1, 'only_topk': 200, 'min_weight_value': 0.1, 'max_features':200}",
+                "{'vectorizer_library': 'sklearn', 'ngram_range': (1, 1),'beam_size': 30, 'threshold': 0.1, 'only_topk': 200, 'min_df':1, 'min_weight_value': 0.1, 'max_features':200}",
                 "--train-info",
                 train_info_path,
                 "--sparse-labels",
                 "--slim",
+                "--config",
+                "configs/mesh/test_train.ini",
             ],
         )
         assert result.exit_code == 0
@@ -230,9 +230,7 @@ def test_predict_command():
         create_model(model_path, label_binarizer_path, DATA)
 
         text = "malaria"
-        result = runner.invoke(
-            app, ["predict", text, model_path, label_binarizer_path, "mesh-xlinear"]
-        )
+        result = runner.invoke(app, ["predict", text, model_path, label_binarizer_path])
         print(result)
         assert result.exit_code == 0
 
@@ -252,7 +250,6 @@ def test_evaluate_model_command():
             [
                 "evaluate",
                 "model",
-                "mesh-xlinear",
                 model_path,
                 data_path,
                 label_binarizer_path,
@@ -334,7 +331,6 @@ def test_tune_threshold_command():
             [
                 "tune",
                 "threshold",
-                "mesh-xlinear",
                 data_path,
                 model_path,
                 label_binarizer_path,

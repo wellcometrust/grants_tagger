@@ -113,7 +113,7 @@ def train_cli(
 
     params = dvc.api.params_show()
 
-    if params.get("train", {}).get(approach, {}).get("config"):
+    if params.get("train", {}).get("mesh-xlinear", {}).get("config"):
         config = os.path.join(
             os.path.dirname(__file__),
             "../configs",
@@ -121,7 +121,7 @@ def train_cli(
         )
     # If parameters not provided from user we initialise from DVC
     if not parameters and not config:
-        parameters = params["train"].get(approach)
+        parameters = params["train"].get("mesh-xlinear")
         parameters = convert_dvc_to_sklearn_params(parameters)
         parameters = str(parameters)
 

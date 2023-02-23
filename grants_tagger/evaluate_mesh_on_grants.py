@@ -40,7 +40,7 @@ def evaluate_mesh_on_grants(
     data_path,
     model_path,
     label_binarizer_path,
-    results_path,
+    results_path="mesh_on_grants_results.json",
     mesh_tags_path=None,
     parameters=None,
 ):
@@ -130,7 +130,7 @@ def evaluate_mesh_on_grants_cli(
         data_path,
         model_path,
         label_binarizer_path,
-        results_path="mesh_on_grants_results.json",
+        results_path=results_path,
         mesh_tags_path=mesh_tags_path,
         parameters=parameters,
     )

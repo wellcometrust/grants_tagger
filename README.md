@@ -64,8 +64,8 @@ Grants tagger comes with a nice CLI with the following commands
 | 🔖 predict      | predict tags given a grant abstract using a pretrained model |
 | 🎛 tune         | tune params and threshold                                    |
 | 📚 pretrain     | pretrains embeddings or language model using unlabeled data  |
-| ⬇️  download     | download trained models and data from EPMC                   |
-| 🔍 explain      | importance of feature be it words or tfidf numbers           |
+| ⬇️  download    | download trained models and data from EPMC                   |
+| 🐋  docker      | how to run grants_tagger in a docker container               |
 | 🌐 visualize    | creates a streamlit app to interactively tag grants          |
 
 in square brackets the commands that are not implemented yet
@@ -436,42 +436,36 @@ Available models:
 
 * mesh
 
-### 🔍 Explain
+### 🐋 Run in a Docker container
 
-This command produces shap values for global or local expanations
-for a model (currently only mesh-cnn) and a given label. It saves
-the explanations into an html to visualise them.
+Grants_tagger can be installed using pip: `pip install grants-tagger`.
+Have a look on [pypi.org for more information](https://pypi.org/project/grants-tagger/).
 
-Note that global explanations take time to compute so passing a
-txt with 100 examples take a bit less than 1 hour. Take care to
-ask for explanations for a label that is predicted in the txt
-examples provided otherwise explanations might be less useful
+The latest classifier uses [PECOS eXtreme Multi-label Classification](https://github.com/amzn/pecos/blob/mainline/pecos/xmc/xlinear/README.md)
+developed by Amazon. It relies on a library called [pecos](https://pypi.org/project/libpecos/)
+which only works on Linux.
 
+As such, a user might want to create a docker image which can run
+grants-tagger. In order to do so, you need to create a Dockerfile,
+which sets up a linux environment. E.g.
 ```
-Usage: grants_tagger explain [OPTIONS] TEXTS_PATH LABEL APPROACH MODEL_PATH
-                             LABEL_BINARIZER_PATH EXPLANATIONS_PATH
-
-Arguments:
-  TEXTS_PATH            path to txt file with one text in every line
-                        [required]
-
-  LABEL                 label to explain with local or global explanations
-                        [required]
-
-  APPROACH              model approach e.g. mesh-cnn  [required]
-  MODEL_PATH            path to model to explain  [required]
-  LABEL_BINARIZER_PATH  path to label binarizer associated with mode
-                        [required]
-
-  EXPLANATIONS_PATH     path to save explanations html  [required]
-
-Options:
-  --global-explanations / --no-global-explanations
-                                  flag on whether global or local explanations
-                                  should be produced  [default: True]
-
-  --help                          Show this message and exit.
+FROM python:3.8-slim-bullseye
 ```
+
+Download the wheel from Pypi and add the following as a minimum
+to the Dockerfile:
+```
+RUN apt-get update && \
+    apt-get install -y git build-essential
+
+RUN DEBIAN_FRONTEND="noninteractive" && \
+    pip install --upgrade pip && \
+    pip install grants_tagger
+```
+
+You can now build a docker container using `docker build --no-cache -t grants_tagger .`
+and run (and jump in) a container using `docker run -dit grants_tagger`.
+
 ### 🌐 Visualize
 
 This command uses streamlit to create a web app in which you

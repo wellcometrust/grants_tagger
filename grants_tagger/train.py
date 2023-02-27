@@ -18,22 +18,21 @@ import dvc.api
 from typing import Optional
 
 from grants_tagger.label_binarizer import create_label_binarizer
-from grants_tagger.models.create_model import create_model
+from grants_tagger.models.create_model_xlinear import create_model
 from grants_tagger.utils import load_train_test_data, yield_tags
 
-from tensorflow.random import set_seed
+# from tensorflow.random import set_seed
 from grants_tagger.utils import convert_dvc_to_sklearn_params
 
 
 # TODO: Remove when WellcomeML implements setting random_seed inside models
 # replace with param in configs then
-set_seed(41)
+# set_seed(41)
 
 
 def train(
     train_data_path,
     label_binarizer_path,
-    approach,
     parameters=None,
     model_path=None,
     threshold=None,
@@ -45,7 +44,6 @@ def train(
     """
     train_data_path: path. path to JSONL data that contains "text" and "tags" fields.
     label_binarizer_path: path. path to load or store label_binarizer.
-    approach: str. approach to use for modelling e.g. tfidf-svm or bert.
     parameters: str. a stringified dict that contains params that get passed to the model.
     model_path: path. path to save the model.
     threshold: float, default 0.5. Probability on top of which a tag is assigned.
@@ -63,7 +61,7 @@ def train(
             train_data_path, label_binarizer_path, sparse_labels
         )
 
-    model = create_model(approach, parameters)
+    model = create_model(parameters)
 
     # X can be (numpy arrays, lists) or generators
     X_train, _, Y_train, _ = load_train_test_data(
@@ -95,7 +93,6 @@ def train_cli(
     model_path: Optional[Path] = typer.Argument(
         None, help="path to output model.pkl or dir to save model"
     ),
-    approach: str = typer.Option("tfidf-svm", help="tfidf-svm, scibert, cnn, ..."),
     parameters: str = typer.Option(
         None, help="model params in sklearn format e.g. {'svm__kernel: linear'}"
     ),
@@ -116,15 +113,15 @@ def train_cli(
 
     params = dvc.api.params_show()
 
-    if params.get("train", {}).get(approach, {}).get("config"):
+    if params.get("train", {}).get("mesh-xlinear", {}).get("config"):
         config = os.path.join(
             os.path.dirname(__file__),
             "../configs",
-            params["train"]["mesh-xlinear"]["config"],
+            params["train"]["mesh-xlinear-test"]["config"],
         )
     # If parameters not provided from user we initialise from DVC
     if not parameters and not config:
-        parameters = params["train"].get(approach)
+        parameters = params["train"].get("mesh-xlinear")
         parameters = convert_dvc_to_sklearn_params(parameters)
         parameters = str(parameters)
 
@@ -135,7 +132,6 @@ def train_cli(
 
         data_path = cfg["data"]["train_data_path"]
         label_binarizer_path = cfg["model"]["label_binarizer_path"]
-        approach = cfg["model"]["approach"]
         parameters = cfg["model"]["parameters"]
         model_path = cfg["model"].get("model_path", None)
         threshold = cfg["model"].get("threshold", None)
@@ -154,7 +150,6 @@ def train_cli(
         train(
             data_path,
             label_binarizer_path,
-            approach,
             parameters,
             model_path=model_path,
             threshold=threshold,

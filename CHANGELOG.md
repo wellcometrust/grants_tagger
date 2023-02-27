@@ -1,4 +1,9 @@
-## v0.2.2
+## v0.2.5
+- fixed dependency bug
+- decoupled xlinear and other models to relief the library requirements when installing the wheel
+- updated setup.py file
+
+## v0.2.4
 
 - excludes terms that have the attribute "Do not use"
 - excludes terms that we manually want to exclude using `descriptors_not_to_use_manual.csv`

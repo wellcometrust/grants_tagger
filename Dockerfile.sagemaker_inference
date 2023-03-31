@@ -1,0 +1,19 @@
+FROM python:3.8-slim-bullseye
+
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+ENV LANGUAGE=C.UTF-8
+
+RUN apt update && \
+    DEBIAN_FRONTEND="noninteractive" && \
+    pip install --upgrade pip && \
+    pip install --no-cache-dir grants-tagger
+
+COPY /sagemaker_inference/files /opt/program
+# COPY /grants_tagger/__version__.py .
+
+# RUN VERSION=$(cat __version__.py | grep -oP "__version__ = '\K[^']+") && \
+#     echo "Version number: $VERSION"
+
+COPY /models/xlinear/model /opt/model
+RUN ls -l

@@ -4,14 +4,12 @@
 algorithm_name=grants_tagger
 
 #make serve executable
-chmod +x src/serve
+chmod +x sagemaker_inference/serve
 
 account=$(aws sts get-caller-identity --query Account --output text)
 
 # Get the region defined in the current configuration (default to us-west-2 if none defined)
-region=$(aws configure get region)
 region=${region:-eu-west-1}
-
 fullname="${account}.dkr.ecr.${region}.amazonaws.com/${algorithm_name}:latest"
 
 # If the repository doesn't exist in ECR, create it.

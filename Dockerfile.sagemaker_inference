@@ -15,5 +15,5 @@ COPY /sagemaker_inference/files /opt/program
 # RUN VERSION=$(cat __version__.py | grep -oP "__version__ = '\K[^']+") && \
 #     echo "Version number: $VERSION"
 
-COPY /models/xlinear/model /opt/model
+COPY /models/xlinear-0.2.5 /opt/model
 RUN ls -l

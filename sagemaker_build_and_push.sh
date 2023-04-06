@@ -4,7 +4,7 @@
 algorithm_name=grants_tagger
 
 #make serve executable
-chmod +x sagemaker_inference/serve
+chmod +x sagemaker_inference/files/serve
 
 account=$(aws sts get-caller-identity --query Account --output text)
 

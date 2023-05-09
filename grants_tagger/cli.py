@@ -7,26 +7,8 @@ import time
 import json
 
 import typer
-import dvc.api
 
 logger = logging.getLogger(__name__)
-
-try:
-    from grants_tagger.train import train_cli
-except ModuleNotFoundError as e:
-    logger.warning(
-        "Train_cli couldn't be imported, probably due to a missing dependency."
-        " See error below (you can probably still use train_slim)"
-    )
-    logger.debug(e)
-
-try:
-    from grants_tagger.train_with_sagemaker import train_with_sagemaker_cli
-except ModuleNotFoundError as e:
-    logger.warning("Sagemaker missing so training with sagemaker not working.")
-    logger.debug(e)
-
-from grants_tagger.slim import mesh_xlinear
 
 from grants_tagger.preprocess_mesh import preprocess_mesh_cli
 from grants_tagger.preprocess_wellcome import preprocess_wellcome_cli
@@ -42,7 +24,6 @@ from grants_tagger.optimise_params import tune_params_cli
 from grants_tagger.download_epmc import download_epmc_cli
 from grants_tagger.download_model import download_model_cli
 
-from grants_tagger.utils import get_ec2_instance_type
 
 app = typer.Typer()
 
@@ -86,6 +67,8 @@ def train(
 ):
     start = time.time()
     if slim:
+        import dvc.api
+        from grants_tagger.slim import mesh_xlinear
         dvc_params = dvc.api.params_show()
 
         config = config or dvc_params.get("params.yaml:train", {}).get(
@@ -105,6 +88,11 @@ def train(
         )
 
     elif cloud:
+        try:
+            from grants_tagger.train_with_sagemaker import train_with_sagemaker_cli
+        except ModuleNotFoundError as e:
+            logger.warning("Sagemaker missing so training with sagemaker not working.")
+            logger.debug(e)
         train_with_sagemaker_cli(
             data_path=data_path,
             label_binarizer_path=label_binarizer_path,
@@ -119,6 +107,14 @@ def train(
         )
     else:
         logger.info(parameters)
+        try:
+            from grants_tagger.train import train_cli
+        except ModuleNotFoundError as e:
+            logger.warning(
+                "Train_cli couldn't be imported, probably due to a missing dependency."
+                " See error below (you can probably still use train_slim)"
+            )
+            logger.debug(e)
         train_cli(
             data_path=data_path,
             label_binarizer_path=label_binarizer_path,
@@ -132,6 +128,7 @@ def train(
             config=config,
         )
 
+    from grants_tagger.utils import get_ec2_instance_type
     duration = time.time() - start
     instance = get_ec2_instance_type()
     print(f"Took {duration:.2f} to train")

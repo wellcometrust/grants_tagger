@@ -11,10 +11,12 @@ import typer
 import scipy.sparse as sp
 import numpy as np
 
-from grants_tagger.models.create_model_xlinear import load_model
 from grants_tagger.models.utils import format_predictions
 from typing import Optional
+from grants_tagger.module_tester import development_dependencies
 
+import logging
+logger = logging.getLogger(__name__)
 
 def predict_tags(
     X,
@@ -34,6 +36,8 @@ def predict_tags(
     parameters: any params required upon model creation
     config: Path to config file
     """
+    from grants_tagger.models.create_model_xlinear import load_model
+
     if config:
         # For some models, it might be necessary to see the parameters before loading it
 
@@ -65,6 +69,9 @@ def predict_cli(
     probabilities: Optional[bool] = typer.Option(False),
     threshold: Optional[float] = typer.Option(0.5),
 ):
+    
+    if development_dependencies is False:
+        raise Exception("Please install development dependencies")
     tags = predict_tags(
         [text], model_path, label_binarizer_path, probabilities, threshold
     )

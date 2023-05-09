@@ -10,18 +10,5 @@ setup(
     packages=find_packages(),
     version=__version__,
     entry_points={"console_scripts": "grants_tagger=grants_tagger.__main__:app"},
-    install_requires=[
-        "scikit-learn==1.0.0",
-        "libpecos==0.3.0",
-        "typer",
-        "pandas",
-        "numpy",
-        "scipy",
-        "requests",
-        "dvc",
-        "wasabi",
-        "wellcomeml",
-        "gensim==4.0.0",
-    ],
     tests_require=["pytest", "tox"],
 )

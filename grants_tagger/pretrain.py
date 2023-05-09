@@ -1,6 +1,7 @@
 """
 Pretrain a model on unlabeled data to improve feature extraction
 """
+from pathlib import Path
 import configparser
 import logging
 import typer
@@ -9,12 +10,13 @@ import os
 logger = logging.getLogger(__name__)
 
 from typing import List, Optional
-from pathlib import Path
-from wellcomeml.ml.doc2vec_vectorizer import Doc2VecVectorizer
+from pathlib import PureWindowsPath
 import pandas as pd
 
+from grants_tagger.module_tester import development_dependencies
 
 def pretrain(data_path, model_path, model_name):
+    from wellcomeml.ml.doc2vec_vectorizer import Doc2VecVectorizer
     # TODO: Convert that to assume a JSONL with text field
     data = pd.read_csv(data_path)
     X = data["synopsis"].dropna().drop_duplicates()
@@ -49,6 +51,8 @@ def pretrain_cli(
         None, help="config file with arguments for pretrain"
     ),
 ):
+    if development_dependencies is False:
+        raise Exception("Please install development dependencies")
 
     if config:
         cfg = configparser.ConfigParser(allow_no_value=True)

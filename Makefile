@@ -57,10 +57,6 @@ virtualenv: ## Creates virtualenv
 	@mkdir -p $(VIRTUALENV)
 	virtualenv --python $(PYTHON) $(VIRTUALENV)
 	$(PIP) install --upgrade pip
-# As to why no identation see https://stackoverflow.com/questions/4483313/make-error-for-ifeq-syntax-error-near-unexpected-token
-ifeq ($(UNAME), Linux)
-	$(PIP) install libpecos==0.1.0
-endif
 	$(PIP) install pytest pytest-cov tox
 	$(PIP) install -r requirements.txt
 	$(PIP) install --no-deps -e .

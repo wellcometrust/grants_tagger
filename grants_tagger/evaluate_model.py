@@ -38,8 +38,9 @@ def evaluate_model(
     sparse_y=False,
     parameters=None,
 ):
-    
-    from grants_tagger.models.create_model_xlinear import load_model
+
+    from grants_tagger.models.create_model import load_model
+
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
 
@@ -142,7 +143,7 @@ def evaluate_model_cli(
         None, help="path to config file that defines arguments"
     ),
 ):
-    
+
     if development_dependencies is False:
         raise Exception("Please install development dependencies")
 

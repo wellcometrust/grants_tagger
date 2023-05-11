@@ -2,6 +2,7 @@
 .idea
 
 # Env
+.env
 .envrc
 
 # Models

@@ -18,9 +18,9 @@ import pandas as pd
 
 
 import logging
-logger = logging.getLogger(__name__)
-from grants_tagger.module_tester import development_dependencies
 
+logger = logging.getLogger(__name__)
+from grants_tagger.module_tester import test_development_dependencies
 
 
 def get_tags(data, annotator):
@@ -48,8 +48,9 @@ def evaluate_mesh_on_grants(
     mesh_tags_path=None,
     parameters=None,
 ):
-    
+
     from grants_tagger.models.create_model_xlinear import load_model
+
     data = pd.read_excel(data_path, engine="openpyxl")
 
     if mesh_tags_path:
@@ -116,8 +117,7 @@ def evaluate_mesh_on_grants_cli(
         None, help="path to config file that defines arguments"
     ),
 ):
-    if development_dependencies is False:
-        raise Exception("Please install development dependencies")
+    test_development_dependencies()
 
     if config:
         cfg = configparser.ConfigParser(allow_no_value=True)

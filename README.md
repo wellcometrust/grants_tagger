@@ -508,12 +508,16 @@ competition that contains tags for approx 14M publications from PubMed.
 
 ## 🐍 Venv
 
-To create and setup the development environment
+To create and setup the base environment
 ```
 make virtualenv
 ```
-This will create a new virtualenv and install requirements for tests
-and development. It will also install grants tagger in editable mode.
+This will create a new virtualenv and install requirements for tests. It will also install grants tagger in editable mode.
+
+For full development environment, install with:
+```
+make virtualenv-dev
+```
 
 If you want to add additional dependencies, add the library to
 `unpinned_requirements.txt` and run `make update-requirements`. This

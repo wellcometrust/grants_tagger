@@ -13,7 +13,7 @@ from wasabi import table, row
 import scipy.sparse as sp
 
 from grants_tagger.utils import load_train_test_data, load_data
-from grants_tagger.module_tester import development_dependencies
+from grants_tagger.module_tester import test_development_dependencies
 
 
 def predict_sparse_probs(model, X_test, batch_size=256, cutoff_prob=0.01):
@@ -144,8 +144,7 @@ def evaluate_model_cli(
     ),
 ):
 
-    if development_dependencies is False:
-        raise Exception("Please install development dependencies")
+    test_development_dependencies()
 
     if config:
         cfg = configparser.ConfigParser(allow_no_value=True)

@@ -13,7 +13,6 @@ import numpy as np
 
 from grants_tagger.models.utils import format_predictions
 from typing import Optional
-from grants_tagger.module_tester import development_dependencies
 
 import logging
 

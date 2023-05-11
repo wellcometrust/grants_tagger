@@ -23,6 +23,7 @@ from grants_tagger.tune_threshold import tune_threshold_cli
 from grants_tagger.optimise_params import tune_params_cli
 from grants_tagger.download_epmc import download_epmc_cli
 from grants_tagger.download_model import download_model_cli
+from grants_tagger.module_tester import test_development_dependencies
 
 
 app = typer.Typer()
@@ -65,10 +66,12 @@ def train(
         "local", help="instance type to use when training with Sagemaker"
     ),
 ):
+    test_development_dependencies()
     start = time.time()
     if slim:
         import dvc.api
         from grants_tagger.slim import mesh_xlinear
+
         dvc_params = dvc.api.params_show()
 
         config = config or dvc_params.get("params.yaml:train", {}).get(
@@ -88,11 +91,8 @@ def train(
         )
 
     elif cloud:
-        try:
-            from grants_tagger.train_with_sagemaker import train_with_sagemaker_cli
-        except ModuleNotFoundError as e:
-            logger.warning("Sagemaker missing so training with sagemaker not working.")
-            logger.debug(e)
+        from grants_tagger.train_with_sagemaker import train_with_sagemaker_cli
+
         train_with_sagemaker_cli(
             data_path=data_path,
             label_binarizer_path=label_binarizer_path,
@@ -107,14 +107,8 @@ def train(
         )
     else:
         logger.info(parameters)
-        try:
-            from grants_tagger.train import train_cli
-        except ModuleNotFoundError as e:
-            logger.warning(
-                "Train_cli couldn't be imported, probably due to a missing dependency."
-                " See error below (you can probably still use train_slim)"
-            )
-            logger.debug(e)
+        from grants_tagger.train import train_cli
+
         train_cli(
             data_path=data_path,
             label_binarizer_path=label_binarizer_path,
@@ -129,6 +123,7 @@ def train(
         )
 
     from grants_tagger.utils import get_ec2_instance_type
+
     duration = time.time() - start
     instance = get_ec2_instance_type()
     print(f"Took {duration:.2f} to train")

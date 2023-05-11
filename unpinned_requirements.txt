@@ -23,3 +23,5 @@ openpyxl
 pygtrie==2.3.3
 pre-commit
 numpy==1.21
+dvc[s3]>=2.25.0
+torch

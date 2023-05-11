@@ -25,6 +25,7 @@ from typing import List, Optional
 from pathlib import Path
 
 
+from grants_tagger.module_tester import test_development_dependencies
 from grants_tagger.utils import load_train_test_data, load_data
 
 logger = logging.getLogger(__name__)
@@ -281,10 +282,7 @@ def tune_threshold_cli(
     ),
 ):
 
-    try:
-        from grants_tagger.models.create_model_xlinear import load_model
-    except ImportError:
-        logger.error("Could not import load_model from grants_tagger.models.create_model_xlinear")
+    test_development_dependencies()
 
     tune_threshold(
         data_path,

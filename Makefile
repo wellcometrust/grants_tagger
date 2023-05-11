@@ -75,6 +75,31 @@ update-requirements: ## Updates requirement
 #	echo "-e git://github.com/wellcometrust/WellcomeML.git@tokenizer-decode#egg=wellcomeml" >> requirements.txt
 	echo "git+https://github.com/nsorros/shap.git@dev" >> requirements.txt
 
+
+virtualenv-dev: ## Creates virtualenv
+	@if [ -d $(VIRTUALENV) ]; then rm -rf $(VIRTUALENV); fi
+	@mkdir -p $(VIRTUALENV)
+	virtualenv --python $(PYTHON) $(VIRTUALENV)
+	$(PIP) install --upgrade pip
+	$(PIP) install pytest pytest-cov tox
+	$(PIP) install -r dev_requirements.txt
+	$(PIP) install --no-deps -e .
+	$(PIP) install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.4.0/en_core_sci_sm-0.4.0.tar.gz
+	$(VIRTUALENV)/bin/pre-commit install --hook-type pre-push --hook-type post-checkout --hook-type pre-commit
+
+update-requirements-dev: VIRTUALENV := /tmp/update-requirements-venv/
+update-requirements-dev: ## Updates requirement
+	@if [ -d $(VIRTUALENV) ]; then rm -rf $(VIRTUALENV); fi
+	@mkdir -p $(VIRTUALENV)
+	virtualenv --python $(PYTHON) $(VIRTUALENV)
+	$(VIRTUALENV)/bin/pip install --upgrade pip
+	$(VIRTUALENV)/bin/pip install -r unpinned_requirements.txt
+	$(VIRTUALENV)/bin/pip install -r unpinned_dev_requirements.txt
+	echo "#Created by Makefile. Do not edit." > dev_requirements.txt
+	$(VIRTUALENV)/bin/pip freeze | grep -v pkg_resources==0.0.0 >> dev_requirements.txt
+#	echo "-e git://github.com/wellcometrust/WellcomeML.git@tokenizer-decode#egg=wellcomeml" >> requirements.txt
+	echo "git+https://github.com/nsorros/shap.git@dev" >> dev_requirements.txt
+
 .PHONY: test
 test: ## Run tests
 	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov=grants_tagger

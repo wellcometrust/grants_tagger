@@ -39,7 +39,7 @@ def evaluate_model(
     parameters=None,
 ):
 
-    from grants_tagger.models.create_model import load_model
+    from grants_tagger.models.create_model_transformer import load_model
 
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())

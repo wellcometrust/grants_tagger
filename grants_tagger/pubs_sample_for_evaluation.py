@@ -13,7 +13,21 @@ def create_publications_sample(
     s3_dir,
     output_file,
 ):
+    """Generate a sample of publications across all Field Of Research and HRCS RAC categories
+        in order to capture a broad range of publications
 
+    Args:
+        grants_year(str): year of interest, standard is "2022"
+        cat_of_interest(list): categories we would like to consider, standard is ["for", "hrcs_rac"]
+        num_samples_per_cat(int): number of samples to draw per category
+        num_parquet_files_to_consider(int): number of parquet files to consider, increase if too many categories are drawn allowing for replacement
+        s3_dir(str): s3 location
+        output_file(str): output file location
+
+    Returns:
+        saves a .json file with the sample of publications
+
+    """
 
     # list all relevant parquet files
     s3_url = f"{s3_dir}publications/year={grants_year}/"
@@ -88,6 +102,7 @@ def create_publications_sample(
     with open(output_file, "w") as fout:
         json.dump(samples, fout)
 
+
 if __name__ == "__main__":
     create_publications_sample(
         grants_year="2022",
@@ -97,4 +112,3 @@ if __name__ == "__main__":
         s3_dir="s3://datalabs-data/dimensions/",
         output_file="data/processed/evaluation/pubs_sample_for_evaluation.json",
     )
-

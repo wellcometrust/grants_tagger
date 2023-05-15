@@ -15,6 +15,7 @@ import pytest
 from grants_tagger.cli import app
 from grants_tagger.utils import convert_dvc_to_sklearn_params
 from grants_tagger.models.mesh_xlinear import MeshXLinear
+from grants_tagger.models.create_model_transformer import create_model
 
 runner = CliRunner()
 
@@ -126,7 +127,7 @@ def read_pickle(path):
 
 
 def create_model(model_path, label_binarizer_path, data):
-    model = MeshXLinear(min_df=1, max_df=10)
+    model = create_model()
     X = [example["text"] for example in data]
 
     tags = [example["tags"] for example in data]
@@ -134,7 +135,9 @@ def create_model(model_path, label_binarizer_path, data):
     Y = label_binarizer.transform(tags)
 
     model.fit(X, Y)
-    model.save(model_path)
+    # model.save(model_path)
+    with open(model_path, "wb") as f:
+        f.write(pickle.dumps(model))
 
 
 def create_label_binarizer(label_binarizer_path, data, sparse_labels=False):

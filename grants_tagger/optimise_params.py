@@ -14,7 +14,7 @@ from typing import List, Optional
 from sklearn.model_selection import GridSearchCV
 
 from grants_tagger.utils import load_data
-from grants_tagger.module_tester import test_development_dependencies
+from grants_tagger.utils import import_development_dependencies
 
 
 DEFAULT_PARAMS_SEARCH = {
@@ -96,7 +96,7 @@ def tune_params_cli(
     ),
     params: Optional[str] = typer.Option(None, help=""),
 ):
-    test_development_dependencies()
+    import_development_dependencies()
     optimise_params(data_path, label_binarizer_path, approach, params=params)
 
 

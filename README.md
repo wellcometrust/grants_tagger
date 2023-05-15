@@ -56,17 +56,17 @@ Grants tagger comes with a nice CLI with the following commands
 
 ## ⌨️  Commands
 
-| Commands        |                                                              |
-| --------------- | ------------------------------------------------------------ |
-| ⚙️  preprocess   | preprocess data to use for training                          |
-| 🔥 train        | trains a new model                                           |
-| 📈 evaluate     | evaluate performance of pretrained model                     |
-| 🔖 predict      | predict tags given a grant abstract using a pretrained model |
-| 🎛 tune         | tune params and threshold                                    |
-| 📚 pretrain     | pretrains embeddings or language model using unlabeled data  |
-| ⬇️  download    | download trained models and data from EPMC                   |
-| 🐋  docker      | how to run grants_tagger in a docker container               |
-| 🌐 visualize    | creates a streamlit app to interactively tag grants          |
+| Commands        |                                                              | needs dev |
+| --------------- | ------------------------------------------------------------ | --------- |
+| ⚙️  preprocess   | preprocess data to use for training                          | False |
+| 🔥 train        | trains a new model                                           | True |
+| 📈 evaluate     | evaluate performance of pretrained model                     | True |
+| 🔖 predict      | predict tags given a grant abstract using a pretrained model | False |
+| 🎛 tune         | tune params and threshold                                    | True |
+| 📚 pretrain     | pretrains embeddings or language model using unlabeled data  | True |
+| ⬇️  download    | download trained models and data from EPMC                   | False |
+| 🐋  docker      | how to run grants_tagger in a docker container               | True |
+| 🌐 visualize    | creates a streamlit app to interactively tag grants          | False |
 
 in square brackets the commands that are not implemented yet
 
@@ -513,6 +513,8 @@ To create and setup the base environment
 make virtualenv
 ```
 This will create a new virtualenv and install requirements for tests. It will also install grants tagger in editable mode.
+
+## 🐍 Development Venv
 
 For full development environment, install with:
 ```

@@ -11,6 +11,10 @@ from sklearn.metrics import f1_score
 import pandas as pd
 import numpy as np
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def load_data(data_path, label_binarizer=None, X_format="List"):
     """Load data from the dataset."""
@@ -168,3 +172,19 @@ def convert_dvc_to_sklearn_params(parameters):
         }
     else:
         return parameters
+
+
+development_dependencies = False
+
+
+def import_development_dependencies():
+    try:
+        import pecos
+        import wellcomeml
+
+        return True
+    except ImportError:
+        raise (
+            "Development dependencies not installed. Run make virtualenv-dev to install them."
+        )
+    return False

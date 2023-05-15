@@ -23,7 +23,7 @@ from grants_tagger.tune_threshold import tune_threshold_cli
 from grants_tagger.optimise_params import tune_params_cli
 from grants_tagger.download_epmc import download_epmc_cli
 from grants_tagger.download_model import download_model_cli
-from grants_tagger.module_tester import test_development_dependencies
+from grants_tagger.utils import import_development_dependencies
 
 
 app = typer.Typer()
@@ -66,7 +66,7 @@ def train(
         "local", help="instance type to use when training with Sagemaker"
     ),
 ):
-    test_development_dependencies()
+    import_development_dependencies()
     start = time.time()
     if slim:
         import dvc.api

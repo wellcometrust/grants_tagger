@@ -1,6 +1,6 @@
 pandas
 xlrd
-scikit-learn==1.0.0
+#scikit-learn==0.23.2
 matplotlib
 numpy
 transformers<=4.16.2
@@ -22,6 +22,6 @@ openpyxl
 # https://github.com/google/pygtrie/issues/36
 pygtrie==2.3.3
 pre-commit
-numpy==1.21
+#numpy==1.21
 dvc[s3]>=2.25.0
 torch

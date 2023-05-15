@@ -13,7 +13,7 @@ from typing import List, Optional
 from pathlib import PureWindowsPath
 import pandas as pd
 
-from grants_tagger.module_tester import test_development_dependencies
+from grants_tagger.utils import import_development_dependencies
 
 
 def pretrain(data_path, model_path, model_name):
@@ -53,7 +53,7 @@ def pretrain_cli(
         None, help="config file with arguments for pretrain"
     ),
 ):
-    test_development_dependencies()
+    import_development_dependencies()
 
     if config:
         cfg = configparser.ConfigParser(allow_no_value=True)

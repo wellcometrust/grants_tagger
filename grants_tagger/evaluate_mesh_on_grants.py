@@ -20,7 +20,7 @@ import pandas as pd
 import logging
 
 logger = logging.getLogger(__name__)
-from grants_tagger.module_tester import test_development_dependencies
+from grants_tagger.utils import import_development_dependencies
 
 
 def get_tags(data, annotator):
@@ -117,7 +117,7 @@ def evaluate_mesh_on_grants_cli(
         None, help="path to config file that defines arguments"
     ),
 ):
-    test_development_dependencies()
+    import_development_dependencies()
 
     if config:
         cfg = configparser.ConfigParser(allow_no_value=True)

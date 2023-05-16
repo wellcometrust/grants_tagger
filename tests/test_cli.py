@@ -126,7 +126,7 @@ def read_pickle(path):
     return obj
 
 
-def create_model(model_path, label_binarizer_path, data):
+def create_transformer_model_from_path(model_path, label_binarizer_path, data):
     model = create_model()
     X = [example["text"] for example in data]
 
@@ -230,7 +230,7 @@ def test_predict_command():
         label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
 
         create_label_binarizer(label_binarizer_path, DATA, sparse_labels=True)
-        create_model(model_path, label_binarizer_path, DATA)
+        create_transformer_model_from_path(model_path, label_binarizer_path, DATA)
 
         text = "malaria"
         result = runner.invoke(app, ["predict", text, model_path, label_binarizer_path])
@@ -245,7 +245,7 @@ def test_evaluate_model_command():
         label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
 
         create_label_binarizer(label_binarizer_path, MESH_DATA, sparse_labels=True)
-        create_model(model_path, label_binarizer_path, MESH_DATA)
+        create_transformer_model_from_path(model_path, label_binarizer_path, MESH_DATA)
         write_jsonl(data_path, MESH_DATA)
 
         result = runner.invoke(
@@ -327,7 +327,7 @@ def test_tune_threshold_command():
 
         write_jsonl(data_path, MESH_DATA)
         create_label_binarizer(label_binarizer_path, MESH_DATA, sparse_labels=True)
-        create_model(model_path, label_binarizer_path, MESH_DATA)
+        create_transformer_model_from_path(model_path, label_binarizer_path, MESH_DATA)
 
         result = runner.invoke(
             app,

@@ -4,7 +4,7 @@ python:
   - 3.8
 
 install:
-  - make virtualenv
+  - make virtualenv-dev
 
 script:
   - make test

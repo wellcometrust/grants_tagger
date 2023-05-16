@@ -5,7 +5,8 @@ python:
 
 install:
   - make virtualenv-dev
-
+  - pip install libpecos==0.1.0
+ 
 script:
   - make test
 

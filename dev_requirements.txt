@@ -100,6 +100,7 @@ jmespath==1.0.1
 joblib==1.2.0
 jsonschema==4.17.3
 Keras-Preprocessing==1.1.2
+keras==2.1.5
 keyring==23.13.1
 kiwisolver==1.4.4
 kombu==5.2.4

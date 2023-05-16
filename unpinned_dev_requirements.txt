@@ -1,3 +1,4 @@
+tensorflow-addons==0.17.1
 wellcomeml[tensorflow,core,transformers,torch]==2.0.3
 wandb
 accelerate

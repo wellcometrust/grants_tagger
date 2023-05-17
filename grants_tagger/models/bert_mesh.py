@@ -59,3 +59,6 @@ class WellcomeBertMesh:
 
     def load(self, model_path):
         self.model = BertMesh.from_pretrained(model_path)
+
+    def save(self, model_path):
+        self.model.save_pretrained(model_path)

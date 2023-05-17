@@ -126,18 +126,10 @@ def read_pickle(path):
     return obj
 
 
-def create_transformer_model_from_path(model_path, label_binarizer_path, data):
+def save_transformer_model_to_path(save_path):
     model = create_model()
-    X = [example["text"] for example in data]
-
-    tags = [example["tags"] for example in data]
-    label_binarizer = read_pickle(label_binarizer_path)
-    Y = label_binarizer.transform(tags)
-
-    model.fit(X, Y)
-    # model.save(model_path)
-    with open(model_path, "wb") as f:
-        f.write(pickle.dumps(model))
+    model.load("Wellcome/WellcomeBertMesh")
+    model.save(save_path)
 
 
 def create_label_binarizer(label_binarizer_path, data, sparse_labels=False):
@@ -230,7 +222,7 @@ def test_predict_command():
         label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
 
         create_label_binarizer(label_binarizer_path, DATA, sparse_labels=True)
-        create_transformer_model_from_path(model_path, label_binarizer_path, DATA)
+        save_transformer_model_to_path(model_path)
 
         text = "malaria"
         result = runner.invoke(app, ["predict", text, model_path, label_binarizer_path])
@@ -245,7 +237,7 @@ def test_evaluate_model_command():
         label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
 
         create_label_binarizer(label_binarizer_path, MESH_DATA, sparse_labels=True)
-        create_transformer_model_from_path(model_path, label_binarizer_path, MESH_DATA)
+        save_transformer_model_to_path(model_path)
         write_jsonl(data_path, MESH_DATA)
 
         result = runner.invoke(
@@ -327,7 +319,7 @@ def test_tune_threshold_command():
 
         write_jsonl(data_path, MESH_DATA)
         create_label_binarizer(label_binarizer_path, MESH_DATA, sparse_labels=True)
-        create_transformer_model_from_path(model_path, label_binarizer_path, MESH_DATA)
+        save_transformer_model_to_path(model_path)
 
         result = runner.invoke(
             app,

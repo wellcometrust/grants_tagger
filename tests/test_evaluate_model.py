@@ -8,7 +8,7 @@ from sklearn.preprocessing import MultiLabelBinarizer
 import pytest
 
 from grants_tagger.evaluate_model import evaluate_model
-from grants_tagger.models.create_model_xlinear import create_model
+from grants_tagger.models.create_model_transformer import create_model
 from grants_tagger.utils import load_pickle
 
 X = [
@@ -65,17 +65,13 @@ def results_path(tmp_path):
 
 
 @pytest.fixture
-def model_path(tmp_path, label_binarizer_path):
-    model = create_model(
-        parameters="{'vectorizer_library': 'sklearn', 'ngram_range': (1, 1),'beam_size': 30, 'threshold': 0.1, 'only_topk': 200, 'min_df':1, 'min_weight_value': 0.1, 'max_features':200}",
-    )
-    label_binarizer = load_pickle(label_binarizer_path)
-
-    Y_vec = label_binarizer.transform(Y)
-    model.fit(X, Y_vec)
+def model_path(tmp_path):
+    model = create_model()
+    model.load("Wellcome/WellcomeBertMesh")
 
     model_path = os.path.join(tmp_path)
     model.save(model_path)
+
     return model_path
 
 
@@ -87,7 +83,6 @@ def test_evaluate_model(results_path, data_path, label_binarizer_path, model_pat
         0.5,
         results_path=results_path,
         sparse_y=False,
-        parameters="{'vectorizer_library': 'sklearn', 'ngram_range': (1, 1),'beam_size': 30, 'threshold': 0.1, 'only_topk': 200, 'min_df':1, 'min_weight_value': 0.1, 'max_features':200}",
     )
 
     with open(results_path) as f:

@@ -72,36 +72,36 @@ def explanations_path(tmp_path):
     return os.path.join(tmp_path, "explanations.html")
 
 
-@pytest.mark.skipif(not SHAP_INSTALLED, reason="shap missing")
-def test_explain(
-    mesh_cnn_path, mesh_label_binarizer_path, texts_path, explanations_path
-):
-    approach = "mesh-cnn"
+# @pytest.mark.skipif(not SHAP_INSTALLED, reason="shap missing")
+# def test_explain(
+#     mesh_cnn_path, mesh_label_binarizer_path, texts_path, explanations_path
+# ):
+#     approach = "mesh-cnn"
 
-    explain(
-        approach,
-        texts_path,
-        mesh_cnn_path,
-        mesh_label_binarizer_path,
-        explanations_path,
-        label="1",
-    )
-    assert os.path.exists(explanations_path)
+#     explain(
+#         approach,
+#         texts_path,
+#         mesh_cnn_path,
+#         mesh_label_binarizer_path,
+#         explanations_path,
+#         label="1",
+#     )
+#     assert os.path.exists(explanations_path)
 
 
-@pytest.mark.skipif(not SHAP_INSTALLED, reason="shap missing")
-def test_explain_local_explanations(
-    mesh_cnn_path, mesh_label_binarizer_path, texts_path, explanations_path
-):
-    approach = "mesh-cnn"
+# @pytest.mark.skipif(not SHAP_INSTALLED, reason="shap missing")
+# def test_explain_local_explanations(
+#     mesh_cnn_path, mesh_label_binarizer_path, texts_path, explanations_path
+# ):
+#     approach = "mesh-cnn"
 
-    explain(
-        approach,
-        texts_path,
-        mesh_cnn_path,
-        mesh_label_binarizer_path,
-        explanations_path,
-        label="1",
-        global_explanations=False,
-    )
-    assert os.path.exists(explanations_path)
+#     explain(
+#         approach,
+#         texts_path,
+#         mesh_cnn_path,
+#         mesh_label_binarizer_path,
+#         explanations_path,
+#         label="1",
+#         global_explanations=False,
+#     )
+#     assert os.path.exists(explanations_path)

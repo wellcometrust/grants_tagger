@@ -84,7 +84,7 @@ virtualenv-dev: ## Creates virtualenv
 	$(PIP) install pytest pytest-cov tox
 	$(PIP) install -r dev_requirements.txt
 	$(PIP) install --no-deps -e .[dev]
-# $(PIP) install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.4.0/en_core_sci_sm-0.4.0.tar.gz
+	$(PIP) install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.4.0/en_core_sci_sm-0.4.0.tar.gz
 	$(VIRTUALENV)/bin/pre-commit install --hook-type pre-push --hook-type post-checkout --hook-type pre-commit
 
 update-requirements: VIRTUALENV := /tmp/update-requirements-venv/

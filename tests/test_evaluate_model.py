@@ -42,7 +42,16 @@ def label_binarizer_path(tmp_path):
     label_binarizer_path = os.path.join(tmp_path, "label_binarizer.pkl")
 
     label_binarizer = MultiLabelBinarizer(sparse_output=True)
-    label_binarizer.fit(Y)
+
+    model = create_model()
+    model.load("Wellcome/WellcomeBertMesh")
+
+    all_labels = list(model.model.id2label.values())
+
+    label_binarizer.fit([all_labels])
+
+    print(label_binarizer.classes_)
+
     with open(label_binarizer_path, "wb") as f:
         f.write(pickle.dumps(label_binarizer))
     return label_binarizer_path

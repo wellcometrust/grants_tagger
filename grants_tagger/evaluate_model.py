@@ -38,7 +38,6 @@ def evaluate_model(
     sparse_y=False,
     parameters=None,
 ):
-
     from grants_tagger.models.create_model_transformer import load_model
 
     with open(label_binarizer_path, "rb") as f:
@@ -73,6 +72,7 @@ def evaluate_model(
     results = []
     for th in threshold:
         Y_pred = Y_pred_proba > th
+
         p, r, f1, _ = precision_recall_fscore_support(Y_test, Y_pred, average="micro")
         full_report = classification_report(Y_test, Y_pred, output_dict=True)
 
@@ -143,7 +143,6 @@ def evaluate_model_cli(
         None, help="path to config file that defines arguments"
     ),
 ):
-
     import_development_dependencies()
 
     if config:

@@ -224,13 +224,10 @@ def test_pretrain_command():
 def test_predict_command():
     with tempfile.TemporaryDirectory() as tmp_dir:
         model_path = os.path.join(tmp_dir)
-        label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
-
-        create_label_binarizer(label_binarizer_path, DATA, sparse_labels=True)
         save_transformer_model_to_path(model_path)
 
         text = "malaria"
-        result = runner.invoke(app, ["predict", text, model_path, label_binarizer_path])
+        result = runner.invoke(app, ["predict", text, model_path])
         print(result)
         assert result.exit_code == 0
 

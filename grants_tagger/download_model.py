@@ -5,13 +5,17 @@ import typer
 from tqdm import tqdm
 import requests
 
-from grants_tagger import __version__ as version
+version = "0.2.4"
 
 MODELS = {
-    "mesh": {
+    "xlinear-mesh": {
         "url": f"https://datalabs-public.s3.eu-west-2.amazonaws.com/grants_tagger/models/xlinear-{version}.tar.gz",
         "path": f"xlinear-{version}.tar.gz",
-    }
+    },
+    "bert-mesh": {
+        "url": f"Wellcome/WellcomeBertMesh",
+        "path": f"bert-{version}.tar.gz",
+    },
 }
 
 
@@ -35,6 +39,8 @@ def untar(tar_path, path):
 
 
 def download_model(model_name):
+    print("Version is : {}".format(version))
+
     if model_name in MODELS:
         url = MODELS[model_name]["url"]
         path = MODELS[model_name]["path"]

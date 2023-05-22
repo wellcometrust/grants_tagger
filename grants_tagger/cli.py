@@ -22,7 +22,6 @@ from grants_tagger.pretrain import pretrain_cli
 from grants_tagger.tune_threshold import tune_threshold_cli
 from grants_tagger.optimise_params import tune_params_cli
 from grants_tagger.download_epmc import download_epmc_cli
-from grants_tagger.download_model import download_model_cli
 from grants_tagger.utils import import_development_dependencies
 
 
@@ -156,7 +155,6 @@ app.add_typer(tune_app, name="tune")
 
 download_app = typer.Typer()
 download_app.command("epmc-mesh")(download_epmc_cli)
-download_app.command("model")(download_model_cli)
 app.add_typer(download_app, name="download")
 
 # app.command("explain")(explain_cli)

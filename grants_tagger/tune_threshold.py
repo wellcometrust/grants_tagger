@@ -217,7 +217,7 @@ def tune_threshold(
     init_threshold: float = 0.2,
     split_data: bool = False,
 ):
-    from grants_tagger.models.create_model_xlinear import load_model
+    from grants_tagger.models.create_model_transformer import load_model
 
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
@@ -235,7 +235,8 @@ def tune_threshold(
     X_val, Y_val, X_test, Y_test = val_test_split(X_test, Y_test, val_size)
 
     model = load_model(model_path)
-    Y_pred_proba = model.predict_proba(X_val)
+
+    Y_pred_proba = model.predict_proba(X_val.tolist())
     Y_pred = Y_pred_proba > init_threshold
 
     f1 = f1_score(Y_val, Y_pred, average="micro")
@@ -244,8 +245,13 @@ def tune_threshold(
 
     optimal_thresholds = optimise_threshold(Y_val, Y_pred_proba, nb_thresholds)
 
-    Y_pred_proba = model.predict_proba(X_test)
+    Y_pred_proba = model.predict_proba(X_test.tolist())
     Y_pred = Y_pred_proba > optimal_thresholds
+
+    if isinstance(Y_test, np.matrix):
+        Y_test = Y_test.A
+    if isinstance(Y_pred, np.matrix):
+        Y_pred = Y_pred.A
 
     optimal_f1 = f1_score(Y_test, Y_pred, average="micro")
     print("---Optimal f1 in test set---")
@@ -281,7 +287,6 @@ def tune_threshold_cli(
         False, help="flag on whether to split data as was done for train"
     ),
 ):
-
     import_development_dependencies()
 
     tune_threshold(

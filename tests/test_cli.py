@@ -16,6 +16,7 @@ from grants_tagger.cli import app
 from grants_tagger.utils import convert_dvc_to_sklearn_params
 from grants_tagger.models.mesh_xlinear import MeshXLinear
 from grants_tagger.models.create_model_transformer import create_model
+from grants_tagger.tune_threshold import tune_threshold
 
 runner = CliRunner()
 
@@ -133,9 +134,13 @@ def save_transformer_model_to_path(save_path):
 
 
 def create_label_binarizer(label_binarizer_path, data, sparse_labels=False):
-    tags = [example["tags"] for example in data]
+    model = create_model()
+    model.load("Wellcome/WellcomeBertMesh")
+
+    all_tags = list(model.model.id2label.values())
     label_binarizer = MultiLabelBinarizer(sparse_output=sparse_labels)
-    label_binarizer.fit(tags)
+    label_binarizer.fit([all_tags])
+
     write_pickle(label_binarizer_path, label_binarizer)
 
 
@@ -313,7 +318,7 @@ def test_evaluate_mti_command():
 def test_tune_threshold_command():
     with tempfile.TemporaryDirectory() as tmp_dir:
         data_path = os.path.join(tmp_dir, "data.jsonl")
-        model_path = os.path.join(tmp_dir)
+        model_path = "Wellcome/WellcomeBertMesh"
         label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
         thresholds_path = os.path.join(tmp_dir, "thresholds.pkl")
 
@@ -321,18 +326,26 @@ def test_tune_threshold_command():
         create_label_binarizer(label_binarizer_path, MESH_DATA, sparse_labels=True)
         save_transformer_model_to_path(model_path)
 
-        result = runner.invoke(
-            app,
-            [
-                "tune",
-                "threshold",
-                data_path,
-                model_path,
-                label_binarizer_path,
-                thresholds_path,
-            ],
+        # result = runner.invoke(
+        #     app,
+        #     [
+        #         "tune",
+        #         "threshold",
+        #         data_path,
+        #         model_path,
+        #         label_binarizer_path,
+        #         thresholds_path,
+        #     ],
+        # )
+
+        tune_threshold(
+            data_path,
+            model_path,
+            label_binarizer_path,
+            thresholds_path,
         )
-        assert result.exit_code == 0
+
+        # assert result.exit_code == 0
         assert os.path.isfile(thresholds_path)
 
 

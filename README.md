@@ -429,7 +429,6 @@ Options:
 
 Commands:
   epmc-mesh
-  model
 ```
 
 Available models:

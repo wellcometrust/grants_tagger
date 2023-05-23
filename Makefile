@@ -101,12 +101,12 @@ update-requirements-dev: ## Updates requirement
 
 .PHONY: test
 test: ## Run tests
-	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov=grants_tagger
+	$(VIRTUALENV)/bin/pytest -m inference_time --disable-warnings -v --cov=grants_tagger
 #	$(VIRTUALENV)/bin/tox # Tox is not needed, as it's repeating the tests
 
 .PHONY: test-dev
 test-dev: ## Run tests
-	$(VIRTUALENV)/bin/pytest -m inference_time --disable-warnings -v --cov=grants_tagger
+	$(VIRTUALENV)/bin/pytest --disable-warnings -v --cov=grants_tagger
 
 .PHONY: build
 build: ## Create wheel distribution

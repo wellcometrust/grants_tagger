@@ -4,17 +4,12 @@ import pickle
 import json
 import csv
 
-from sklearn.multiclass import OneVsRestClassifier
-from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MultiLabelBinarizer
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.svm import SVC
 from typer.testing import CliRunner
 import pytest
 
 from grants_tagger.cli import app
 from grants_tagger.utils import convert_dvc_to_sklearn_params
-from grants_tagger.models.mesh_xlinear import MeshXLinear
 from grants_tagger.models.create_model_transformer import create_model
 from grants_tagger.tune_threshold import tune_threshold
 

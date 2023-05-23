@@ -105,8 +105,8 @@ test: ## Run tests
 #	$(VIRTUALENV)/bin/tox # Tox is not needed, as it's repeating the tests
 
 .PHONY: test-dev
-test-dev:
-	$(VIRTUALENV)/bin/pytest -m inference-time --disable-warnings -v --cov=grants_tagger
+test-dev: ## Run tests
+	$(VIRTUALENV)/bin/pytest -m inference_time --disable-warnings -v --cov=grants_tagger
 
 .PHONY: build
 build: ## Create wheel distribution

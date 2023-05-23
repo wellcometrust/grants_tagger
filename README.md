@@ -316,18 +316,14 @@ Options:
 
 Predict assigns tags on a given abstract text that you can pass as argument.
 It is not meant to be used for tagging multiple grants, tag command is reserved
-for that. Similar to evaluate and train an approach is needed to know which
-model will be used. Similar to evaluate it also works on models that have
-made it to production, see list in evaluate.
+for that.
 
 ```
-Usage: grants_tagger predict [OPTIONS] TEXT MODEL_PATH LABEL_BINARIZER_PATH
-                             APPROACH
+Usage: grants_tagger predict [OPTIONS] TEXT MODEL_PATH APPROACH
 
 Arguments:
   TEXT                  [required]
   MODEL_PATH            [required]
-  LABEL_BINARIZER_PATH  [required]
   APPROACH              [required]
 
 Options:

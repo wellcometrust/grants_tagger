@@ -221,6 +221,7 @@ def test_pretrain_command():
         assert os.path.isdir(model_path)
 
 
+@pytest.mark.inference_time
 def test_predict_command():
     with tempfile.TemporaryDirectory() as tmp_dir:
         model_path = os.path.join(tmp_dir)

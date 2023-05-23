@@ -18,6 +18,7 @@ def create_month_data(month_path):
         f.write("\n")
 
 
+@pytest.mark.inference_time
 @mock.patch("grants_tagger.download_epmc.get_hit_count", return_value=5)
 @mock.patch("grants_tagger.download_epmc.yield_results", return_value=["item"])
 def test_download_epmc(mock_get_hit_count, mock_yield_results, download_path):
@@ -28,6 +29,7 @@ def test_download_epmc(mock_get_hit_count, mock_yield_results, download_path):
         assert os.path.exists(month_path)
 
 
+@pytest.mark.inference_time
 @mock.patch("grants_tagger.download_epmc.get_hit_count", return_value=5)
 @mock.patch("grants_tagger.download_epmc.yield_results", return_value=["item"])
 def test_download_epmc_skip(mock_get_hit_count, mock_yield_results, download_path):
@@ -44,6 +46,7 @@ def test_download_epmc_skip(mock_get_hit_count, mock_yield_results, download_pat
     assert item["item"] == "fake"
 
 
+@pytest.mark.inference_time
 @mock.patch("grants_tagger.download_epmc.get_hit_count", return_value=5)
 @mock.patch(
     "grants_tagger.download_epmc.yield_results", return_value=[{"item": "not fake"}]

@@ -72,6 +72,8 @@ update-requirements: ## Updates requirement
 	$(VIRTUALENV)/bin/pip install -r unpinned_requirements.txt
 	echo "#Created by Makefile. Do not edit." > requirements.txt
 	$(VIRTUALENV)/bin/pip freeze | grep -v pkg_resources==0.0.0 >> requirements.txt
+	grep -v nvidia-* < requirements.txt > requirements_no_nvidia.txt
+	mv requirements_no_nvidia.txt requirements.txt
 #	echo "-e git://github.com/wellcometrust/WellcomeML.git@tokenizer-decode#egg=wellcomeml" >> requirements.txt
 	echo "git+https://github.com/nsorros/shap.git@dev" >> requirements.txt
 
@@ -96,6 +98,8 @@ update-requirements-dev: ## Updates requirement
 	$(VIRTUALENV)/bin/pip install -r unpinned_requirements.txt -r unpinned_dev_requirements.txt
 	echo "#Created by Makefile. Do not edit." > dev_requirements.txt
 	$(VIRTUALENV)/bin/pip freeze | grep -v pkg_resources==0.0.0 >> dev_requirements.txt
+	grep -v nvidia-* < requirements.txt > requirements_no_nvidia.txt
+	mv requirements_no_nvidia.txt requirements.txt
 #	echo "-e git://github.com/wellcometrust/WellcomeML.git@tokenizer-decode#egg=wellcomeml" >> requirements.txt
 	echo "git+https://github.com/nsorros/shap.git@dev" >> dev_requirements.txt
 

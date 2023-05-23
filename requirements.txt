@@ -45,7 +45,7 @@ transformers==4.29.2
 triton==2.0.0
 typer==0.9.0
 typing_extensions==4.6.0
-urllib3==2.0.2
+urllib3==1.26.6
 virtualenv==20.23.0
 wasabi==1.1.1
 git+https://github.com/nsorros/shap.git@dev

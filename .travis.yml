@@ -3,8 +3,13 @@ language: python
 python:
   - 3.8
 
+jobs:
+  include:
+    - env: venv-name=virtualenv
+    - env: venv-name=virtualenv-dev
+
 install:
-  - make virtualenv-dev
+  - make $venv-name
 
 script:
   - make test

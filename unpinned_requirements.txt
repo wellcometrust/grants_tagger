@@ -6,4 +6,6 @@ tqdm
 requests
 openpyxl
 torch
-pre-commit
+numpy
+scikit-learn
+pandas

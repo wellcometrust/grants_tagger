@@ -4,3 +4,7 @@ wandb
 accelerate
 sagemaker
 libpecos==0.3.0
+codecov
+pytest-cov
+pytest
+tox

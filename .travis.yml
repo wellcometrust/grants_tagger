@@ -5,14 +5,16 @@ python:
 
 jobs:
   include:
-    - env: venv-name=virtualenv
-    - env: venv-name=virtualenv-dev
+    - env: venv_name=virtualenv
+      testcmd: test
+    - env: venv_name=virtualenv-dev
+      testcmd: test-dev
 
 install:
-  - make $venv-name
+  - make $venv_name
 
 script:
-  - make test
+  - make $testcmd
 
 branches:
   only:

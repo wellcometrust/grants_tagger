@@ -7,9 +7,13 @@ import json
 from sklearn.preprocessing import MultiLabelBinarizer
 import pandas as pd
 
-from grants_tagger.models.mesh_xlinear import MeshXLinear
-from grants_tagger.evaluate_mesh_on_grants import evaluate_mesh_on_grants
+try:
+    from grants_tagger.models.mesh_xlinear import MeshXLinear
+    from grants_tagger.evaluate_mesh_on_grants import evaluate_mesh_on_grants
 
+    pecos_installed = True
+except ModuleNotFoundError as e:
+    pecos_installed = False
 
 TRAIN_DATA = [
     {
@@ -56,6 +60,7 @@ def results_path(tmp_path):
     return results_path
 
 
+@pytest.mark.skipif(not pecos_installed, reason="Pecos not installed")
 def test_evaluate_mesh_on_grants(results_path):
     with tempfile.TemporaryDirectory() as tmp_dir:
         data_path = os.path.join(tmp_dir, "data.xlsx")

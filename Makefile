@@ -57,7 +57,7 @@ virtualenv: ## Creates virtualenv
 	@mkdir -p $(VIRTUALENV)
 	virtualenv --python $(PYTHON) $(VIRTUALENV)
 	$(PIP) install --upgrade pip
-	$(PIP) install -r requirements.txt
+	$(PIP) install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
 	$(PIP) install --no-deps -e .
 	$(PIP) install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.4.0/en_core_sci_sm-0.4.0.tar.gz
 
@@ -68,8 +68,9 @@ update-requirements: ## Updates requirement
 	virtualenv --python $(PYTHON) $(VIRTUALENV)
 	$(VIRTUALENV)/bin/pip install --upgrade pip
 	$(VIRTUALENV)/bin/pip install -r unpinned_requirements.txt
+	$(VIRTUALENV)/bin/pip install torch --index-url https://download.pytorch.org/whl/cpu
 	echo "#Created by Makefile. Do not edit." > requirements.txt
-	$(VIRTUALENV)/bin/pip freeze | grep -v pkg_resources==0.0.0 | grep -v nvidia-* >> requirements.txt
+	$(VIRTUALENV)/bin/pip freeze | grep -v pkg_resources==0.0.0 >> requirements.txt
 
 
 virtualenv-dev: ## Creates virtualenv

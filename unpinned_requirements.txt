@@ -1,7 +1,6 @@
 # ML
 transformers
 scikit-learn
-torch
 # Data processing, sparse data
 scipy
 numpy

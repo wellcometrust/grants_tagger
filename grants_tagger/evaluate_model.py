@@ -13,7 +13,7 @@ from wasabi import table, row
 import scipy.sparse as sp
 
 from grants_tagger.utils import load_train_test_data, load_data
-from grants_tagger.models.create_model_xlinear import load_model
+from grants_tagger.utils import import_development_dependencies
 
 
 def predict_sparse_probs(model, X_test, batch_size=256, cutoff_prob=0.01):
@@ -38,6 +38,8 @@ def evaluate_model(
     sparse_y=False,
     parameters=None,
 ):
+    from grants_tagger.models.create_model_transformer import load_model
+
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.loads(f.read())
 
@@ -70,6 +72,7 @@ def evaluate_model(
     results = []
     for th in threshold:
         Y_pred = Y_pred_proba > th
+
         p, r, f1, _ = precision_recall_fscore_support(Y_test, Y_pred, average="micro")
         full_report = classification_report(Y_test, Y_pred, output_dict=True)
 
@@ -140,6 +143,8 @@ def evaluate_model_cli(
         None, help="path to config file that defines arguments"
     ),
 ):
+    import_development_dependencies()
+
     if config:
         cfg = configparser.ConfigParser(allow_no_value=True)
         cfg.read(config)

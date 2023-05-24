@@ -16,7 +16,11 @@ from typing import List, Optional
 from sklearn.metrics import f1_score
 import pandas as pd
 
-from grants_tagger.models.create_model_xlinear import load_model
+
+import logging
+
+logger = logging.getLogger(__name__)
+from grants_tagger.utils import import_development_dependencies
 
 
 def get_tags(data, annotator):
@@ -44,6 +48,9 @@ def evaluate_mesh_on_grants(
     mesh_tags_path=None,
     parameters=None,
 ):
+
+    from grants_tagger.models.create_model_xlinear import load_model
+
     data = pd.read_excel(data_path, engine="openpyxl")
 
     if mesh_tags_path:
@@ -110,6 +117,7 @@ def evaluate_mesh_on_grants_cli(
         None, help="path to config file that defines arguments"
     ),
 ):
+    import_development_dependencies()
 
     if config:
         cfg = configparser.ConfigParser(allow_no_value=True)

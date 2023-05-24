@@ -20,15 +20,13 @@ def get_params_for_component(params, component):
     return component_params
 
 
-def format_predictions(
-    Y_pred_proba, label_binarizer, threshold=0.5, probabilities=True
-):
+def format_predictions(Y_pred_proba, classes, threshold=0.5, probabilities=True):
     """
     Formats predictions to output a list of dictionaries
 
     Y_pred_proba: sparse array or list of predicted probabilites or class
     (i.e. the output of  `.predict` or `.predict_proba` classifier)
-    label_binarizer: A sklearn fitted label binarizer
+    classes: A list of classes the model is able to predict
     threshold: Float between 0 and 1
     probabilities: Whether Y_pred_proba will contain probabilities or just predictions
 
@@ -43,14 +41,12 @@ def format_predictions(
         if probabilities:
             tags_i = {
                 tag: prob
-                for tag, prob in zip(label_binarizer.classes_, y_pred_proba)
+                for tag, prob in zip(classes, y_pred_proba)
                 if prob >= threshold
             }
         else:
             tags_i = [
-                tag
-                for tag, prob in zip(label_binarizer.classes_, y_pred_proba)
-                if prob >= threshold
+                tag for tag, prob in zip(classes, y_pred_proba) if prob >= threshold
             ]
         tags.append(tags_i)
 

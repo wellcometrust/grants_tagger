@@ -44,29 +44,23 @@ Alternatively you can clone this repository and manually install with
 pip install setup.py
 ```
 
-You can download the mesh pretrained model using:
-```
-grants_tagger download model mesh
-```
-Or, you can download some pretrained models from the releases section of this repository. Unzip this in the `models` folder. This will contain the mesh model and the label-binarizer.
-
-After that, you can predict a text's tag using the `predict` cli command.
+You can now predict a text's tag using the `predict` cli command.
 
 Grants tagger comes with a nice CLI with the following commands
 
 ## ⌨️  Commands
 
-| Commands        |                                                              |
-| --------------- | ------------------------------------------------------------ |
-| ⚙️  preprocess   | preprocess data to use for training                          |
-| 🔥 train        | trains a new model                                           |
-| 📈 evaluate     | evaluate performance of pretrained model                     |
-| 🔖 predict      | predict tags given a grant abstract using a pretrained model |
-| 🎛 tune         | tune params and threshold                                    |
-| 📚 pretrain     | pretrains embeddings or language model using unlabeled data  |
-| ⬇️  download    | download trained models and data from EPMC                   |
-| 🐋  docker      | how to run grants_tagger in a docker container               |
-| 🌐 visualize    | creates a streamlit app to interactively tag grants          |
+| Commands        |                                                              | needs dev |
+| --------------- | ------------------------------------------------------------ | --------- |
+| ⚙️  preprocess   | preprocess data to use for training                          | False |
+| 🔥 train        | trains a new model                                           | True |
+| 📈 evaluate     | evaluate performance of pretrained model                     | True |
+| 🔖 predict      | predict tags given a grant abstract using a pretrained model | False |
+| 🎛 tune         | tune params and threshold                                    | True |
+| 📚 pretrain     | pretrains embeddings or language model using unlabeled data  | True |
+| ⬇️  download    | download data from EPMC                                      | False |
+| 🐋  docker      | how to run grants_tagger in a docker container               | True |
+| 🌐 visualize    | creates a streamlit app to interactively tag grants          | False |
 
 in square brackets the commands that are not implemented yet
 
@@ -316,18 +310,14 @@ Options:
 
 Predict assigns tags on a given abstract text that you can pass as argument.
 It is not meant to be used for tagging multiple grants, tag command is reserved
-for that. Similar to evaluate and train an approach is needed to know which
-model will be used. Similar to evaluate it also works on models that have
-made it to production, see list in evaluate.
+for that.
 
 ```
-Usage: grants_tagger predict [OPTIONS] TEXT MODEL_PATH LABEL_BINARIZER_PATH
-                             APPROACH
+Usage: grants_tagger predict [OPTIONS] TEXT MODEL_PATH APPROACH
 
 Arguments:
   TEXT                  [required]
   MODEL_PATH            [required]
-  LABEL_BINARIZER_PATH  [required]
   APPROACH              [required]
 
 Options:
@@ -419,7 +409,6 @@ Options:
 ### ⬇️  Download
 
 This commands enables you to download mesh data from EPMC
-and pre trained models.
 
 ```
 Usage: grants_tagger download [OPTIONS] COMMAND [ARGS]...
@@ -429,12 +418,7 @@ Options:
 
 Commands:
   epmc-mesh
-  model
 ```
-
-Available models:
-
-* mesh
 
 ### 🐋 Run in a Docker container
 
@@ -508,12 +492,18 @@ competition that contains tags for approx 14M publications from PubMed.
 
 ## 🐍 Venv
 
-To create and setup the development environment
+To create and setup the base environment
 ```
 make virtualenv
 ```
-This will create a new virtualenv and install requirements for tests
-and development. It will also install grants tagger in editable mode.
+This will create a new virtualenv and install requirements for tests. It will also install grants tagger in editable mode.
+
+## 🐍 Development Venv
+
+For full development environment, install with:
+```
+make virtualenv-dev
+```
 
 If you want to add additional dependencies, add the library to
 `unpinned_requirements.txt` and run `make update-requirements`. This

@@ -7,26 +7,8 @@ import time
 import json
 
 import typer
-import dvc.api
 
 logger = logging.getLogger(__name__)
-
-try:
-    from grants_tagger.train import train_cli
-except ModuleNotFoundError as e:
-    logger.warning(
-        "Train_cli couldn't be imported, probably due to a missing dependency."
-        " See error below (you can probably still use train_slim)"
-    )
-    logger.debug(e)
-
-try:
-    from grants_tagger.train_with_sagemaker import train_with_sagemaker_cli
-except ModuleNotFoundError as e:
-    logger.warning("Sagemaker missing so training with sagemaker not working.")
-    logger.debug(e)
-
-from grants_tagger.slim import mesh_xlinear
 
 from grants_tagger.preprocess_mesh import preprocess_mesh_cli
 from grants_tagger.preprocess_wellcome import preprocess_wellcome_cli
@@ -40,9 +22,8 @@ from grants_tagger.pretrain import pretrain_cli
 from grants_tagger.tune_threshold import tune_threshold_cli
 from grants_tagger.optimise_params import tune_params_cli
 from grants_tagger.download_epmc import download_epmc_cli
-from grants_tagger.download_model import download_model_cli
+from grants_tagger.utils import import_development_dependencies
 
-from grants_tagger.utils import get_ec2_instance_type
 
 app = typer.Typer()
 
@@ -84,8 +65,12 @@ def train(
         "local", help="instance type to use when training with Sagemaker"
     ),
 ):
+    import_development_dependencies()
     start = time.time()
     if slim:
+        import dvc.api
+        from grants_tagger.slim import mesh_xlinear
+
         dvc_params = dvc.api.params_show()
 
         config = config or dvc_params.get("params.yaml:train", {}).get(
@@ -105,6 +90,8 @@ def train(
         )
 
     elif cloud:
+        from grants_tagger.train_with_sagemaker import train_with_sagemaker_cli
+
         train_with_sagemaker_cli(
             data_path=data_path,
             label_binarizer_path=label_binarizer_path,
@@ -119,6 +106,8 @@ def train(
         )
     else:
         logger.info(parameters)
+        from grants_tagger.train import train_cli
+
         train_cli(
             data_path=data_path,
             label_binarizer_path=label_binarizer_path,
@@ -131,6 +120,8 @@ def train(
             cache_path=cache_path,
             config=config,
         )
+
+    from grants_tagger.utils import get_ec2_instance_type
 
     duration = time.time() - start
     instance = get_ec2_instance_type()
@@ -164,10 +155,7 @@ app.add_typer(tune_app, name="tune")
 
 download_app = typer.Typer()
 download_app.command("epmc-mesh")(download_epmc_cli)
-download_app.command("model")(download_model_cli)
 app.add_typer(download_app, name="download")
-
-# app.command("explain")(explain_cli)
 
 
 @app.command()

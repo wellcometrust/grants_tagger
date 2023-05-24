@@ -12,7 +12,6 @@ setup(
     entry_points={"console_scripts": "grants_tagger=grants_tagger.__main__:app"},
     install_requires=[
         "scikit-learn==1.0.0",
-        "libpecos==0.3.0",
         "typer",
         "pandas",
         "numpy",
@@ -20,8 +19,13 @@ setup(
         "requests",
         "dvc",
         "wasabi",
-        "wellcomeml",
         "gensim==4.0.0",
     ],
+    extras_require={
+        "dev": [
+            "libpecos==0.3.0",
+            "wellcomeml",
+        ]
+    },
     tests_require=["pytest", "tox"],
 )

@@ -14,7 +14,7 @@ from typing import List, Optional
 from sklearn.model_selection import GridSearchCV
 
 from grants_tagger.utils import load_data
-from grants_tagger.train import create_model
+from grants_tagger.utils import import_development_dependencies
 
 
 DEFAULT_PARAMS_SEARCH = {
@@ -42,6 +42,8 @@ DEFAULT_PARAMS_SEARCH = {
 
 
 def optimise_params(data_path, label_binarizer_path, approach, params=None):
+    from grants_tagger.train import create_model
+
     with open(label_binarizer_path, "rb") as f:
         label_binarizer = pickle.load(f)
 
@@ -94,6 +96,7 @@ def tune_params_cli(
     ),
     params: Optional[str] = typer.Option(None, help=""),
 ):
+    import_development_dependencies()
     optimise_params(data_path, label_binarizer_path, approach, params=params)
 
 

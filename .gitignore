@@ -2,6 +2,7 @@
 .idea
 
 # Env
+.env
 .envrc
 
 # Models
@@ -46,6 +47,7 @@ venv/**
 
 # Logs
 logs/
+('logs',)
 
 # Notebooks
 notebooks/

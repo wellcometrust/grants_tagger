@@ -6,7 +6,12 @@ from scipy.sparse import csr_matrix
 import numpy as np
 import pytest
 
-from grants_tagger.train import train, create_label_binarizer
+try:
+    from grants_tagger.train import train, create_label_binarizer
+
+    pecos_installed = True
+except ModuleNotFoundError:
+    pecos_installed = False
 
 
 @pytest.fixture
@@ -62,6 +67,7 @@ def test_create_label_binarizer(tmp_path, data_path):
     assert isinstance(Y, np.ndarray)
 
 
+@pytest.mark.skipif(not pecos_installed, reason="Pecos not installed")
 def test_create_label_binarizer_sparse(tmp_path, data_path):
     label_binarizer_path = os.path.join(tmp_path, "label_binarizer_sparse.pkl")
 
@@ -78,6 +84,7 @@ def test_create_label_binarizer_sparse(tmp_path, data_path):
     assert isinstance(Y, csr_matrix)
 
 
+@pytest.mark.skipif(not pecos_installed, reason="Pecos not installed")
 def test_train_and_evaluate(data_path, tmp_path, label_binarizer_path):
     train(
         train_data_path=data_path,
@@ -87,6 +94,7 @@ def test_train_and_evaluate(data_path, tmp_path, label_binarizer_path):
     )
 
 
+@pytest.mark.skipif(not pecos_installed, reason="Pecos not installed")
 def test_train_pickle_save(tmp_path, data_path, label_binarizer_path):
     model_path = tmp_path
     os.makedirs(model_path, exist_ok=True)
@@ -100,6 +108,7 @@ def test_train_pickle_save(tmp_path, data_path, label_binarizer_path):
     assert os.path.exists(model_path)
 
 
+@pytest.mark.skipif(not pecos_installed, reason="Pecos not installed")
 def test_train_model_save(tmp_path, data_path, label_binarizer_path):
     model_path = tmp_path
     os.makedirs(model_path, exist_ok=True)

@@ -1,28 +1,15 @@
-pandas
-xlrd
-scikit-learn==0.23.2
-matplotlib
+# ML
+transformers
+scikit-learn
+# Data processing, sparse data
+scipy
 numpy
-wellcomeml[tensorflow,core,transformers,torch]==2.0.3
-transformers<=4.16.2
-docutils==0.15
-scipy==1.4.1
+pandas
+openpyxl
+# Travis error. Also see https://github.com/urllib3/urllib3/issues/2168
+urllib3<2.0
+# CLI, progress bar, download
 wasabi
 typer
-scispacy
-dvc[s3]>=2.25.0
 tqdm
-scikit-multilearn
-arff
-python-dateutil<2.8.1,>=2.1
-twine
-sagemaker
-seaborn
-streamlit
 requests
-openpyxl
-# https://github.com/google/pygtrie/issues/36
-pygtrie==2.3.3
-wandb
-accelerate
-pre-commit

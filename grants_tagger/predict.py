@@ -34,7 +34,9 @@ def predict_tags(
     """
 
     tokenizer = AutoTokenizer.from_pretrained("Wellcome/WellcomeBertMesh")
-    model = AutoModel.from_pretrained(model_path, trust_remote_code=True)
+    model = AutoModel.from_pretrained(
+        "Wellcome/WellcomeBertMesh", trust_remote_code=True
+    )
 
     if isinstance(X, str):
         X = [X]

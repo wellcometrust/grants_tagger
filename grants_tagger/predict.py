@@ -4,15 +4,12 @@ exposes probabilities and that you can set the threshold
 for making a prediction
 """
 from pathlib import Path
-import configparser
-import pickle
 import typer
-
-import scipy.sparse as sp
-import numpy as np
 
 from grants_tagger.models.utils import format_predictions
 from typing import Optional
+
+from transformers import AutoModel, AutoTokenizer
 
 import logging
 
@@ -35,27 +32,20 @@ def predict_tags(
     parameters: any params required upon model creation
     config: Path to config file
     """
-    from grants_tagger.models.create_model_transformer import load_model
 
-    if config:
-        # For some models, it might be necessary to see the parameters before loading it
-
-        cfg = configparser.ConfigParser(allow_no_value=True)
-        cfg.read(config)
-        parameters = cfg["model"]["parameters"]
-
-    model = load_model(model_path, parameters=parameters)
-
-    classes = model.model.id2label.values()
-
-    Y_pred_proba = model.predict_proba(X)
-    Y_pred_proba = Y_pred_proba.toarray()
-
-    tags = format_predictions(
-        Y_pred_proba, classes, threshold=threshold, probabilities=probabilities
+    tokenizer = AutoTokenizer.from_pretrained("Wellcome/WellcomeBertMesh")
+    model = AutoModel.from_pretrained(
+        "Wellcome/WellcomeBertMesh", trust_remote_code=True
     )
 
-    return tags
+    if isinstance(X, str):
+        X = [X]
+
+    inputs = tokenizer(X, padding="max_length")
+
+    labels = model(**inputs, return_labels=True)
+
+    return labels
 
 
 predict_app = typer.Typer()
@@ -68,8 +58,8 @@ def predict_cli(
     probabilities: Optional[bool] = typer.Option(False),
     threshold: Optional[float] = typer.Option(0.5),
 ):
-    tags = predict_tags([text], model_path, probabilities, threshold)
-    print(tags[0])
+    labels = predict_tags([text], model_path, probabilities, threshold)
+    print(labels)
 
 
 if __name__ == "__main__":

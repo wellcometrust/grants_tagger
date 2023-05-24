@@ -157,8 +157,6 @@ download_app = typer.Typer()
 download_app.command("epmc-mesh")(download_epmc_cli)
 app.add_typer(download_app, name="download")
 
-# app.command("explain")(explain_cli)
-
 
 @app.command()
 def visualize():

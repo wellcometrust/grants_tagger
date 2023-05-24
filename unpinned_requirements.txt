@@ -1,13 +1,16 @@
+# ML
 transformers
+scikit-learn
+torch
+# Data processing, sparse data
 scipy
+numpy
+pandas
+openpyxl
+# Travis error. Also see https://github.com/urllib3/urllib3/issues/2168
+urllib3<2.0
+# CLI, progress bar, download
 wasabi
 typer
 tqdm
 requests
-openpyxl
-torch
-numpy
-scikit-learn
-pandas
-# Travis error. Also see https://github.com/urllib3/urllib3/issues/2168
-urllib3<2.0

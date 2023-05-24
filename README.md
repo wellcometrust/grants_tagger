@@ -44,13 +44,7 @@ Alternatively you can clone this repository and manually install with
 pip install setup.py
 ```
 
-You can download the mesh pretrained model using:
-```
-grants_tagger download model mesh
-```
-Or, you can download some pretrained models from the releases section of this repository. Unzip this in the `models` folder. This will contain the mesh model and the label-binarizer.
-
-After that, you can predict a text's tag using the `predict` cli command.
+You can now predict a text's tag using the `predict` cli command.
 
 Grants tagger comes with a nice CLI with the following commands
 
@@ -64,7 +58,7 @@ Grants tagger comes with a nice CLI with the following commands
 | 🔖 predict      | predict tags given a grant abstract using a pretrained model | False |
 | 🎛 tune         | tune params and threshold                                    | True |
 | 📚 pretrain     | pretrains embeddings or language model using unlabeled data  | True |
-| ⬇️  download    | download trained models and data from EPMC                   | False |
+| ⬇️  download    | download data from EPMC                                      | False |
 | 🐋  docker      | how to run grants_tagger in a docker container               | True |
 | 🌐 visualize    | creates a streamlit app to interactively tag grants          | False |
 
@@ -415,7 +409,6 @@ Options:
 ### ⬇️  Download
 
 This commands enables you to download mesh data from EPMC
-and pre trained models.
 
 ```
 Usage: grants_tagger download [OPTIONS] COMMAND [ARGS]...
@@ -426,10 +419,6 @@ Options:
 Commands:
   epmc-mesh
 ```
-
-Available models:
-
-* mesh
 
 ### 🐋 Run in a Docker container
 

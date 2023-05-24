@@ -1,11 +1,15 @@
-tensorflow-addons==0.17.1
-wellcomeml[tensorflow,core,transformers,torch]==2.0.3
+# Experiment tracking, distributed training, and cloud training
 wandb
 accelerate
 sagemaker
+# Prior models
+wellcomeml[tensorflow,core,transformers,torch]==2.0.3
+tensorflow-addons==0.17.1
 libpecos==0.3.0
+# Tests
 codecov
 pytest-cov
 pytest
 tox
+# Linting
 pre-commit

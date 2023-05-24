@@ -33,7 +33,7 @@ def predict_tags(
     config: Path to config file
     """
 
-    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    tokenizer = AutoTokenizer.from_pretrained("Wellcome/WellcomeBertMesh")
     model = AutoModel.from_pretrained(model_path, trust_remote_code=True)
 
     if isinstance(X, str):

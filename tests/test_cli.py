@@ -122,12 +122,6 @@ def read_pickle(path):
     return obj
 
 
-def save_transformer_model_to_path(save_path):
-    model = create_model()
-    model.load("Wellcome/WellcomeBertMesh")
-    model.save(save_path)
-
-
 def create_label_binarizer(label_binarizer_path, data, sparse_labels=False):
     model = create_model()
     model.load("Wellcome/WellcomeBertMesh")
@@ -218,24 +212,21 @@ def test_pretrain_command():
 
 @pytest.mark.inference_time
 def test_predict_command():
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        model_path = os.path.join(tmp_dir)
-        save_transformer_model_to_path(model_path)
+    model_path = "Wellcome/WellcomeBertMesh"
 
-        text = "malaria"
-        result = runner.invoke(app, ["predict", text, model_path])
-        print(result)
-        assert result.exit_code == 0
+    text = "malaria"
+    result = runner.invoke(app, ["predict", text, model_path])
+    print(result)
+    assert result.exit_code == 0
 
 
 def test_evaluate_model_command():
     with tempfile.TemporaryDirectory() as tmp_dir:
-        model_path = os.path.join(tmp_dir)
+        model_path = "Wellcome/WellcomeBertMesh"
         data_path = os.path.join(tmp_dir, "data.jsonl")
         label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
 
         create_label_binarizer(label_binarizer_path, MESH_DATA, sparse_labels=True)
-        save_transformer_model_to_path(model_path)
         write_jsonl(data_path, MESH_DATA)
 
         result = runner.invoke(
@@ -317,7 +308,6 @@ def test_tune_threshold_command():
 
         write_jsonl(data_path, MESH_DATA)
         create_label_binarizer(label_binarizer_path, MESH_DATA, sparse_labels=True)
-        save_transformer_model_to_path(model_path)
 
         # result = runner.invoke(
         #     app,

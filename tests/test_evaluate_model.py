@@ -74,14 +74,8 @@ def results_path(tmp_path):
 
 
 @pytest.fixture
-def model_path(tmp_path):
-    model = create_model()
-    model.load("Wellcome/WellcomeBertMesh")
-
-    model_path = os.path.join(tmp_path)
-    model.save(model_path)
-
-    return model_path
+def model_path():
+    return "Wellcome/WellcomeBertMesh"
 
 
 def test_evaluate_model(results_path, data_path, label_binarizer_path, model_path):

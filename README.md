@@ -232,9 +232,6 @@ Options:
   --split-data / --no-split-data  flag on whether to split data in same way as
                                   was done in train  [default: True]
 
-  --parameters TEXT               stringified parameters for model evaluation,
-                                  if any
-
   --config PATH                   path to config file that defines arguments
   --help                          Show this message and exit.
 ```

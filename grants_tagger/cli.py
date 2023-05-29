@@ -17,7 +17,6 @@ from grants_tagger.evaluate_human import evaluate_human_cli
 from grants_tagger.evaluate_mesh_on_grants import evaluate_mesh_on_grants_cli
 from grants_tagger.evaluate_model import evaluate_model_cli
 from grants_tagger.evaluate_mti import evaluate_mti_cli
-from grants_tagger.evaluate_pubs import evaluate_pubs_cli
 from grants_tagger.evaluate_scispacy_meshtagger import evaluate_scispacy_cli
 from grants_tagger.pretrain import pretrain_cli
 from grants_tagger.tune_threshold import tune_threshold_cli
@@ -141,7 +140,6 @@ app.command("predict")(predict_cli)
 
 evaluate_app = typer.Typer()
 evaluate_app.command("grants")(evaluate_mesh_on_grants_cli)
-evaluate_app.command("pubs")(evaluate_pubs_cli)
 evaluate_app.command("model")(evaluate_model_cli)
 evaluate_app.command("mti")(evaluate_mti_cli)
 evaluate_app.command("human")(evaluate_human_cli)

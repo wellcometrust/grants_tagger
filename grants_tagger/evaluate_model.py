@@ -1,7 +1,6 @@
 """
 Evaluate model performance on test set
 """
-import pickle
 import json
 import configparser
 import typer
@@ -10,6 +9,7 @@ from typing import List, Optional
 from pathlib import Path
 from sklearn.metrics import precision_recall_fscore_support, classification_report
 from wasabi import table, row
+from sklearn.preprocessing import MultiLabelBinarizer
 import scipy.sparse as sp
 
 from grants_tagger.utils import load_train_test_data, load_data
@@ -30,18 +30,17 @@ def predict_sparse_probs(model, X_test, batch_size=256, cutoff_prob=0.01):
 def evaluate_model(
     model_path,
     data_path,
-    label_binarizer_path,
     threshold,
     split_data=True,
     results_path=None,
     full_report_path=None,
-    sparse_y=False,
-    parameters=None,
 ):
     from grants_tagger.models.create_model_transformer import load_model
 
-    with open(label_binarizer_path, "rb") as f:
-        label_binarizer = pickle.loads(f.read())
+    model = load_model(model_path)
+
+    label_binarizer = MultiLabelBinarizer()
+    label_binarizer.fit([list(model.model.id2label.values())])
 
     if split_data:
         print(
@@ -52,15 +51,7 @@ def evaluate_model(
     else:
         X_test, Y_test, _ = load_data(data_path, label_binarizer)
 
-    # Some models (e.g. MeshXLinear) need to know the parameters beforehand, to know which
-    # Load function to use
-
-    model = load_model(model_path, parameters=parameters)
-
-    if sparse_y:
-        predict_sparse_probs(model, X_test)
-    else:
-        Y_pred_proba = model.predict_proba(X_test)
+    Y_pred_proba = model.predict_proba(X_test)
 
     if type(threshold) != list:
         threshold = [threshold]
@@ -123,7 +114,6 @@ def evaluate_model_cli(
     data_path: Path = typer.Argument(
         ..., help="path to data that was used for training"
     ),
-    label_binarizer_path: Path = typer.Argument(..., help="path to label binarize"),
     threshold: Optional[str] = typer.Option(
         "0.5", help="threshold or comma separated thresholds used to assign tags"
     ),
@@ -143,15 +133,12 @@ def evaluate_model_cli(
         None, help="path to config file that defines arguments"
     ),
 ):
-    import_development_dependencies()
-
     if config:
         cfg = configparser.ConfigParser(allow_no_value=True)
         cfg.read(config)
         if "ensemble" in cfg:
             model_path = cfg["ensemble"]["models"]
             data_path = cfg["ensemble"]["data"]
-            label_binarizer_path = cfg["ensemble"]["label_binarizer"]
             threshold = cfg["ensemble"]["threshold"]
             split_data = cfg["ensemble"]["split_data"]  # needs convert to bool
             results_path = cfg["ensemble"].get("results_path", "results.json")
@@ -166,12 +153,10 @@ def evaluate_model_cli(
     evaluate_model(
         model_path,
         data_path,
-        label_binarizer_path,
         threshold,
         split_data,
         results_path=results_path,
         full_report_path=full_report_path,
-        parameters=parameters,
     )
 
 

@@ -139,8 +139,6 @@ def evaluate_model_cli(
             threshold = cfg["ensemble"]["threshold"]
             split_data = cfg["ensemble"]["split_data"]  # needs convert to bool
             results_path = cfg["ensemble"].get("results_path", "results.json")
-        else:  # I only need to get model parameters which are necessary for loading/predicting
-            parameters = cfg["model"]["parameters"]
 
     if "," in threshold:
         threshold = [float(t) for t in threshold.split(",")]

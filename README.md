@@ -278,6 +278,22 @@ Options:
   --help  Show this message and exit.
 ```
 
+#### Pubs
+
+This function evaluates the performance of the pre-trained `WellcomeBertMesh` model on a dataset of scientific publications. The model is fine-tuned to predict the MeSH terms associated with each publication's abstract. The function generates a classification report that summarizes the model's performance.
+
+```
+Usage: grants_tagger evaluate pubs [OPTIONS] DATA_PATH
+
+Arguments:
+  DATA_PATH  Path to data  [required]
+
+Options:
+  --threshold FLOAT     Threshold for classification  [default: 0.5]
+  --batch-size INTEGER  Batch size  [default: 4]
+  --device TEXT         Device to run on. CPU or CUDA  [default: cpu]
+```
+
 #### SciSpacy
 
 SciSpacy is a tool developed by AllenAI that identifies mainly entities in

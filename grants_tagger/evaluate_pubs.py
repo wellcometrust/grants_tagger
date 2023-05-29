@@ -1,17 +1,24 @@
 import json
+import typer
 import torch
 
-from argparse import ArgumentParser
 from transformers import AutoModel, AutoTokenizer
 from tqdm import tqdm
 from sklearn.metrics import classification_report
 from sklearn.preprocessing import MultiLabelBinarizer
+from rich import print
+
+evaluate_pubs_app = typer.Typer()
 
 
 @torch.no_grad()
 def evaluate_pubs(
     data_path: str, threshold: float = 0.5, batch_size: int = 4, device: str = "cpu"
 ):
+    if not torch.cuda.is_available() and device == "cuda":
+        print("[bold red]CUDA is not available, using CPU")
+        device = "cpu"
+
     with open(data_path, "r") as f:
         data = json.load(f)
 
@@ -106,12 +113,15 @@ def evaluate_pubs(
     print(json.dumps(report, indent=4))
 
 
-if __name__ == "__main__":
-    parser = ArgumentParser()
-    parser.add_argument("--data-path", type=str, help="Path to data")
-    parser.add_argument("--batch-size", type=int, default=4)
-    parser.add_argument("--device", type=str, default="cpu")
-    parser.add_argument("--threshold", type=float, default=0.5)
-    args = parser.parse_args()
+@evaluate_pubs_app.command()
+def evaluate_pubs_cli(
+    data_path: str = typer.Argument(..., help="Path to data"),
+    threshold: float = typer.Option(0.5, help="Threshold for classification"),
+    batch_size: int = typer.Option(4, help="Batch size"),
+    device: str = typer.Option("cpu", help="Device to run on. CPU or CUDA"),
+):
+    evaluate_pubs(data_path, threshold, batch_size, device)
 
-    evaluate_pubs(args.data_path, batch_size=args.batch_size, device=args.device)
+
+if __name__ == "__main__":
+    evaluate_pubs_app()

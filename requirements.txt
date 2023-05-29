@@ -35,3 +35,4 @@ typing_extensions==4.6.1
 tzdata==2023.3
 urllib3==1.26.16
 wasabi==1.1.1
+rich==13.3.5

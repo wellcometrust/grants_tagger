@@ -1,15 +1,10 @@
 import json
-import os
 import torch
-import numpy as np
-import scipy
-import math
-import typer
 
 from argparse import ArgumentParser
 from transformers import AutoModel, AutoTokenizer
 from tqdm import tqdm
-from sklearn.metrics import classification_report, precision_recall_fscore_support
+from sklearn.metrics import classification_report
 from sklearn.preprocessing import MultiLabelBinarizer
 
 
@@ -43,14 +38,21 @@ def evaluate_pubs(
     # Generate Y_true
     Y_true = []
 
-    ignored_tags = []
+    num_ignored_tags = 0
 
     for pub in data:
         id_list = []
         for label in pub["mesh_terms"]:
+            if "/" in label:
+                label = label.split("/", 1)[0]
+
+            if label.endswith("*"):
+                label = label[:-1]
+
             if label not in label2id:
-                ignored_tags.append(label)
+                num_ignored_tags += 1
                 continue
+
             id_list.append(label2id[label])
         Y_true.append(id_list)
 

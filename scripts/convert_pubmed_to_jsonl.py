@@ -5,6 +5,7 @@ import argparse
 def main(data_path: str, output_path: str):
     """
     Converts a JSON file containing PubMed abstracts and MeSH terms to a JSONL file with a specific format.
+    The PubMed publications come from the Wellcome store.
 
     The input JSON file should be a list of dictionaries, where each dictionary represents a PubMed abstract and has the following keys:
     - "title": a string representing the title of the abstract

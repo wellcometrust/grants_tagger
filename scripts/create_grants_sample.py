@@ -12,8 +12,22 @@ def create_grants_sample(
     s3_url: str,
     num_parquet_files_to_consider: int,
     num_samples_per_cat: int,
-    output_file: str = None,
+    output_file: str = "grants_sample.json",
 ):
+    """
+    Reads a specified number of parquet files from an S3 bucket and performs stratified sampling based on the
+    'for_first_level_name' column. Writes the sampled data to disk.
+
+    Args:
+        s3_url (str): The S3 URL of the bucket containing the parquet files.
+        num_parquet_files_to_consider (int): The number of parquet files to consider for sampling.
+        num_samples_per_cat (int): The number of samples to take per category.
+        output_file (str, optional): The name of the output file to write the sampled data to. Defaults to 'grants_sample.json'.
+
+    Returns:
+        None.
+    """
+
     parquet_files = wr.s3.list_objects(s3_url)
     random.shuffle(parquet_files)
 

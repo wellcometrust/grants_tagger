@@ -214,27 +214,23 @@ not made into production this is the way to evaluate. The plan is to extend
 evaluate to all models when train starts training explicit model approaches.
 
 ```
-Usage: grants_tagger evaluate model [OPTIONS] APPROACH MODEL_PATH DATA_PATH
-                                    LABEL_BINARIZER_PATH
+Usage: grants_tagger evaluate model [OPTIONS] MODEL_PATH DATA_PATH
 
 Arguments:
-  APPROACH              model approach e.g.mesh-cnn  [required]
-  MODEL_PATH            comma separated paths to pretrained models  [required]
-  DATA_PATH             path to data that was used for training  [required]
-  LABEL_BINARIZER_PATH  path to label binarize  [required]
+  MODEL_PATH  comma separated paths to pretrained models  [required]
+  DATA_PATH   path to data that was used for training  [required]
 
 Options:
   --threshold TEXT                threshold or comma separated thresholds used
                                   to assign tags  [default: 0.5]
 
   --results-path TEXT             path to save results
-  --mesh-tags-path TEXT           path to mesh subset to evaluate
+  --full-report-path TEXT         Path to save full report, i.e. more
+                                  comprehensive results than the ones saved in
+                                  results_path
+
   --split-data / --no-split-data  flag on whether to split data in same way as
                                   was done in train  [default: True]
-
-  --grants / --no-grants          flag on whether the data is grants data
-                                  instead of publications to evaluate MeSH
-                                  [default: False]
 
   --config PATH                   path to config file that defines arguments
   --help                          Show this message and exit.

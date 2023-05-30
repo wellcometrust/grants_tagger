@@ -13,3 +13,4 @@ wasabi
 typer
 tqdm
 requests
+rich

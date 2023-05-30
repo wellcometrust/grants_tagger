@@ -1,9 +1,6 @@
 import json
 import argparse
 
-# Read json file, list of dictionaries
-# and transforms it to jsonl
-
 
 def main(data_path: str, output_path: str):
     """

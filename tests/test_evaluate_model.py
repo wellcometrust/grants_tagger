@@ -78,14 +78,12 @@ def model_path():
     return "Wellcome/WellcomeBertMesh"
 
 
-def test_evaluate_model(results_path, data_path, label_binarizer_path, model_path):
+def test_evaluate_model(results_path, data_path, model_path):
     evaluate_model(
         model_path,
         data_path,
-        label_binarizer_path,
         0.5,
         results_path=results_path,
-        sparse_y=False,
     )
 
     with open(results_path) as f:
@@ -105,9 +103,7 @@ def test_evaluate_model_multiple_thresholds(
     evaluate_model(
         model_path,
         data_path,
-        label_binarizer_path,
         [0, 1, 0.5, 0.9],
-        sparse_y=False,
         results_path=results_path,
     )
 

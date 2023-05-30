@@ -214,9 +214,6 @@ def test_evaluate_model_command():
     with tempfile.TemporaryDirectory() as tmp_dir:
         model_path = "Wellcome/WellcomeBertMesh"
         data_path = os.path.join(tmp_dir, "data.jsonl")
-        label_binarizer_path = os.path.join(tmp_dir, "label_binarizer.pkl")
-
-        create_label_binarizer(label_binarizer_path, MESH_DATA, sparse_labels=True)
         write_jsonl(data_path, MESH_DATA)
 
         result = runner.invoke(
@@ -226,7 +223,6 @@ def test_evaluate_model_command():
                 "model",
                 model_path,
                 data_path,
-                label_binarizer_path,
             ],
         )
         assert result.exit_code == 0

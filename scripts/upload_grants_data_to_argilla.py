@@ -4,7 +4,7 @@ import argparse
 import json
 
 
-def upload_data_to_argilla(path: str):
+def upload_data_to_argilla(path: str, project: str):
     """
     Uploads data to Argilla. The data should be in jsonl format, with each line containing a json object with the
     following fields:
@@ -37,15 +37,21 @@ def upload_data_to_argilla(path: str):
             record = rg.TextClassificationRecord(
                 text=sample["abstract"],
                 prediction=[(term, 1.0) for term in predictions],
+                prediction_agent="Wellcome/WellcomeBertMesh",
+                metadata={"for_first_level_name": sample["for_first_level_name"]},
                 multi_label=True,
             )
 
-            rg.log(record, "grants-test")
+            rg.log(
+                record,
+                project,
+            )
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", type=str, help="Path to the jsonl file")
+    parser.add_argument("--project", type=str, help="The name of the project to log to")
     args = parser.parse_args()
 
-    upload_data_to_argilla(args.path)
+    upload_data_to_argilla(args.path, args.project)

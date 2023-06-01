@@ -1,0 +1,16 @@
+schema: '2.0'
+stages:
+  generate:
+    cmd: python ../../scripts/create_grants_sample.py --s3-url s3://datalabs-data/dimensions/grants/grants
+      --num-parquet-files-to-consider 10 --num-samples-per-cat 10 --pre-annotate True
+    outs:
+    - path: grants_sample.jsonl
+      md5: b9fdc1d543c00df0533021076d378e91
+      size: 393041
+  upload:
+    cmd: python ../../scripts/upload_grants_data_to_argilla.py --path grants_sample.jsonl
+      --project grants
+    deps:
+    - path: grants_sample.jsonl
+      md5: b9fdc1d543c00df0533021076d378e91
+      size: 393041

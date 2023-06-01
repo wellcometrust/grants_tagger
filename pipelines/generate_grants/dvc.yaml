@@ -1,0 +1,13 @@
+vars:
+  - s3-url: "s3://datalabs-data/dimensions/grants/grants"
+  - scripts_location: "../../scripts"
+  - argilla_project_name: "grants"
+stages:
+  generate:
+    cmd: python ${scripts_location}/create_grants_sample.py --s3-url ${s3-url} --num-parquet-files-to-consider 10 --num-samples-per-cat 10 --pre-annotate True
+    outs:
+      - grants_sample.jsonl
+  upload:
+    cmd: python ${scripts_location}/upload_grants_data_to_argilla.py --path grants_sample.jsonl --project ${argilla_project_name}
+    deps:
+      - grants_sample.jsonl

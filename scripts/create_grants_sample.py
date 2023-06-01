@@ -3,7 +3,7 @@ import awswrangler as wr
 import argparse
 import random
 from tqdm import tqdm
-
+from grants_tagger.predict import predict_tags
 
 random.seed(42)
 
@@ -13,6 +13,7 @@ def create_grants_sample(
     num_parquet_files_to_consider: int,
     num_samples_per_cat: int,
     output_file: str = "grants_sample.json",
+    pre_annotate: bool = False,
 ):
     """
     Reads a specified number of parquet files from an S3 bucket and performs stratified sampling based on the
@@ -47,6 +48,12 @@ def create_grants_sample(
         lambda x: x.sample(min(len(x), num_samples_per_cat))
     )
 
+    if pre_annotate:
+        abstracts = df_sample["abstract"].tolist()
+
+        tags = predict_tags(abstracts, "Wellcome/WellcomeBertMesh")
+
+        df_sample["mesh_terms"] = tags
     if output_file:
         df_sample.to_json(output_file, orient="records", lines=True)
 
@@ -56,7 +63,8 @@ if __name__ == "__main__":
     parser.add_argument("--s3-url", type=str)
     parser.add_argument("--num-parquet-files-to-consider", type=int, default=10)
     parser.add_argument("--num-samples-per-cat", type=int, default=10)
-    parser.add_argument("--output-file", type=str, default="grants_sample.json")
+    parser.add_argument("--output-file", type=str, default="grants_sample.jsonl")
+    parser.add_argument("--pre-annotate", type=bool, default=False)
     args = parser.parse_args()
 
     create_grants_sample(
@@ -64,4 +72,5 @@ if __name__ == "__main__":
         args.num_parquet_files_to_consider,
         args.num_samples_per_cat,
         args.output_file,
+        args.pre_annotate,
     )

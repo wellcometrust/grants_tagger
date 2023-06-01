@@ -8,6 +8,7 @@ import typer
 
 from grants_tagger.models.utils import format_predictions
 from typing import Optional
+from tqdm import tqdm
 
 from transformers import AutoModel, AutoTokenizer
 
@@ -19,6 +20,7 @@ logger = logging.getLogger(__name__)
 def predict_tags(
     X,
     model_path,
+    batch_size: int = 1,
     probabilities=False,
     threshold=0.5,
     parameters=None,
@@ -41,9 +43,22 @@ def predict_tags(
     if isinstance(X, str):
         X = [X]
 
-    inputs = tokenizer(X, padding="max_length")
+    inputs = tokenizer(X, padding="max_length", max_length=512, truncation=True)
 
-    labels = model(**inputs, return_labels=True)
+    # Do prediction in batches
+    num_batches = len(X) // batch_size + 1
+    labels = []
+
+    for idx in tqdm(range(num_batches)):
+        batch = {
+            k: v[idx * batch_size : (idx + 1) * batch_size] for k, v in inputs.items()
+        }
+
+        if batch["input_ids"] == []:
+            continue
+
+        batch_labels = model(**batch, return_labels=True)
+        labels.extend(batch_labels)
 
     return labels
 
@@ -55,10 +70,11 @@ predict_app = typer.Typer()
 def predict_cli(
     text: str,
     model_path: Path,
+    batch_size: Optional[int] = typer.Option(1),
     probabilities: Optional[bool] = typer.Option(False),
     threshold: Optional[float] = typer.Option(0.5),
 ):
-    labels = predict_tags([text], model_path, probabilities, threshold)
+    labels = predict_tags([text], model_path, batch_size, probabilities, threshold)
     print(labels)
 
 

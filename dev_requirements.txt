@@ -144,7 +144,7 @@ typeguard==2.13.3
 typer==0.9.0
 typing-extensions==3.7.4.3
 umap-learn==0.5.3
-urllib3==1.26.16
+urllib3==1.26.18
 virtualenv==20.23.0
 wandb==0.15.3
 wasabi==1.1.1

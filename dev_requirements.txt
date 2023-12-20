@@ -137,7 +137,7 @@ torch==2.0.1
 tornado==6.3.2
 tox==4.5.1
 tqdm==4.65.0
-transformers==4.29.2
+transformers==4.36.0
 triton==2.0.0
 twine==4.0.2
 typeguard==2.13.3
